@@ -17,7 +17,7 @@
         @click="handleMin"
         v-else
       />
-      SaaS easieR
+      AuTool
       <!-- <img src="../../assets/icon/Frank.png" style="margin-top: 4px" /> -->
       <n-tag
         :bordered="false"

@@ -53,154 +53,6 @@
     </n-scrollbar>
   </n-list>
 
-  <n-drawer
-    v-model:show="showTaskSetup"
-    style="border-top-left-radius: 12px; border-top-right-radius: 12px"
-    :height="600"
-    placement="bottom"
-  >
-    <n-drawer-content>
-      <n-tabs type="segment" :animated="true" :default-value="defaultTaskTab">
-        <!-- Task settings -->
-        <n-tab-pane style="padding-top: 10px" name="setups" tab="Setups">
-          <n-space>
-            <n-space
-              vertical
-              :style="{
-                'padding-left': '25px',
-                'padding-bottom': '15px',
-              }"
-            >
-              <n-space :style="{ 'padding-top': '10px' }">
-                Path
-                <n-input-group>
-                  <n-input
-                    size="small"
-                    disabled
-                    :style="{ width: '280px' }"
-                    v-model:value="taskOpened.task.path"
-                  />
-                  <n-button
-                    size="small"
-                    @click="copyToClipboard(taskOpened.task.path)"
-                  >
-                    <n-icon size="20">
-                      <Copy />
-                    </n-icon>
-                  </n-button>
-                </n-input-group>
-              </n-space>
-
-              <n-space :style="{ 'padding-top': '10px' }">
-                Time
-                <n-input
-                  size="small"
-                  placeholder="Mon,Wed *-1...11-* 08:00 UTC"
-                  :style="{ width: '280px' }"
-                  v-model:value="taskOpened.task.startTime"
-                />
-              </n-space>
-
-              <n-space
-                vertical
-                v-show="taskOpened.task.inputs.length > 0"
-                :style="{ 'padding-top': '10px' }"
-              >
-                <n-card
-                  title="Inputs"
-                  size="small"
-                  hoverable
-                  :style="{ 'margin-top': '3px' }"
-                >
-                  <template #header-extra>
-                    <n-icon size="22" ghost>
-                      <Help />
-                    </n-icon>
-                  </template>
-                  <n-space vertical>
-                    <n-space
-                      v-for="kv in taskOpened.task.inputs"
-                      :key="kv.key"
-                      justify="space-between"
-                    >
-                      ${{ kv.key }}
-                      <p>=</p>
-                      <n-input
-                        size="small"
-                        :style="{ width: '100%' }"
-                        v-model:value="kv.value"
-                      />
-                    </n-space>
-                  </n-space>
-                </n-card>
-              </n-space>
-
-              <n-space justify="end" :style="{ padding: '10px' }">
-                <n-checkbox-group v-model:value="taskOpened.task.options">
-                  <n-checkbox value="autostart"> autostart </n-checkbox>
-                  <n-checkbox value="remote"> remote </n-checkbox>
-                </n-checkbox-group>
-              </n-space>
-
-              <n-space style="display: flex; justify-content: flex-end">
-                <n-button
-                  round
-                  secondary
-                  size="small"
-                  type="primary"
-                  @click="runTask(taskOpened.task)"
-                >
-                  Run
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-space>
-        </n-tab-pane>
-
-        <n-tab-pane style="padding-bottom: 6px" name="usage" tab="Usage">
-          <n-tabs
-            default-value="demo"
-            justify-content="space-evenly"
-            type="line"
-          >
-            <n-tab-pane name="demo" tab="Demo">
-              <img
-                :style="{ width: '100%' }"
-                src="https://i0.wp.com/www.printmag.com/wp-content/uploads/2021/02/4cbe8d_f1ed2800a49649848102c68fc5a66e53mv2.gif?fit=476%2C280&ssl=1"
-                alt=""
-              />
-            </n-tab-pane>
-            <n-tab-pane name="tips" tab="Tips">
-              <n-scrollbar style="max-height: 500px">
-                <n-space vertical>
-                  <n-space
-                    vertical
-                    :style="{ 'padding-top': '0px' }"
-                    v-if="taskOpened.task.desc.length > 0"
-                  >
-                    <n-list
-                      clickable
-                      hoverable
-                      :style="{ 'padding-left': '10px' }"
-                    >
-                      <n-list-item
-                        v-for="(point, index) in taskOpened.task.desc"
-                      >
-                        <n-tag :bordered="false" type="info">
-                          {{ index + 1 }}
-                        </n-tag>
-                        {{ point }}
-                      </n-list-item>
-                    </n-list>
-                  </n-space>
-                </n-space>
-              </n-scrollbar>
-            </n-tab-pane>
-          </n-tabs>
-        </n-tab-pane>
-      </n-tabs>
-    </n-drawer-content>
-  </n-drawer>
 </template>
 
 <script>
@@ -244,7 +96,7 @@ import {
   Trash,
   Pencil,
   FileSearch,
-  Help,
+  Star,
   PlaylistAdd,
   Copy,
   CloudUpload,
@@ -288,7 +140,7 @@ export default {
     PlayerPlay,
     Trash,
     Pencil,
-    Help,
+    Star,
     PlaylistAdd,
     FileSearch,
     Copy,
@@ -306,10 +158,6 @@ export default {
   setup(props, { emit }) {
     const message = useMessage();
 
-    // Code editor view
-    const defaultTaskTab = ref("setups");
-    const showTaskSetup = ref(false);
-
     const taskOpened = ref({
       task: {
         name: "",
@@ -321,13 +169,6 @@ export default {
       },
     });
 
-    const showTaskEditor = (row) => {
-      console.log(row);
-      defaultTaskTab.value = "setups";
-      showTaskSetup.value = !showTaskSetup.value;
-      taskOpened.value.task = row;
-    };
-
     const runTask = (task) => {
       // TODO: update tasks in appMain
       message.success(`Task "${task.relTaskPath}" started`);
@@ -338,10 +179,6 @@ export default {
       ipcRenderer.send("save-task", JSON.stringify(taskOpened.value.task));
       message.success("Task Saved");
     };
-
-    ipcRenderer.on("close-task-pane-editor", () => {
-      showTaskSetup.value = false;
-    });
 
     const openEditor = (target, row) => {
       const appOrTask = { type: target, ...row };
@@ -383,13 +220,14 @@ export default {
               {
                 size: 20,
                 style: { "padding-right": "3px" },
-                onClick: () => showTaskEditor(row),
+                onClick: () => {}
               },
               {
                 default: () =>
-                  h(Help, {
+                  h(Star, {
                     style: {
                       "margin-bottom": "-4px",
+                      color: "#FAD02C",
                     },
                   }),
               }
@@ -493,14 +331,12 @@ export default {
     };
 
     return {
-      showTaskSetup,
       columns,
       activeAppIndex,
       checkedTaskKeys,
       showAppTaskList,
       enqueueTasks,
       selectOptions,
-      defaultTaskTab,
       handleSelectAction,
       openEditor,
       copyToClipboard,

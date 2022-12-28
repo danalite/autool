@@ -17,7 +17,7 @@ module.exports = defineConfig({
         copyright: "Copyright © 2022 hecmay",
         extraResources: [
           {from:'./resources',to:'./resources'},
-          {from: './dist/app', to: './pyapp'}],
+          {from: './dist/app', to: './backend'}],
         directories: {
             output: "release/"
         },

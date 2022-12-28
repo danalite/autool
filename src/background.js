@@ -48,7 +48,7 @@ let taskEditorWindow;
 
 // Backend PyWebsocket server
 let subPy = null;
-const PY_SRC_FOLDER = "../pyapp"
+const PY_SRC_FOLDER = "../backend"
 const PY_MODULE = "app.py"
 
 // IO hook event tracing
@@ -251,7 +251,6 @@ const taskEditorIpc = async () => {
           ...data,
           'content': taskCode,
         })
-        mainWindow.webContents.send('close-task-pane-editor')
 
       } else {
         let tasks = data.tasks.map((e) => {
@@ -523,7 +522,7 @@ const uIOEventMonitor = async (hotkeyTable) => {
 
   // Mouse up and down at same location
   uIOhook.on('click', (e) => {
-    console.log("@@ click", e)
+    // console.log("@@ click", e)
     if (macroRecordCsr["started"] && macroRecordCsr["track"].includes("click")) {
       trackTime()
 

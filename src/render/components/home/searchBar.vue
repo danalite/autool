@@ -1,7 +1,7 @@
 <template>
   <n-space justify="center">
     <n-input-group>
-      <n-input :style="{ width: '100%' }" placeholder="Find tasks of interests"/>
+      <n-input :style="{ width: '100%' }" placeholder="Search Tasks"/>
       <n-button type="primary" ghost> Search </n-button>
       <n-button type="primary" @click="openTaskEditor">
         <n-icon size="20">
