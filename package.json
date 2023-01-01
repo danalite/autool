@@ -1,9 +1,9 @@
 {
-  "name": "aba",
+  "name": "AuTool",
   "license": "MIT",
   "private": true,
   "version": "0.0.1",
-  "author": "hecmay",
+  "author": "Danalite",
   "main": "background.js",
   "description": "A SaaS integration and RPA tool",
   "scripts": {
@@ -25,16 +25,12 @@
     "postuninstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "@codemirror/language": "^6.3.0",
-    "@codemirror/legacy-modes": "^6.2.0",
     "active-win": "^7.7.2",
-    "codemirror": "^6.0.1",
     "core-js": "^3.8.3",
     "electron-builder": "^23.0.2",
     "js-yaml": "^4.1.0",
     "uiohook-napi": "^1.4.0",
     "vue": "^3.2.13",
-    "vue-codemirror": "^6.1.1",
     "vue-router": "^4.0.3"
   },
   "devDependencies": {

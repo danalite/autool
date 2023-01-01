@@ -231,7 +231,7 @@ ipcRenderer.on("run-task-from-main", (event, data) => {
           },
         },
         {
-          default: () => "Stop!",
+          default: () => h("span", { style: { color: "#FF2E2E" } }, "Stop"),
         }
       ),
     onAfterEnter: () => {

@@ -2,7 +2,7 @@ import json
 import asyncio
 import random
 import websockets
-from libauto import new_task_sch
+from libauto import new_task_sch, download
 
 # Manage application states
 conns = dict()
@@ -61,12 +61,21 @@ async def wssRegister(websocket):
     data = event["value"]
     worker = data["worker"]
 
-    # Register wss connection
-    conns[worker] = {
-        "ws": websocket,
-    }
     if worker == "Main":
+        # Register wss connection
+        conns[worker] = {
+            "ws": websocket,
+        }
         await loopMain(websocket)
+
+    elif worker == "DownloadWorker":
+        try:
+            download(data["url"])
+            await websocket.send(json.dumps({"type": "DownloadWorker", "value": "Done"}))
+        except Exception as e:
+            print("www")
+            await websocket.send(json.dumps({"type": "DownloadWorker", "value": "Error"}))
+        await websocket.close()
 
 
 async def main():

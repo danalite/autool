@@ -1,62 +1,105 @@
 <template>
-  <n-list hoverable>
+  <n-list :show-divider="false">
     <n-scrollbar style="max-height: 430px">
-      <n-list-item v-for="(app, index) in apps" @click="showAppTaskList(index)">
-        <n-space justify="space-between">
-          <n-space>
-            <n-avatar
-              style="
-                margin-right: 0px;
-                border-radius: 2px;
-                background-color: #ffffff;
-              "
-              :bordered="false"
-              :size="35"
-              :src="app.icon"
-            />
-            <n-button
-              secondary
-              size="medium"
-              type="success"
-              round
-              :bordered="false"
-              @click="openEditor('app', app)"
-            >
-              {{ app.author }}/{{ app.app }}
-            </n-button>
-          </n-space>
+      <n-list-item
+        v-for="(app, index) in apps"
+        style="padding-top: 8px; padding-bottom: 0px"
+      >
+        <n-card bordered hoverable size="small" style="padding: 0px">
+          <n-space vertical style="gap: 0px 0px">
+            <n-space justify="space-between">
+              <n-space>
+                <n-avatar
+                  style="
+                    margin-right: 0px;
+                    border-radius: 2px;
+                    background-color: #ffffff;
+                  "
+                  :bordered="false"
+                  :size="25"
+                  :src="app.icon"
+                />
+                <n-button
+                  ghost
+                  size="small"
+                  type="primary"
+                  @click="showAppTaskList(index)"
+                  :bordered="false"
+                >
+                  {{ app.author }}/{{ app.app }}
+                </n-button>
+              </n-space>
 
-          <!-- action buttons: enqueue, run, delete, import -->
-          <n-space class="rightCorner" v-if="activeAppIndex === index">
-            <n-dropdown
-              :options="selectOptions"
-              @select="handleSelectAction($event, app)"
-            >
-              <n-icon size="22">
-                <PlaylistAdd />
-              </n-icon>
-            </n-dropdown>
-          </n-space>
-        </n-space>
+              <n-space v-if="activeAppIndex === index">
+                <n-dropdown
+                  :options="bulkTaskOptions"
+                  @select="handleAppAction($event, app)"
+                >
+                  <n-icon size="25">
+                    <PlaylistAdd />
+                  </n-icon>
+                </n-dropdown>
+              </n-space>
+            </n-space>
 
-        <transition name="fade">
-          <div v-show="activeAppIndex === index" style="padding-top: 8px">
-            <n-data-table
-              v-model:checked-row-keys="checkedTaskKeys"
-              :columns="columns"
-              :data="app.tasks"
-              :pagination="{ pageSize: 3 }"
-            />
-          </div>
-        </transition>
+            <n-collapse-transition :show="activeAppIndex === index">
+              <n-list>
+                <n-list-item
+                  v-for="(task, taskIndex) in app.tasks"
+                  style="padding-top: 7px; padding-bottom: 7px"
+                  @contextmenu="handleContextMenu($event, task.absTaskPath)"
+                  :key="taskIndex"
+                  :title="task.absTaskPath"
+                >
+                  <n-space>
+                    <n-checkbox
+                      style="padding-left: 6px;"
+                      @click.stop
+                      @update:checked="handleTaskChecked(taskIndex, $event)"
+                    />
+
+                    <n-space style="padding-top: 2px">
+                      <n-button :text="true" size="small" @click="">
+                        <n-icon size="18" depth="3" style="padding-right: 3px">
+                          <Box />
+                        </n-icon>
+                        <n-text>{{ task.relTaskPath }}</n-text>
+                      </n-button>
+
+                      <n-space>
+                        <n-icon
+                          size="18"
+                          color="#0e7a0d"
+                          depth="2"
+                          style="padding-right: 3px"
+                        >
+                          <BrandAndroid />
+                        </n-icon>
+                      </n-space>
+                    </n-space>
+                  </n-space>
+                </n-list-item>
+              </n-list>
+              <n-dropdown
+                placement="bottom-start"
+                trigger="manual"
+                :x="x"
+                :y="y"
+                :options="taskItemOptions"
+                :show="showDropdown"
+                :on-clickoutside="onClickOutside"
+                @select="handleTaskAction"
+              />
+            </n-collapse-transition>
+          </n-space>
+        </n-card>
       </n-list-item>
     </n-scrollbar>
   </n-list>
-
 </template>
 
 <script>
-import { h, ref } from "vue";
+import { h, ref, nextTick } from "vue";
 import {
   NCard,
   NAvatar,
@@ -64,27 +107,24 @@ import {
   NSpace,
   NTag,
   NGrid,
-  NDrawer,
   NCheckbox,
   NCheckboxGroup,
   NDropdown,
-  NDrawerContent,
   NList,
   NListItem,
   NText,
   NScrollbar,
-  NDataTable,
-  NDatePicker,
   NButton,
   useMessage,
   NTabs,
   NTabPane,
-  NRate,
   NIcon,
   NForm,
   NFormItem,
   NFormItemGi,
   NInput,
+  NSwitch,
+  NCollapseTransition,
   NInputGroup,
   NEllipsis,
   NCollapse,
@@ -93,13 +133,16 @@ import {
 
 import {
   PlayerPlay,
+  BrandAndroid,
   Trash,
   Pencil,
   FileSearch,
+  Box,
   Star,
   PlaylistAdd,
   Copy,
   CloudUpload,
+  FileReport,
   WorldDownload,
 } from "@vicons/tabler";
 
@@ -114,22 +157,19 @@ export default {
     NSpace,
     NTag,
     NGrid,
-    NDrawer,
+    NSwitch,
+    NCollapseTransition,
     NDropdown,
-    NDatePicker,
-    NDrawerContent,
     NList,
     NListItem,
     NScrollbar,
     NText,
-    NDataTable,
     NButton,
     useMessage,
     NCheckbox,
     NCheckboxGroup,
     NTabs,
     NTabPane,
-    NRate,
     NIcon,
     NForm,
     NFormItem,
@@ -138,13 +178,16 @@ export default {
     NInputGroup,
     NEllipsis,
     PlayerPlay,
+    BrandAndroid,
     Trash,
     Pencil,
     Star,
     PlaylistAdd,
     FileSearch,
+    Box,
     Copy,
     CloudUpload,
+    FileReport,
     NCollapse,
     NCollapseItem,
     WorldDownload,
@@ -158,31 +201,20 @@ export default {
   setup(props, { emit }) {
     const message = useMessage();
 
-    const taskOpened = ref({
-      task: {
-        name: "",
-        path: "",
-        inputs: [],
-        demo: "",
-        desc: [],
-        options: [],
-      },
-    });
-
     const runTask = (task) => {
       // TODO: update tasks in appMain
       message.success(`Task "${task.relTaskPath}" started`);
       emit("runTask", task);
     };
 
-    const saveTask = () => {
-      ipcRenderer.send("save-task", JSON.stringify(taskOpened.value.task));
-      message.success("Task Saved");
-    };
-
-    const openEditor = (target, row) => {
-      const appOrTask = { type: target, ...row };
-      ipcRenderer.send("show-editor-window", JSON.stringify(appOrTask));
+    const handleTaskChecked = (taskIndex, event) => {
+      if (event) {
+        checkedTaskKeys.value.push(taskIndex);
+      } else {
+        checkedTaskKeys.value = checkedTaskKeys.value.filter(
+          (key) => key !== taskIndex
+        );
+      }
     };
 
     const copyToClipboard = (text) => {
@@ -190,78 +222,17 @@ export default {
       message.success(`Copied ${text} to clipboard`);
     };
 
-    // Columns for each task in the app drop list
-    const columns = [
-      { type: "selection" },
-      {
-        title: "Task",
-        key: "relTaskPath",
-        // sorter: "default",
-        width: 210,
-        render(row) {
-          return h(
-            NButton,
-            {
-              text: true,
-              onClick: () => openEditor("task", row),
-              style: "width: 120px",
-            },
-            { default: () => row.relTaskPath }
-          );
-        },
-      },
-      {
-        title: "",
-        key: "config",
-        render(row) {
-          return [
-            h(
-              NIcon,
-              {
-                size: 20,
-                style: { "padding-right": "3px" },
-                onClick: () => {}
-              },
-              {
-                default: () =>
-                  h(Star, {
-                    style: {
-                      "margin-bottom": "-4px",
-                      color: "#FAD02C",
-                    },
-                  }),
-              }
-            ),
-            h(
-              NIcon,
-              {
-                size: 20,
-                onClick: () => runTask(row),
-              },
-              {
-                default: () =>
-                  h(PlayerPlay, {
-                    style: {
-                      "margin-bottom": "-4px",
-                      color: "green",
-                    },
-                  }),
-              }
-            ),
-          ];
-        },
-      },
-    ];
-
+    const activeSelectedTaskPath = ref("");
     const activeAppIndex = ref(0);
     const checkedTaskKeys = ref([]);
 
     const showAppTaskList = (index) => {
-      // Clear selected tasks when switching to another active app
       if (activeAppIndex.value != index) {
         checkedTaskKeys.value = [];
+        activeAppIndex.value = index;
+      } else {
+        activeAppIndex.value = -1;
       }
-      activeAppIndex.value = index;
     };
 
     const enqueueTasks = async (app) => {
@@ -284,65 +255,108 @@ export default {
       };
     };
 
-    const selectOptions = [
+    const bulkTaskOptions = [
       {
-        label: "Sync",
-        key: "sync",
-        icon: renderIcon(WorldDownload, { color: "#32cd32" }),
-      },
-      {
-        label: "New Task",
-        key: "new",
+        label: "Edit",
+        key: "edit",
         icon: renderIcon(Pencil, { color: "#2685c2" }),
       },
       {
-        label: "Del Task",
+        label: "Delete",
         key: "delete",
         icon: renderIcon(Trash, { color: "#db2544" }),
       },
       {
-        label: "Batch Run",
-        key: "batch",
-        icon: renderIcon(PlayerPlay, { color: "green" }),
+        type: "divider",
+        key: "d1",
       },
       {
-        label: "Cloud Run",
-        key: "remote",
-        icon: renderIcon(CloudUpload, { color: "green" }),
+        label: "Run",
+        key: "run",
+        icon: renderIcon(PlayerPlay, { color: "green" }),
       },
     ];
 
-    const handleSelectAction = (key, app) => {
-      if (key === "new") {
-        let appInfo = {
-          name: app.name,
-          author: app.author,
-          path: app.path,
-          task: "example-new-task.yaml",
-        };
-        ipcRenderer.send("show-editor-window", appInfo);
-      } else if (key === "delete") {
-        message.info("Delete task");
-      } else if (key === "batch") {
+    const handleAppAction = (key, app) => {
+      if (key === "delete") {
+        message.info("Delete App");
+      } else if (key === "run") {
         enqueueTasks(app);
-      } else if (key === "sync") {
-        message.info("Sync tasks");
+      } else if (key === "edit") {
+        shell.openExternal(`vscode://file/${app.path}`);
       }
     };
 
+    // Task item dropdown (context menu)
+    const showDropdownRef = ref(false);
+    const xRef = ref(0);
+    const yRef = ref(0);
+    const taskItemOptions = [
+      {
+        label: "Run",
+        key: "run",
+        icon: renderIcon(PlayerPlay, { color: "green" }),
+      },
+      {
+        type: "divider",
+        key: "d1",
+      },
+      {
+        label: "Edit",
+        key: "edit",
+        icon: renderIcon(Pencil, { color: "#2685c2" }),
+      },
+      {
+        label: () => h("span", {}, "Debug"),
+        key: "showLog",
+        icon: renderIcon(FileReport, { color: "#FAD02C" }),
+      },
+      {
+        label: () => h("span", { style: { color: "#db2544" } }, "Delete"),
+        key: "delete",
+        icon: renderIcon(Trash, { color: "#db2544" }),
+      },
+    ];
+
     return {
-      columns,
       activeAppIndex,
       checkedTaskKeys,
       showAppTaskList,
       enqueueTasks,
-      selectOptions,
-      handleSelectAction,
-      openEditor,
+      bulkTaskOptions,
+      handleAppAction,
+      handleTaskChecked,
       copyToClipboard,
-      taskOpened,
       runTask,
-      saveTask,
+      taskItemOptions,
+      showDropdown: showDropdownRef,
+      x: xRef,
+      y: yRef,
+      handleTaskAction(key) {
+        showDropdownRef.value = false;
+        if (key === "run") {
+          runTask(activeSelectedTaskPath.value);
+        } else if (key === "edit") {
+          shell.openExternal(`vscode://file/${activeSelectedTaskPath.value}`);
+        } else if (key === "delete") {
+          message.info("Delete Task");
+        } else if (key === "showLog") {
+          message.info("Show Log");
+        }
+      },
+      handleContextMenu(e, taskPath) {
+        activeSelectedTaskPath.value = taskPath;
+        e.preventDefault();
+        showDropdownRef.value = false;
+        nextTick().then(() => {
+          showDropdownRef.value = true;
+          xRef.value = e.clientX;
+          yRef.value = e.clientY;
+        });
+      },
+      onClickOutside() {
+        showDropdownRef.value = false;
+      },
     };
   },
 };

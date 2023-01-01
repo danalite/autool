@@ -14,7 +14,7 @@ import AppMain from "./appMain.vue";
 import { useStore } from "../../store";
 import { storeToRefs } from "pinia";
 
-document.title = "AbaTech";
+document.title = "AuTool";
 const store = useStore();
 let { pageCount } = storeToRefs(store);
 </script>

@@ -1,5 +1,9 @@
 ## Project AuTool
-AuTool is the next-generation robotic process automation tool that makes SaaS integration easier. 
+AuTool is the next-generation robotic process automation tool that makes SaaS integration easier.
+
+### Getting Started
+- 
+- Subscribe to AuTool
 
 ### Example: Actions in Single Click
 - [Arrange windows on your screen](): 

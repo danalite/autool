@@ -15,16 +15,6 @@ const routes = [
     path: '/assist',
     name: 'Assist',
     component: () => import('@/render/components/assist/assistWindow.vue')
-  },
-  {
-    path: '/taskEditor',
-    name: 'TaskEditor',
-    component: () => import('@/render/components/taskEditor/index.vue')
-  },
-  {
-    path: '/queryMatch',
-    name: 'QueryMatch',
-    component: () => import('@/render/components/queryMatch/index.vue')
   }
 ]
 

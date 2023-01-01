@@ -5,7 +5,7 @@ import {userAgentList} from "@/utils/main/config";
 
 export const createMainWindow = async (userHeader) => {
   const win = new BrowserWindow({
-    title: 'AbaTech',
+    title: 'AuTool',
     center: true,
     transparent: true,
     show: false,

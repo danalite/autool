@@ -7,6 +7,15 @@
         justify-content="space-evenly"
         type="line"
       >
+      <n-tab-pane name="autostart" tab="Autostart">
+          <n-scrollbar style="max-height: auto">
+            <n-data-table
+              :columns="columns"
+              :data="tasksEnded"
+              :pagination="{ pageSize: 4 }"
+            />
+          </n-scrollbar>
+        </n-tab-pane>
         <n-tab-pane name="pending" tab="Running">
           <n-scrollbar style="max-height: auto">
             <n-data-table
@@ -25,15 +34,6 @@
             />
           </n-scrollbar>
         </n-tab-pane>
-        <n-tab-pane name="autostart" tab="Autostart">
-          <n-scrollbar style="max-height: auto">
-            <n-data-table
-              :columns="columns"
-              :data="tasksEnded"
-              :pagination="{ pageSize: 4 }"
-            />
-          </n-scrollbar>
-        </n-tab-pane>
 
       </n-tabs>
     </n-space>
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { PlayerStop, PlayerPlay, Cloud, DeviceDesktop } from "@vicons/tabler";
+import { PlayerStop, PlayerPlay, Cloud, DevicesPc } from "@vicons/tabler";
 
 import {
   NSpace,
@@ -78,7 +78,7 @@ export default {
     PlayerStop,
     PlayerPlay,
     Cloud,
-    DeviceDesktop,
+    DevicesPc,
   },
   props: {
     tasksPending: {
@@ -99,7 +99,7 @@ export default {
           return h(NIcon, { size: 20, style: { "padding-top": "6px" } }, () =>
             row.options?.includes("remote")
               ? h(Cloud, { color: "#2685c2" }, {})
-              : h(DeviceDesktop, { color: "#2685c2" }, {})
+              : h(DevicesPc, { color: "#2685c2" }, {})
           );
         },
       },
