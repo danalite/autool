@@ -169,12 +169,11 @@ const appSetup = async () => {
         }
       });
 
-      if (res.status !== 200) {
-        console.log(res.statusText)
-
-      } else {
-        console.log("[ NodeJS ] ", res.data.email, res.data.valid)
+      if (res.status === 200) {
         appConfig.set("license.valid", res.data.valid)
+        
+      } else {
+        console.log("[ NodeJS ] failed verifying license")
       }
 
     } catch (error) {
@@ -185,12 +184,12 @@ const appSetup = async () => {
 
   appConfig.set("appTemp", path.join(path.join(appHome, "scripts"), "temp.yaml"))
 
-  const appsAndAutostart = loadApps(appHome)
-  appConfig.set('apps', appsAndAutostart.apps)
+  const apps = loadApps(appHome)
+  appConfig.set('apps', apps.apps)
 
   // Auto-start tasks
   let newTasks = []
-  appsAndAutostart.autostart.forEach((e) => {
+  apps.autostart.forEach((e) => {
     newTasks.push({
       relTaskPath: e.relTaskPath,
       absTaskPath: e.absTaskPath,

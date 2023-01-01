@@ -47,13 +47,12 @@
                 <n-list-item
                   v-for="(task, taskIndex) in app.tasks"
                   style="padding-top: 7px; padding-bottom: 7px"
-                  @contextmenu="handleContextMenu($event, task.absTaskPath)"
+                  @contextmenu="handleContextMenu($event, task)"
                   :key="taskIndex"
-                  :title="task.absTaskPath"
                 >
                   <n-space>
                     <n-checkbox
-                      style="padding-left: 6px;"
+                      style="padding-left: 6px"
                       @click.stop
                       @update:checked="handleTaskChecked(taskIndex, $event)"
                     />
@@ -67,11 +66,22 @@
                       </n-button>
 
                       <n-space>
+                            <n-icon
+                              v-show="task.options.includes('autostart')"
+                              size="18"
+                              color="#0e7a0d"
+                              depth="2"
+                              style="padding-right: 3px; padding-top: 1px"
+                            >
+                              <BrandAndroid />
+                            </n-icon>
+
                         <n-icon
+                          v-show="task.options.includes('remote')"
                           size="18"
                           color="#0e7a0d"
                           depth="2"
-                          style="padding-right: 3px"
+                          style="padding-right: 3px; padding-top: 1px"
                         >
                           <BrandAndroid />
                         </n-icon>
@@ -125,6 +135,7 @@ import {
   NInput,
   NSwitch,
   NCollapseTransition,
+  NTooltip,
   NInputGroup,
   NEllipsis,
   NCollapse,
@@ -170,6 +181,7 @@ export default {
     NCheckboxGroup,
     NTabs,
     NTabPane,
+    NTooltip,
     NIcon,
     NForm,
     NFormItem,
@@ -197,12 +209,11 @@ export default {
       type: Array,
     },
   },
-  emits: ["runTask"],
+  emits: ["runTask", "refreshApps"],
   setup(props, { emit }) {
     const message = useMessage();
 
     const runTask = (task) => {
-      // TODO: update tasks in appMain
       message.success(`Task "${task.relTaskPath}" started`);
       emit("runTask", task);
     };
@@ -222,7 +233,7 @@ export default {
       message.success(`Copied ${text} to clipboard`);
     };
 
-    const activeSelectedTaskPath = ref("");
+    const activeSelectedTask = ref(null);
     const activeAppIndex = ref(0);
     const checkedTaskKeys = ref([]);
 
@@ -277,11 +288,15 @@ export default {
       },
     ];
 
-    const handleAppAction = (key, app) => {
+    const handleAppAction = async (key, app) => {
       if (key === "delete") {
-        message.info("Delete App");
+        await ipcRenderer.invoke('delete-app-task', {'type': 'app', 'appPath': app.path})
+        emit("refreshApps", {});
+        message.warning(`Deleted App ${app.author}/${app.app}`);
+        
       } else if (key === "run") {
         enqueueTasks(app);
+
       } else if (key === "edit") {
         shell.openExternal(`vscode://file/${app.path}`);
       }
@@ -335,17 +350,17 @@ export default {
       handleTaskAction(key) {
         showDropdownRef.value = false;
         if (key === "run") {
-          runTask(activeSelectedTaskPath.value);
+          runTask(activeSelectedTask.value);
         } else if (key === "edit") {
-          shell.openExternal(`vscode://file/${activeSelectedTaskPath.value}`);
+          shell.openExternal(`vscode://file/${activeSelectedTask.value.absTaskPath}`);
         } else if (key === "delete") {
           message.info("Delete Task");
         } else if (key === "showLog") {
           message.info("Show Log");
         }
       },
-      handleContextMenu(e, taskPath) {
-        activeSelectedTaskPath.value = taskPath;
+      handleContextMenu(e, task) {
+        activeSelectedTask.value = task;
         e.preventDefault();
         showDropdownRef.value = false;
         nextTick().then(() => {

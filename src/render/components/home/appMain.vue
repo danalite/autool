@@ -1,12 +1,12 @@
 <template>
   <div class="mainCard">
-    <SearchBar />
+    <SearchBar @refreshApps="refreshApps"/>
 
     <!-- Second block under user information -->
     <n-card class="boxShadow appCard" size="small">
       <n-tabs type="segment" :animated="true">
         <n-tab-pane style="padding-top: 3px" name="chap1" tab="Tasks">
-          <TaskPane :apps="apps" @runTask="runTask($event)" />
+          <TaskPane :apps="apps" @runTask="runTask($event)" @refreshApps="refreshApps" />
         </n-tab-pane>
 
         <n-tab-pane style="padding-top: 8px" name="chap2" tab="Scheduler">
@@ -207,7 +207,7 @@ ipcRenderer.on("run-task-from-main", (event, data) => {
   let autoRun = true;
 
   const nRef = notification.create({
-    title: "Autostart tasks?",
+    title: "Autorun tasks?",
     content: () => h("div", taskNames.join(", ")),
     duration: 12000,
     meta: "start in 12 seconds...",
@@ -223,15 +223,15 @@ ipcRenderer.on("run-task-from-main", (event, data) => {
       h(
         NButton,
         {
-          text: true,
-          type: "primary",
+          type: "error",
+          secondary: true,
           onClick: () => {
             autoRun = false;
             nRef.destroy();
           },
         },
         {
-          default: () => h("span", { style: { color: "#FF2E2E" } }, "Stop"),
+          default: () => h("span", { style: { } }, "Stop"),
         }
       ),
     onAfterEnter: () => {
@@ -280,15 +280,16 @@ function setupWsConn() {
   }
 }
 
-const refreshApps = () => {
+const refreshApps = async () => {
+  await ipcRenderer.invoke("reload-apps", {});
+  apps.value = appConfig.get("apps");
+};
+
+onMounted(async () => {
   let appsLocal = appConfig.get("apps");
   if (appsLocal) {
     apps.value = appsLocal;
   }
-};
-
-onMounted(() => {
-  refreshApps();
   ipcRenderer.once("start-wss-backend", () => {
     setTimeout(() => {
       if (wsConn === null) {

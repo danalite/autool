@@ -71,10 +71,12 @@ async def wssRegister(websocket):
     elif worker == "DownloadWorker":
         try:
             download(data["url"])
+            print("DownloadWorker: complete")
             await websocket.send(json.dumps({"type": "DownloadWorker", "value": "Done"}))
+
         except Exception as e:
-            print("www")
             await websocket.send(json.dumps({"type": "DownloadWorker", "value": "Error"}))
+
         await websocket.close()
 
 

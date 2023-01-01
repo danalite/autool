@@ -7,7 +7,7 @@
         justify-content="space-evenly"
         type="line"
       >
-      <n-tab-pane name="autostart" tab="Autostart">
+      <n-tab-pane name="autostart" tab="Autorun">
           <n-scrollbar style="max-height: auto">
             <n-data-table
               :columns="columns"

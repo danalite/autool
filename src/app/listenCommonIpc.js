@@ -1,5 +1,6 @@
 import { app, ipcMain } from "electron";
 import { appConfig } from "@/utils/main/config";
+import { loadApps } from '@/utils/main/queryTasks';
 
 const path = require("path");
 const fs = require('fs');
@@ -35,22 +36,37 @@ export const ipcListener = (mainWindow, assistWindow) => {
     assistWindow.webContents.send('client-connect-success')
   })
 
-  ipcMain.on('delete-task', (event, task) => {
-    let taskPath = task.appPath + task.name + ".yaml"
-    fs.unlink(taskPath, function (err) {
-      if (err) return console.log(err);
+  ipcMain.handle('reload-apps', async (event) => {
+    console.log("[ NodeJS ] reloading-apps...")
+    const apps = loadApps(appConfig.get('appHome'))
+    appConfig.set('apps', apps.apps)
+  })
 
-      // Update the tasks JSON
-      let appJsonPath = path.join(task.appPath, "tasks.json")
-      let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
-      let newTasks = appJson.tasks.filter(t => t !== task.name + ".yaml")
-      appJson.tasks = newTasks
-      fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
-        if (err) {
-          console.error(err);
-        }
+  ipcMain.handle('delete-app-task', async (event, appOrTask) => {
+    if (appOrTask.type === "task") {
+      let taskPath = task.appPath + task.name + ".yaml"
+      fs.unlink(taskPath, function (err) {
+        if (err) return console.log(err);
+
+        let appJsonPath = path.join(task.appPath, "tasks.json")
+        let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
+        let newTasks = appJson.tasks.filter(t => t !== task.name + ".yaml")
+        appJson.tasks = newTasks
+        fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
+          if (err) {
+            console.error(err);
+          }
+        });
       });
-    });
+
+    } else if (appOrTask.type === "app") {
+      let appPath = appOrTask.appPath
+      if (fs.existsSync(appPath)) {
+        fs.rmSync(appPath, { recursive: true, force: true })
+      } else {
+        console.error(`${appPath} not exists`)
+      }
+    }
   })
 
   ipcMain.on('save-task', (event, taskStr) => {
@@ -85,8 +101,8 @@ export const ipcListener = (mainWindow, assistWindow) => {
         inputs: [],
         options: []
       }]
-      mainWindow.webContents.send('run-task-from-main', 
-        {is_autostart: false, tasks: newTasks})
+      mainWindow.webContents.send('run-task-from-main',
+        { is_autostart: false, tasks: newTasks })
     });
   })
 }

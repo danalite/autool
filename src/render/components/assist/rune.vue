@@ -2,7 +2,7 @@
   <div>
     <n-card class="boxShadow" size="small">
       <n-space justify="center" vertical>
-        <p style="color: #9aa4af">Autostart tasks</p>
+        <p style="color: #9aa4af">Autorun tasks</p>
         <p style="color: #9aa4af">英雄选择阶段才可以使用符文配置功能</p>
       </n-space>
     </n-card>

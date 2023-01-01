@@ -38,9 +38,8 @@
   </n-space>
 </template>
 
-<script setup>
+<script>
 import { h, ref, onMounted } from "vue";
-import { ipcRenderer } from "electron";
 import { Plus } from "@vicons/tabler";
 
 import {
@@ -67,48 +66,89 @@ import {
   NModal,
 } from "naive-ui";
 
-const message = useMessage();
+export default {
+  name: "taskPane",
+  components: {
+    NCard,
+    NAvatar,
+    NProgress,
+    NSpace,
+    NTag,
+    NPopover,
+    NDrawer,
+    NDrawerContent,
+    NInput,
+    NInputGroup,
+    NList,
+    NListItem,
+    NScrollbar,
+    NDataTable,
+    NButton,
+    useMessage,
+    NTabs,
+    NTabPane,
+    NRate,
+    NIcon,
+    NModal,
+    Plus,
+  },
+  emits: ["refreshApps"],
+  setup(props, { emit }) {
+    const message = useMessage();
 
-const githubFolderLink = ref("");
-const showModalRef = ref(false);
-const addNewApp = () => {
-  showModalRef.value = true;
-};
-
-const onPositiveClick = () => {
-  if (githubFolderLink.value === "" || !githubFolderLink.value.startsWith("http")) {
-    message.warning("Please enter a valid link");
-    return;
-  }
-  
-  message.success(`Importing "${githubFolderLink.value}"...`);
-  let wsConn = new WebSocket("ws://127.0.0.1:5678/");
-  wsConn.onmessage = (event) => {
-    console.log("@@@", event);
-    wsConn.close();
-  };
-  wsConn.onopen = (event) => {
-    let msg = {
-      event: "I_EVENT_TASK_REQ",
-      value: {
-        type: "REQUEST",
-        worker: "DownloadWorker",
-        url: githubFolderLink.value
-      },
+    const githubFolderLink = ref("");
+    const showModalRef = ref(false);
+    const addNewApp = () => {
+      showModalRef.value = true;
     };
-    try {
-      wsConn.send(JSON.stringify(msg));
-    } catch (e) {
-      console.log(e);
-      message.warning("Failed downloading...");
-    }
-  };
-  showModalRef.value = false;
-};
 
-const onNegativeClick = () => {
-  message.success("Cancel");
-  showModalRef.value = false;
+    const onPositiveClick = () => {
+      if (
+        githubFolderLink.value === "" ||
+        !githubFolderLink.value.startsWith("http")
+      ) {
+        message.warning("Please enter a valid link");
+        return;
+      }
+
+      message.success(`Importing "${githubFolderLink.value}"...`);
+      let wsConn = new WebSocket("ws://127.0.0.1:5678/");
+      wsConn.onmessage = async (event) => {
+        emit("refreshApps", {});
+        wsConn.close();
+      };
+      wsConn.onopen = (event) => {
+        let msg = {
+          event: "I_EVENT_TASK_REQ",
+          value: {
+            type: "REQUEST",
+            worker: "DownloadWorker",
+            url: githubFolderLink.value,
+          },
+        };
+        try {
+          wsConn.send(JSON.stringify(msg));
+        } catch (e) {
+          console.log(e);
+          message.warning("Failed downloading...");
+        }
+      };
+      showModalRef.value = false;
+    };
+
+    const onNegativeClick = () => {
+      message.success("Cancel");
+      showModalRef.value = false;
+    };
+
+    return {
+      githubFolderLink,
+      showModalRef,
+      addNewApp,
+      onPositiveClick,
+      onNegativeClick,
+    };
+  },
 };
 </script>
 

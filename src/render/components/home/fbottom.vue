@@ -24,7 +24,7 @@
                   <ArrowUpCircle />
                 </n-icon>
               </template>
-              Upgrade to latest version
+              Check update
             </n-popover>
           </n-button>
 
@@ -32,7 +32,7 @@
             <n-popover trigger="hover" :show-arrow="false">
               <template #trigger>
                 <n-icon size="25" @click="openGithub">
-                  <Book />
+                  <MessageReport />
                 </n-icon>
               </template>
               Documents
@@ -49,8 +49,6 @@
               Subscription
             </n-popover>
           </n-button>
-
-
         </n-space>
       </n-space>
     </n-card>
@@ -59,7 +57,13 @@
 
 <script setup>
 import { NCard, NSpace, NButton, NIcon, NPopover } from "naive-ui";
-import { BrandDiscord, Book, ArrowUpCircle, Diamond } from "@vicons/tabler";
+import {
+  BrandDiscord,
+  MessageReport,
+  ArrowUpCircle,
+  Diamond,
+} from "@vicons/tabler";
+
 import { shell } from "electron";
 import { ref, onMounted } from "vue";
 import { request } from "@/utils/render/request";
@@ -70,7 +74,6 @@ let showPopover = ref(false);
 const store = useStore();
 const { frankVersion } = storeToRefs(store);
 
-// 检查版本更新
 onMounted(async () => {
   const onLineFrankVersion = (
     await request({
@@ -81,19 +84,17 @@ onMounted(async () => {
     showPopover.value = true;
   }
 });
+
 const openUpdate = () => {
   shell.openExternal("https://www.yuque.com/java-s/frank/update");
   showPopover.value = false;
 };
 
 const openGithub = () => {
-  shell.openExternal("https://github.com/java-S12138/frank");
+  shell.openExternal("https://github.com/danalites/autoo");
 };
 const openWhop = () => {
-  shell.openExternal("https://whop.com/hub/?page=products&company=abatech&tab=Home");
-};
-const openFrank = () => {
-  shell.openExternal("https://www.yuque.com/java-s/frank");
+  shell.openExternal("https://whop.com/checkout/plan_wW617KbESGusq/?d2c=true");
 };
 </script>
 

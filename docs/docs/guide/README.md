@@ -1,30 +1,16 @@
-## 赞助
+## Download (Desktop)
 
-## Getting Started
-rubick 之前的插件管理，依托于云服务器存储，我们需要为服务器存储支付一笔不小的开销。
-由于项目完全开源，所以几乎无任何收入，所以为了让 rubick 先生存下去，我们再三抉择把插件包管理方式托管到了`npm` 上。
+* [MacOS](https://juejin.cn/post/6844903886541553672)
+* [Window](https://juejin.cn/post/6892790243687137287)
 
-由于 rubick 的插件管理体系是基于 npm 的包管理体系，所以当您需要使用插件的时候，需要手动保证当前电脑已经安装好了`node`环境。
-如果当前电脑已经安装过 `node`，那么您可以直接下载 `rubick` 进行使用啦！
 
-[macos 下安装 nodejs 方法](https://juejin.cn/post/6844903886541553672)
+## Add new scripts
+- Click the "+" button next to the search box to download the script from GitHub to local disk
+- AuTool reads the `tasks.json` file in the root directory of the repository to get the script information
+- Example: downloading
 
-[windows 下安装 nodejs 方法](https://juejin.cn/post/6892790243687137287)
-
-## 下载 rubick
-[rubick 下载安装地址](https://github.com/rubickCenter/rubick/releases)
-
-macos 选择 `pkg` 文件，windows 选择 `exe` 文件。
-安装完成后打开 rubick 即可看到主搜索界面：
-
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/26f0fbe2c69246b6a3ed139b0df1ca0b~tplv-k3u1fbpfcp-watermark.image)
-
-目前支持 windows 和 macos。linux 小伙伴正在开发中
-
-## 功能说明
-接下来详细介绍 rubick 所包含和支持的功能
-
-### 1. 搜索系统应用
+## Settings
+### Activate license
 支持拼音和缩写来搜索系统安装应用：
 
 ![](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ba363e8f60f540e6a5c365c4317c4413~tplv-k3u1fbpfcp-watermark.image)
