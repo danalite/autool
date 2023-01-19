@@ -13,13 +13,13 @@ import { NMessageProvider, NNotificationProvider } from "naive-ui";
 
 <style>
 /* @font-face {
-  font-family: "FZBenMoYueYiTiS";
-  src: url("assets/fonts/FZBenMoYueYiTiS.ttf");
+  font-family: "Comfortaa";
+  src: url("assets/fonts/Comfortaa.ttf");
 } */
 * {
   margin: 0;
   padding: 0;
-  font-family: Monospace, Comic Sans MS, Arial, sans-serif;
+  font-family: Monospace, Arial, sans-serif;
   -webkit-user-select: none;
 }
 html {

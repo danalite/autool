@@ -28,7 +28,7 @@ const path = require('path')
 const devMode = process.env.npm_lifecycle_event === "electron:serve"
 
 const iconPath = path.join(
-  `${__dirname}/../resources`, 'app.png',
+  `${__dirname}/../resources`, 'logo.png',
 )
 
 const userHeader = userAgentList[Math.floor((Math.random() * userAgentList.length))]

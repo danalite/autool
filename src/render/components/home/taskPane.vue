@@ -3,9 +3,9 @@
     <n-scrollbar style="max-height: 430px">
       <n-list-item
         v-for="(app, index) in apps"
-        style="padding-top: 8px; padding-bottom: 0px"
+        style="padding-top: 8px; padding-bottom: 1px"
       >
-        <n-card bordered hoverable size="small" style="padding: 0px">
+        <n-card :bordered="true" hoverable size="small">
           <n-space vertical style="gap: 0px 0px">
             <n-space justify="space-between">
               <n-space>
@@ -26,7 +26,7 @@
                   @click="showAppTaskList(index)"
                   :bordered="false"
                 >
-                  {{ app.author }}/{{ app.app }}
+                  <n-text :size="22" :underline="true"> {{ app.author }}/{{ app.app }} </n-text>
                 </n-button>
               </n-space>
 
@@ -43,16 +43,16 @@
             </n-space>
 
             <n-collapse-transition :show="activeAppIndex === index">
-              <n-list>
+              <n-list style="padding-top: 2px; padding-bottom: 0px">
                 <n-list-item
                   v-for="(task, taskIndex) in app.tasks"
-                  style="padding-top: 7px; padding-bottom: 7px"
+                  style="padding-top: 6px; padding-bottom: 6px"
                   @contextmenu="handleContextMenu($event, task)"
                   :key="taskIndex"
                 >
                   <n-space>
                     <n-checkbox
-                      style="padding-left: 6px"
+                      style="padding-left: 14px"
                       @click.stop
                       @update:checked="handleTaskChecked(taskIndex, $event)"
                     />
@@ -62,19 +62,23 @@
                         <n-icon size="18" depth="3" style="padding-right: 3px">
                           <Box />
                         </n-icon>
-                        <n-text>{{ task.relTaskPath }}</n-text>
+                        <n-text>{{
+                          task.relTaskPath.includes("/")
+                            ? task.relTaskPath.split("/")[1]
+                            : task.relTaskPath
+                        }}</n-text>
                       </n-button>
 
                       <n-space>
-                            <n-icon
-                              v-show="task.options.includes('autostart')"
-                              size="18"
-                              color="#0e7a0d"
-                              depth="2"
-                              style="padding-right: 3px; padding-top: 1px"
-                            >
-                              <BrandAndroid />
-                            </n-icon>
+                        <n-icon
+                          v-show="task.options.includes('autostart')"
+                          size="18"
+                          color="#0e7a0d"
+                          depth="2"
+                          style="padding-right: 3px; padding-top: 1px"
+                        >
+                          <BrandAndroid />
+                        </n-icon>
 
                         <n-icon
                           v-show="task.options.includes('remote')"
@@ -290,13 +294,14 @@ export default {
 
     const handleAppAction = async (key, app) => {
       if (key === "delete") {
-        await ipcRenderer.invoke('delete-app-task', {'type': 'app', 'appPath': app.path})
+        await ipcRenderer.invoke("delete-app-task", {
+          type: "app",
+          appPath: app.path,
+        });
         emit("refreshApps", {});
         message.warning(`Deleted App ${app.author}/${app.app}`);
-        
       } else if (key === "run") {
         enqueueTasks(app);
-
       } else if (key === "edit") {
         shell.openExternal(`vscode://file/${app.path}`);
       }
@@ -352,7 +357,9 @@ export default {
         if (key === "run") {
           runTask(activeSelectedTask.value);
         } else if (key === "edit") {
-          shell.openExternal(`vscode://file/${activeSelectedTask.value.absTaskPath}`);
+          shell.openExternal(
+            `vscode://file/${activeSelectedTask.value.absTaskPath}`
+          );
         } else if (key === "delete") {
           message.info("Delete Task");
         } else if (key === "showLog") {

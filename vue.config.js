@@ -23,11 +23,11 @@ module.exports = defineConfig({
         },
         mac: {
           target: ['dmg'],
-          icon: './resources/app.png',
+          icon: './resources/logo.png',
           asar: true
         },
         win: {
-          icon: "./resources/app.png",
+          icon: "./resources/logo.png",
           target: [
             "portable"
           ]

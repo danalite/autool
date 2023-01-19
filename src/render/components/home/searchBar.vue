@@ -8,30 +8,58 @@
           <Plus />
         </n-icon>
       </n-button>
+      <n-button type="primary" ghost :bordered="false" @click="refreshApps">
+        <n-icon size="20">
+          <Refresh />
+        </n-icon>
+      </n-button>
     </n-input-group>
 
     <n-modal v-model:show="showModalRef" preset="dialog">
       <template #header>
         <div>
-          <n-icon size="20">
-            <Plus />
-          </n-icon>
           Add new apps
         </div>
       </template>
       <div>
         <n-space vertical>
-          App (github folder URL)
+          <n-radio
+            :checked="checkedValue === 'Import app from Github'"
+            value="Import app from Github"
+            @change="handleChange"
+          >
+            Import app from Github
+          </n-radio>
           <n-input
             v-model:value="githubFolderLink"
-            placeholder="Link: https://github.com/danalites/apps/tree/master/nike"
+            placeholder="E.g. https://github.com/danalites/apps/tree/master/macos"
+            :disabled="checkedValue !== 'Import app from Github'"
           />
+
+          <n-divider dashed />
+          <n-radio
+            :checked="checkedValue === 'Macro record'"
+            value="Macro record"
+            name="basic-demo"
+            @change="handleChange"
+          >
+            Macro recorder
+          </n-radio>
+
+          <!-- stop/(re)start. 
+          track (mouse, keyboard, delay)
+          capture mouse mode (absPos, relPos, image) -->
+
+          
+
         </n-space>
       </div>
       <template #action>
         <n-space>
           <n-button @click="onNegativeClick">Cancel</n-button>
-          <n-button type="primary" @click="onPositiveClick">Import</n-button>
+          <n-button type="primary" @click="onPositiveClick">
+            {{ checkedValue === 'Import app from Github' ? 'Import' : 'Record' }}
+          </n-button>
         </n-space>
       </template>
     </n-modal>
@@ -40,7 +68,7 @@
 
 <script>
 import { h, ref, onMounted } from "vue";
-import { Plus } from "@vicons/tabler";
+import { Plus, Refresh, Filter } from "@vicons/tabler";
 
 import {
   NCard,
@@ -60,6 +88,8 @@ import {
   NButton,
   useMessage,
   NTabs,
+  NRadio,
+  NDivider,
   NTabPane,
   NRate,
   NIcon,
@@ -79,6 +109,8 @@ export default {
     NDrawerContent,
     NInput,
     NInputGroup,
+    NRadio,
+    NDivider,
     NList,
     NListItem,
     NScrollbar,
@@ -91,6 +123,8 @@ export default {
     NIcon,
     NModal,
     Plus,
+    Filter,
+    Refresh,
   },
   emits: ["refreshApps"],
   setup(props, { emit }) {
@@ -137,13 +171,21 @@ export default {
     };
 
     const onNegativeClick = () => {
-      message.success("Cancel");
       showModalRef.value = false;
     };
 
+    const checkedValueRef = ref("Import app from Github");
     return {
       githubFolderLink,
       showModalRef,
+
+      checkedValue: checkedValueRef,
+      handleChange(e) {
+        checkedValueRef.value = e.target.value;
+      },
+      refreshApps() {
+        emit("refreshApps");
+      },
       addNewApp,
       onPositiveClick,
       onNegativeClick,

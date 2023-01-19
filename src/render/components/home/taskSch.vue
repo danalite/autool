@@ -1,47 +1,49 @@
 <template>
   <div>
     <n-space vertical>
-      <n-tabs
-        v-model:value="showType"
-        default-value="pending"
-        justify-content="space-evenly"
-        type="line"
-      >
-      <n-tab-pane name="autostart" tab="Autorun">
-          <n-scrollbar style="max-height: auto">
-            <n-data-table
-              :columns="columns"
-              :data="tasksEnded"
-              :pagination="{ pageSize: 4 }"
-            />
-          </n-scrollbar>
-        </n-tab-pane>
-        <n-tab-pane name="pending" tab="Running">
-          <n-scrollbar style="max-height: auto">
-            <n-data-table
-              :columns="columns"
-              :data="tasksPending"
-              :pagination="{ pageSize: 4 }"
-            />
-          </n-scrollbar>
-        </n-tab-pane>
-        <n-tab-pane name="finished" tab="Ended">
-          <n-scrollbar style="max-height: auto">
-            <n-data-table
-              :columns="columns"
-              :data="tasksEnded"
-              :pagination="{ pageSize: 4 }"
-            />
-          </n-scrollbar>
-        </n-tab-pane>
+      <n-space justify="center" style="padding-top: 10px">
+        <n-select
+          size="medium"
+          v-model:value="showType"
+          :style="{ width: '250px' }"
+          :options="showTasksOptions"
+          :render-label="renderLabel"
+          :render-tag="renderSingleSelectTag"
+        />
+      </n-space>
 
-      </n-tabs>
+      <!-- Event in and outs -->
+      <n-collapse-transition :show="showType == 'out-events'">
+        Events
+      </n-collapse-transition>
+
+      <!-- Task action list -->
+      <n-list>
+        <n-list-item
+          v-for="(task, taskIndex) in itemsEventsIn"
+          style="padding-top: 6px; padding-bottom: 6px"
+          :key="taskIndex"
+        >
+          {{ task }}
+        </n-list-item>
+      </n-list>
     </n-space>
   </div>
 </template>
 
 <script>
-import { PlayerStop, PlayerPlay, Cloud, DevicesPc } from "@vicons/tabler";
+import {
+  PlayerStop,
+  PlayerPlay,
+  Cloud,
+  DevicesPc,
+  BrandAndroid,
+  Box,
+  TransferIn,
+  TransferOut,
+  Clock,
+  Keyboard,
+} from "@vicons/tabler";
 
 import {
   NSpace,
@@ -51,14 +53,17 @@ import {
   NDataTable,
   NScrollbar,
   NAvatar,
+  NSelect,
+  NButton,
   NTag,
   NText,
   NTabs,
   NTabPane,
+  NCollapseTransition,
   useMessage,
 } from "naive-ui";
 
-import { h, ref } from "vue";
+import { h, ref, computed } from "vue";
 
 export default {
   name: "taskSch",
@@ -68,18 +73,29 @@ export default {
     NListItem,
     NScrollbar,
     NDataTable,
+    NSelect,
+    NButton,
     NAvatar,
     NTag,
     NIcon,
     NText,
     NTabs,
     NTabPane,
+    NCollapseTransition,
     useMessage,
     PlayerStop,
     PlayerPlay,
+    Box,
+    Clock,
+    Keyboard,
+    TransferIn,
+    TransferOut,
     Cloud,
     DevicesPc,
+    BrandAndroid,
   },
+
+  // Tasks and instances
   props: {
     tasksPending: {
       type: Array,
@@ -88,69 +104,154 @@ export default {
       type: Array,
     },
   },
+
   emits: ["stopTask"],
   setup(props, { emit }) {
-    const columns = [
-      {
-        title: "",
-        key: "icon",
-        width: 20,
-        render: (row) => {
-          return h(NIcon, { size: 20, style: { "padding-top": "6px" } }, () =>
-            row.options?.includes("remote")
-              ? h(Cloud, { color: "#2685c2" }, {})
-              : h(DevicesPc, { color: "#2685c2" }, {})
-          );
+    const message = useMessage();
+    const showType = ref("running");
+
+    const renderTaskSelectIcon = (icon, color, hasMargin) => {
+      return h(
+        NIcon,
+        {
+          round: false,
+          size: 24,
+          style: {
+            marginRight: hasMargin ? "12px" : "0px",
+          },
+          color: color,
         },
-      },
-      {
-        title: "Task",
-        key: "name",
-        render: (row, index) => {
-          return h(
-            NText,
-            { bordered: false },
-            () => row.name + " (" + row.id.slice(0, 8) + ")"
-          );
+        {
+          default: () => h(icon),
+        }
+      );
+    };
+
+    const renderSingleSelectTag = ({ option }) => {
+      return h(
+        "div",
+        {
+          style: {
+            display: "flex",
+            alignItems: "center",
+          },
         },
-      },
-      {
-        title: "",
-        render(row) {
-          return showType.value === "pending"
-            ? h(
-                NIcon,
+        [renderTaskSelectIcon(option.icon, option.color, true), option.label]
+      );
+    };
+
+    const renderLabel = (option) => {
+      return h(
+        "div",
+        {
+          style: {
+            display: "flex",
+            alignItems: "center",
+          },
+        },
+        [
+          renderTaskSelectIcon(option.icon, option.color, false),
+          h(
+            "div",
+            {
+              style: {
+                marginLeft: "12px",
+                padding: "4px 0",
+              },
+            },
+            [
+              h("div", null, [option.label]),
+              h(
+                NText,
+                { depth: 3, tag: "div" },
                 {
-                  size: 20,
-                  style: { "padding-right": "3px" },
-                  onClick: () => stopTask(row),
-                },
-                {
-                  default: () =>
-                    h(PlayerStop, {
-                      style: {
-                        "margin-bottom": "-4px",
-                        color: "#ba0f30",
-                      },
-                    }),
+                  default: () => option.description,
                 }
-              )
-            : h("p", {}, {});
-        },
+              ),
+            ]
+          ),
+        ]
+      );
+    };
+
+    const showTasksOptions = [
+      {
+        label: "auto-start",
+        value: "auto-start",
+        icon: BrandAndroid,
+        color: "#4caf50",
+        description: "autorun on startup",
+      },
+      {
+        label: "hotkey",
+        value: "hotkey",
+        icon: Keyboard,
+        color: "grey",
+        description: "hotkey invoked",
+      },
+      {
+        label: "running",
+        value: "running",
+        icon: Box,
+        color: "#4caf50",
+        description: "running tasks",
+      },
+      {
+        label: "stopped",
+        value: "stopped",
+        icon: Box,
+        color: "#DB2544",
+        description: "stopped tasks",
+      },
+      {
+        label: "timed",
+        value: "timed",
+        icon: Clock,
+        color: "#2685c2",
+        description: "tasks scheduled",
+      },
+      {
+        label: "remote",
+        value: "remote",
+        icon: Cloud,
+        color: "#2685c2",
+        description: "tasks on cloud",
+      },
+      {
+        label: "in-events",
+        value: "in-events",
+        icon: TransferIn,
+        color: "#FFD73B",
+        description: "events to executor",
+      },
+      {
+        label: "out-events",
+        value: "out-events",
+        icon: TransferOut,
+        color: "#FFD73B",
+        description: "events to frontend",
       },
     ];
 
-    const message = useMessage();
-    const showType = ref("pending");
     const stopTask = (task) => {
       message.warning(`Stopping task ${task.name}...`);
       emit("stopTask", task);
     };
 
+    const itemsEventsIn = computed(() => {
+      let index = 0;
+      return props.tasksEnded.map((e) => {
+        return e;
+      });
+    });
+
     return {
-      columns,
       showType,
       stopTask,
+      showTasksOptions,
+      renderSingleSelectTag,
+      renderLabel,
+      itemsEventsIn,
     };
   },
 };

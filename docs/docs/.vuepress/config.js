@@ -1,7 +1,7 @@
 module.exports = {
   title: 'AuTool',
   description: 'Next generation workflow automation tool',
-  base: '/',
+  base: '/autoo/',
   themeConfig: {
     themeColor: {
       blue: "#2196f3",

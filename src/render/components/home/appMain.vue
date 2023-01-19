@@ -1,12 +1,16 @@
 <template>
   <div class="mainCard">
-    <SearchBar @refreshApps="refreshApps"/>
+    <SearchBar @refreshApps="refreshApps" />
 
     <!-- Second block under user information -->
     <n-card class="boxShadow appCard" size="small">
       <n-tabs type="segment" :animated="true">
         <n-tab-pane style="padding-top: 3px" name="chap1" tab="Tasks">
-          <TaskPane :apps="apps" @runTask="runTask($event)" @refreshApps="refreshApps" />
+          <TaskPane
+            :apps="apps"
+            @runTask="runTask($event)"
+            @refreshApps="refreshApps"
+          />
         </n-tab-pane>
 
         <n-tab-pane style="padding-top: 8px" name="chap2" tab="Scheduler">
@@ -17,12 +21,12 @@
           />
         </n-tab-pane>
 
-        <n-tab-pane style="padding-top: 5px" name="chap3" tab="Events">
+        <!-- <n-tab-pane style="padding-top: 5px" name="chap3" tab="Events">
           <TaskEvents
             :taskEventsIn="taskEventsIn"
             :taskEventsOut="taskEventsOut"
           />
-        </n-tab-pane>
+        </n-tab-pane> -->
       </n-tabs>
     </n-card>
   </div>
@@ -60,7 +64,6 @@ import TaskSch from "./taskSch.vue";
 import TaskEvents from "./taskEvents.vue";
 import { appConfig } from "@/utils/main/config";
 
-
 const EventType = {
   O_EVENT_TASK_STATUS: "O_EVENT_TASK_STATUS",
   O_EVENT_REG_EVENT_ON: "O_EVENT_REG_EVENT_ON",
@@ -71,7 +74,6 @@ const EventType = {
   I_EVENT_TASK_REQ: "I_EVENT_TASK_REQ",
   I_EVENT_USER_INPUT: "I_EVENT_USER_INPUT",
 };
-
 
 const message = useMessage();
 const notification = useNotification();
@@ -206,9 +208,33 @@ ipcRenderer.on("run-task-from-main", (event, data) => {
   let taskNames = data.tasks.map((t) => t.relTaskPath);
   let autoRun = true;
 
+  const renderTaskList = (taskNames) => {
+    return h(
+      NList,
+      { style: { 'margin-top': '-15px', 'margin-bottom': '-15px' } },
+      {
+        default: () =>
+          taskNames.map((name) =>
+            h(
+              NListItem,
+              { key: name, style: {} },
+              {
+                default: () =>
+                  h(
+                    NTag,
+                    { closable: true, style: {}, type: "info" },
+                    { default: () => name }
+                  ),
+              }
+            )
+          ),
+      }
+    );
+  };
+
   const nRef = notification.create({
-    title: "Autorun tasks?",
-    content: () => h("div", taskNames.join(", ")),
+    title: "Auto run tasks?",
+    content: () => renderTaskList(taskNames),
     duration: 12000,
     meta: "start in 12 seconds...",
     avatar: () =>
@@ -231,7 +257,7 @@ ipcRenderer.on("run-task-from-main", (event, data) => {
           },
         },
         {
-          default: () => h("span", { style: { } }, "Stop"),
+          default: () => h("span", { style: {} }, "Stop"),
         }
       ),
     onAfterEnter: () => {
@@ -311,7 +337,6 @@ const queryMatch = () => {
 const getImaUrl = (imgUrl) => {
   return require(`../../assets/statstones/${imgUrl.toLowerCase()}`);
 };
-
 </script>
 
 <style scoped>

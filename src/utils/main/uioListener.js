@@ -12,7 +12,7 @@ import { optimizeMacroSeq } from '@/utils/main/macroOpt';
 import { uIOhook } from 'uiohook-napi'
 
 const iconPath = path.join(
-  `${__dirname}/../resources`, 'app.png',
+  `${__dirname}/../resources`, 'logo.png',
 )
 
 const activeWindow = require('active-win');
@@ -112,7 +112,7 @@ export const uioListenerStart = async (hotkeyTable) => {
         icon: iconPath,
       }).show()
 
-      ret = globalShortcut.register(key, () => {
+      let ret = globalShortcut.register(key, () => {
         console.log("Main app: keyWait event resolved (", key, ")")
         globalShortcut.unregister(start)
         let newEvent = {

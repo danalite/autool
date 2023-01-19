@@ -2,7 +2,7 @@
   <header v-mouse-drag="handleDrag" class="frankTitle">
     <n-space class="frankTitle">
       <img
-        src="../../assets/icon/app.png"
+        src="../../assets/icon/logo.png"
         draggable="false"
         alt=""
         width="40"
@@ -17,8 +17,8 @@
         @click="handleMin"
         v-else
       />
-      AuTool
-      <!-- <img src="../../assets/icon/Frank.png" style="margin-top: 4px" /> -->
+      <n-text>AuTool</n-text>
+      <!-- <img src="../../assets/icon/appName.png" style="margin-top: 4px; width: 100px" /> -->
       <n-tag
         :bordered="false"
         round
@@ -92,6 +92,7 @@ import {
   NPopover,
   NPopconfirm,
   NTag,
+  NText,
   useMessage,
 } from "naive-ui";
 import {
@@ -194,5 +195,74 @@ header {
 
 .frankTitle {
   align-items: center;
+}
+
+.n-text {
+  /* font-weight: 560; */
+  font-size: 20px;
+  color:darkgray;
+  line-height: 0.9em;
+}
+
+.gradient-text {
+  /* Fallback: Set a background color. */
+  background-color: darkgrey;
+  
+  /* Create the gradient. */
+   background-image: linear-gradient(
+        90deg,
+        /* #CA4246 16.666%, 
+        #E16541 16.666%, 
+        #E16541 33.333%, 
+        #F18F43 33.333%,  */
+        #FCBAD3 16.666%, 
+        darkgrey 83.333%);
+  
+  /* Set the background size and repeat properties. */
+  background-size: 100%;
+  background-repeat: repeat;
+
+  /* Use the text as a mask for the background. */
+  /* This will show the gradient as a text color rather than element bg. */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; 
+  
+  /* Animate the text when loading the element. */
+    /* This animates it on page load and when hovering out. */
+    animation: rainbow-text-simple-animation-rev 0.75s ease forwards;
+
+}
+
+.gradient-text:hover{
+    animation: rainbow-text-simple-animation 0.5s ease-in forwards;
+}
+
+
+/* Move the background and make it smaller. */
+/* Animation shown when entering the page and after the hover animation. */
+@keyframes rainbow-text-simple-animation-rev {
+    0% {
+        background-size: 650%;
+    }
+    40% {
+        background-size: 650%;
+    }
+    100% {
+        background-size: 100%;
+    }
+}
+
+/* Move the background and make it larger. */
+/* Animation shown when hovering over the text. */
+@keyframes rainbow-text-simple-animation {
+    0% {
+        background-size: 100%;
+    }
+    80% {
+        background-size: 650%;
+    }
+    100% {
+        background-size: 650%;
+    }
 }
 </style>
