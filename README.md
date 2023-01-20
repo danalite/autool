@@ -37,14 +37,13 @@
 
 - Execute the script inside the app
 
-<p align="center">
-  <img src="docs/images/mainApp.png" width="350" title="hover text">
-  <img src="docs/images/mainSch.png" width="350" alt="accessibility text">
-</p>
+| Console            |  Scheduler |
+:-------------------------:|:-------------------------:
+![](docs/images/mainApp.png)  |  ![](docs/images/mainSch.png)
 
 
 ## Competitors
 - Low-code: Microsoft Power Automate, UiPath, UiBot
 - Web: uTools, Zapier, n8n, IFTTT，HugInn
 - DSL: AppleScript, TagUI, VBA, 按键精灵, AutoHotKey
-- Mobile: Android Tasker, 
+- Mobile: Android Tasker, iOS shortcut
