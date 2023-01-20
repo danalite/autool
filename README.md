@@ -17,29 +17,33 @@
 - Compose automation script in YAML
 
 ```yaml
---- 
-   task: auto-switch-input-method
+task: auto-switch-input-method
 
-   configs:
-    options: ['autostart']
-    hotkey: Ctrl+L
+configs:
+  options: ['autostart']
+  hotkey: Ctrl+L
 
-   actions:
-     ## 在窗口切换时触发 hook 事件
-     - event.on(__ACTIVE_WINDOW_CHANGED) => $win:
-       - cmd.if({{ $win in ['WeChat'] }}):
-         - os.run(InputSourceSelector select com.apple.inputmethod.SCIM.ITABC)
+actions:
+  ## 在窗口切换时触发 hook 事件
+  - event.on(__ACTIVE_WINDOW_CHANGED) => $win:
+    - cmd.if({{ $win in ['WeChat'] }}):
+      - os.run(InputSourceSelector select com.apple.inputmethod.SCIM.ITABC)
 
-     # 推送消息到手机
-     - user.notify({{ {'to':$env[PHONE],'title':'...'} }})
+  # 推送消息到手机
+  - user.notify({{ {'to':$env[PHONE],'title':'...'} }})
 
 ```
 
 - Execute the script inside the app
 
-| Console            |  Scheduler |
-:-------------------------:|:-------------------------:
-![](docs/images/mainApp.png)  |  ![](docs/images/mainSch.png)
+<p align="center">
+  <img src="docs/images/mainApp.png" height="550" title="mainApp">
+</p>
+
+- Schedule the script inside the app
+<p align="center">
+  <img src="docs/images/mainSch.png" height="550" title="mainSch">
+</p>
 
 
 ## Competitors
