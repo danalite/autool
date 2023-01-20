@@ -7,7 +7,7 @@ const fs = require('fs');
 
 export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.on('move-main', (event, pos) => {
-    mainWindow.setBounds({ x: pos.x, y: pos.y, width: 450, height: 650 })
+    mainWindow.setBounds({ x: pos.x, y: pos.y, width: 390, height: 650 })
   })
 
   ipcMain.on('main-win-minimize', () => {

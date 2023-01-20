@@ -10,8 +10,8 @@ export const createMainWindow = async (userHeader) => {
     transparent: true,
     show: false,
     frame: false,
-    resizable: false,
-    width: 450,
+    resizable: true,
+    width: 390,
     height: 650,
     webPreferences: {
       nodeIntegration: true,
