@@ -91,32 +91,6 @@ export default {
   },
   setup(props, { emit }) {
     const showType = ref("1");
-    const columns = [
-      {
-        type: "expand",
-        expandable: (rowData) => true,
-        renderExpand: (rowData) => {
-          return rowData.value.type === "loadTasks"
-            ? h(NTag, { type: "success", bordered: false }, () => "loadTasks")
-            : h(NSpace, { vertical: false }, () => [
-                h(NTag, { type: "success", bordered: false }, () => {
-                  rowData.value.type;
-                }),
-                h("p", null, () => {
-                  rowData.value.taskName;
-                }),
-              ]);
-        },
-      },
-      {
-        title: "Event",
-        key: "event",
-      },
-      {
-        title: "ID",
-        key: "uuid",
-      },
-    ];
 
     const genType = (item) => {
       if (item.type === "taskError") {
@@ -128,15 +102,6 @@ export default {
 
     const genContent = (item) => {
       switch (item.type) {
-        // Outward events
-        case "loadTasks":
-          let taskNum = 0;
-          const appNum = item.tasks.length;
-          for (let i = 0; i < appNum; i++) {
-            taskNum += item.tasks[i].tasks.length;
-          }
-          return `loadTasks (${item.tasks.length} apps. ${taskNum} tasks)`;
-
         case "taskFinish":
           return item.message;
 
@@ -156,11 +121,7 @@ export default {
       let index = 0;
       return props.taskEventsIn.map((e) => {
         return {
-          title:
-            e.event +
-            " (" +
-            (e.uuid == "NULL" ? "NULL" : e.uuid.slice(0, 8)) +
-            ")",
+          title: `${e.event} (${e.uuid.slice(0, 8)}`,
           content: genContent(e.value),
           key: index++,
           type: genType(e.value),
@@ -187,7 +148,6 @@ export default {
     });
 
     return {
-      columns,
       showType,
       itemsEventsIn,
       itemsEventsOut,

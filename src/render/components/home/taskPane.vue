@@ -62,11 +62,13 @@
                         <n-icon size="18" depth="3" style="padding-right: 3px">
                           <Box />
                         </n-icon>
-                        <n-text>{{
+                        <n-ellipsis style="max-width: 140px">
+                          {{
                           task.relTaskPath.includes("/")
                             ? task.relTaskPath.split("/")[1]
                             : task.relTaskPath
-                        }}</n-text>
+                        }}
+                        </n-ellipsis>
                       </n-button>
 
                       <n-space>

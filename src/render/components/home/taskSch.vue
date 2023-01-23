@@ -1,7 +1,7 @@
 <template>
   <div>
     <n-space vertical>
-      <n-space justify="center" style="padding-top: 10px">
+      <n-space justify="center" style="padding: 10px">
         <n-select
           size="medium"
           v-model:value="showType"
@@ -13,20 +13,100 @@
       </n-space>
 
       <!-- Event in and outs -->
-      <n-collapse-transition :show="showType == 'out-events'">
-        Events
-      </n-collapse-transition>
+      <n-scrollbar style="max-height: 370px">
+        <n-collapse-transition :show="showType == 'events'">
+          <n-timeline size="large" :style="{ 'padding-top': '5px' }">
+            <n-timeline-item
+              v-for="e in eventItems.slice().reverse()"
+              :key="e.key"
+              :type="e.type"
+              :title="e.title"
+              :content="e.content"
+              :time="e.time"
+            />
+          </n-timeline>
+        </n-collapse-transition>
 
-      <!-- Task action list -->
-      <n-list>
-        <n-list-item
-          v-for="(task, taskIndex) in itemsEventsIn"
-          style="padding-top: 6px; padding-bottom: 6px"
-          :key="taskIndex"
-        >
-          {{ task }}
-        </n-list-item>
-      </n-list>
+        <n-collapse-transition :show="showType == 'running'">
+          <n-empty
+            v-if="runningTasks.length === 0"
+            description="No running tasks"
+          >
+          </n-empty>
+          <n-list size="large" style="padding-top: 2px; padding-bottom: 0px" v-else>
+            <n-list-item
+              v-for="(task, taskIndex) in runningTasks"
+              style="padding-top: 6px; padding-bottom: 6px"
+              :key="taskIndex"
+            >
+              <n-space justify="space-between">
+                <n-button :text="true" size="small" @click="">
+                  <n-icon
+                    size="18"
+                    v-if="task.options.includes('remote')"
+                    style="padding-right: 3px"
+                  >
+                    <Cloud color="#409eff" />
+                  </n-icon>
+                  <n-icon size="18" v-else style="padding-right: 3px">
+                    <DevicesPc style="color: #409eff" />
+                  </n-icon>
+
+                  <n-ellipsis style="max-width: 220px">
+                    {{ task.taskName }} ({{ task.id.slice(0, 8) }})
+                  </n-ellipsis>
+                </n-button>
+                <n-switch size="small" />
+                <n-button
+                  size="tiny"
+                  type="error"
+                  @click="() => stopTask(task)"
+                >
+                  Stop
+                </n-button>
+              </n-space>
+            </n-list-item>
+          </n-list>
+        </n-collapse-transition>
+
+        <n-collapse-transition :show="showType == 'stopped'">
+          <n-empty
+            v-if="stoppedTasks.length === 0"
+            description="No finished or stopped tasks"
+          >
+          </n-empty>
+
+          <n-list size="large" style="padding-top: 2px; padding-bottom: 0px" v-else>
+            <n-list-item
+              v-for="task in stoppedTasks"
+              :key="task.id"
+              style="padding-top: 6px; padding-bottom: 6px"
+            >
+              <n-space style="padding-top: 2px" justify="center">
+                <n-button :text="true" size="small" @click="">
+                  <n-icon
+                    size="18"
+                    v-if="task.options.includes('remote')"
+                    style="padding-right: 3px"
+                  >
+                    <Cloud color="#409eff" />
+                  </n-icon>
+                  <n-icon size="18" v-else style="padding-right: 3px">
+                    <DevicesPc style="color: #409eff" />
+                  </n-icon>
+
+                  {{ task.taskName }} ({{ task.id.slice(0, 8) }})
+                </n-button>
+              </n-space>
+            </n-list-item>
+          </n-list>
+        </n-collapse-transition>
+
+        <n-collapse-transition :show="showType == 'auto-start'">
+          {{ autoStartTasks }}
+        </n-collapse-transition>
+      
+      </n-scrollbar>
     </n-space>
   </div>
 </template>
@@ -40,7 +120,6 @@ import {
   BrandAndroid,
   Box,
   TransferIn,
-  TransferOut,
   Clock,
   Keyboard,
 } from "@vicons/tabler";
@@ -53,12 +132,17 @@ import {
   NDataTable,
   NScrollbar,
   NAvatar,
+  NEmpty,
+  NEllipsis,
   NSelect,
   NButton,
   NTag,
   NText,
   NTabs,
+  NTimeline,
+  NTimelineItem,
   NTabPane,
+  NSwitch,
   NCollapseTransition,
   useMessage,
 } from "naive-ui";
@@ -76,11 +160,17 @@ export default {
     NSelect,
     NButton,
     NAvatar,
+    NEmpty,
+    NEllipsis,
     NTag,
     NIcon,
     NText,
+
+    NSwitch,
     NTabs,
     NTabPane,
+    NTimeline,
+    NTimelineItem,
     NCollapseTransition,
     useMessage,
     PlayerStop,
@@ -89,7 +179,6 @@ export default {
     Clock,
     Keyboard,
     TransferIn,
-    TransferOut,
     Cloud,
     DevicesPc,
     BrandAndroid,
@@ -97,10 +186,13 @@ export default {
 
   // Tasks and instances
   props: {
-    tasksPending: {
+    apps: {
       type: Array,
     },
-    tasksEnded: {
+    taskEvents: {
+      type: Array,
+    },
+    tasksStatusTable: {
       type: Array,
     },
   },
@@ -175,6 +267,20 @@ export default {
     };
 
     const showTasksOptions = [
+    {
+        label: "running",
+        value: "running",
+        icon: Box,
+        color: "#4caf50",
+        description: "running tasks",
+      },
+      {
+        label: "stopped",
+        value: "stopped",
+        icon: Box,
+        color: "#DB2544",
+        description: "stopped tasks",
+      },
       {
         label: "auto-start",
         value: "auto-start",
@@ -188,20 +294,6 @@ export default {
         icon: Keyboard,
         color: "grey",
         description: "hotkey invoked",
-      },
-      {
-        label: "running",
-        value: "running",
-        icon: Box,
-        color: "#4caf50",
-        description: "running tasks",
-      },
-      {
-        label: "stopped",
-        value: "stopped",
-        icon: Box,
-        color: "#DB2544",
-        description: "stopped tasks",
       },
       {
         label: "timed",
@@ -218,31 +310,86 @@ export default {
         description: "tasks on cloud",
       },
       {
-        label: "in-events",
-        value: "in-events",
+        label: "events",
+        value: "events",
         icon: TransferIn,
         color: "#FFD73B",
-        description: "events to executor",
-      },
-      {
-        label: "out-events",
-        value: "out-events",
-        icon: TransferOut,
-        color: "#FFD73B",
-        description: "events to frontend",
+        description: "events",
       },
     ];
 
     const stopTask = (task) => {
-      message.warning(`Stopping task ${task.name}...`);
+      message.warning(`Stopping task ${task.taskName}...`);
       emit("stopTask", task);
     };
 
-    const itemsEventsIn = computed(() => {
+    const genType = (item, source) => {
+      if (item.type === "taskError") {
+        return "error";
+      } else {
+        if (source === "console") {
+          return "success";
+        } else {
+          return "info";
+        }
+      }
+    };
+
+    const genContent = (item, taskName) => {
+      switch (item.type) {
+        case "taskFinish":
+          return item.message;
+
+        case "taskError":
+          return item.message;
+
+        // Inward events
+        case "runTask":
+          return `enqueue "${taskName}"`;
+
+        default:
+          return item.type;
+      }
+    };
+
+    const eventItems = computed(() => {
       let index = 0;
-      return props.tasksEnded.map((e) => {
-        return e;
+      return props.taskEvents.map((e) => {
+        return {
+          title: `${e.event} (${e.uuid.slice(0, 8)})`,
+          content: genContent(e.value, e.taskName),
+          key: index++,
+          type: genType(e.value, e.source),
+          time: e.time,
+        };
       });
+    });
+
+    const runningTasks = computed(() => {
+      return props.tasksStatusTable.filter(
+        (t) => t.status === "running" || t.status === "queued"
+      );
+    });
+
+    const stoppedTasks = computed(() => {
+      return props.tasksStatusTable.filter(
+        (t) =>
+          t.status === "taskError" ||
+          t.status === "taskFinish" ||
+          t.status === "stopped"
+      );
+    });
+
+    const autoStartTasks = computed(() => {
+      let tasks = []
+      props.apps.forEach((app) => {
+        app.tasks.forEach((task) => {
+          if (task.options.includes("autostart")) {
+            tasks.push(task)
+          }
+        })
+      })
+      return tasks
     });
 
     return {
@@ -251,7 +398,10 @@ export default {
       showTasksOptions,
       renderSingleSelectTag,
       renderLabel,
-      itemsEventsIn,
+      eventItems,
+      runningTasks,
+      stoppedTasks,
+      autoStartTasks
     };
   },
 };

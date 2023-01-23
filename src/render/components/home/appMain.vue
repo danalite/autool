@@ -15,18 +15,13 @@
 
         <n-tab-pane style="padding-top: 8px" name="chap2" tab="Scheduler">
           <TaskSch
-            :tasksPending="tasksPending"
-            :tasksEnded="tasksEnded"
+            :apps="apps" 
+            :taskEvents="taskEvents"
+            :tasksStatusTable="tasksStatusTable"
             @stopTask="stopTask($event)"
           />
         </n-tab-pane>
 
-        <!-- <n-tab-pane style="padding-top: 5px" name="chap3" tab="Events">
-          <TaskEvents
-            :taskEventsIn="taskEventsIn"
-            :taskEventsOut="taskEventsOut"
-          />
-        </n-tab-pane> -->
       </n-tabs>
     </n-card>
   </div>
@@ -61,7 +56,6 @@ import { PlayerPlay } from "@vicons/tabler";
 import SearchBar from "./searchBar.vue";
 import TaskPane from "./taskPane.vue";
 import TaskSch from "./taskSch.vue";
-import TaskEvents from "./taskEvents.vue";
 import { appConfig } from "@/utils/main/config";
 
 const EventType = {
@@ -78,30 +72,28 @@ const EventType = {
 const message = useMessage();
 const notification = useNotification();
 
-const taskEventsIn = ref([]);
-const taskEventsOut = ref([]);
-const tasksPending = ref([]);
-const tasksEnded = ref([]);
+const taskEvents = ref([]);
+const tasksStatusTable = ref([]);
+
+// local apps/tasks list
 let apps = ref([]);
 
-const backendEventHandle = (data) => {
+const backendEventHook = (data) => {
   const value = data.value;
   data.time = new Date().toLocaleString();
-  taskEventsOut.value.push(data);
+  taskEvents.value.push({'source': 'backend', ...data});
 
   switch (data.event) {
+
+    // 1. Task finish or failure
     case EventType.O_EVENT_TASK_STATUS:
-      // Task status updates (e.g., finish, failed)
       const taskId = data.uuid;
-      const task = tasksPending.value.find((t) => t.id === taskId);
-      tasksPending.value = tasksPending.value.filter(
-        (task) => task.id !== taskId
-      );
-      tasksEnded.value.push({
-        id: taskId,
-        name: value.name,
-        options: task.options,
-        status: value.type,
+
+      tasksStatusTable.value = tasksStatusTable.value.map((task) => {
+        if (task.id === taskId) {
+          task.status = value.type;
+        }
+        return task;
       });
       break;
 
@@ -139,46 +131,46 @@ function uuid() {
 }
 
 const stopTask = (task) => {
-  tasksPending.value = tasksPending.value.filter((t) => t.id !== task.id);
-  tasksEnded.value.push({
-    id: task.id,
-    name: task.name,
-    options: task.options,
-    status: "stopped",
-  });
+  tasksStatusTable.value = tasksStatusTable.value.map((t) => {
+    if (t.id === task.id) {
+      t.status = "stopped";
+    }
+    return t;
+  }
+  );
 
   let newEvent = {
     event: EventType.I_EVENT_TASK_REQ,
     uuid: task.id,
+    taskName: task.relTaskPath,
+    source: "console",
     value: {
       type: "cancelTask",
     },
     time: new Date().toLocaleString(),
   };
 
-  taskEventsIn.value.push(newEvent);
+  taskEvents.value.push(newEvent);
   sendMessageToBackend(newEvent);
 };
 
 const runTask = (task) => {
+  // run task request from console/TaskSch
   const taskId = uuid();
-  // Track pending tasks
-  const taskStatus = {
+  let tasksStatus = {
     id: taskId,
-    name: task.relTaskPath,
+    taskName: task.relTaskPath,
+    hotkey: task.hotkey,
     options: task.options,
-    status: "running",
+    status: "",
     startTime: new Date().toLocaleString(),
-  };
-  tasksPending.value.push(taskStatus);
+  }
 
-  // Start task immediately or stall depending on hotkey
-  if (task.hotkey) {
-  } else {
-    // console.log("@@", task)
-    const newEvent = {
+  let taskStartEvent = {
       event: EventType.I_EVENT_TASK_REQ,
+      source: "console",
       uuid: taskId,
+      taskName: task.relTaskPath,
       value: {
         type: "runTask",
         appPath: task.appPath,
@@ -190,8 +182,45 @@ const runTask = (task) => {
       },
       time: new Date().toLocaleString(),
     };
-    taskEventsIn.value.push(newEvent);
-    sendMessageToBackend(newEvent);
+
+  // 1. Stall task until hotkey is triggered. 
+  if (task.hotkey) {
+
+    let isKeyRegistered = tasksStatusTable.value.find((t) => t.hotkey === task.hotkey && t.status === "queued");
+
+    if (isKeyRegistered) {
+      message.warning(`Hotkey ${task.hotkey} is already registered for task ${isKeyRegistered.name}`);
+      return;
+    }
+    
+    tasksStatus.status = "queued";
+    tasksStatusTable.value.push(tasksStatus);
+    message.info(`Task ${task.relTaskPath} is waiting for hotkey ${task.hotkey}`);
+
+    ipcRenderer.send("register-task-hotkey", {
+      hotkey: task.hotkey,
+      taskId: taskId,
+    });
+
+    ipcRenderer.on("task-hotkey-invoked", (event, data) => {
+      if (data.taskId === taskId) {
+        taskStartEvent.value.startTime = new Date().toLocaleString();
+        taskEvents.value.push(taskStartEvent);
+        sendMessageToBackend(taskStartEvent);
+      }
+    }
+    );
+  
+  // 2. Wait for timer counts down
+  } else if (task.startTime) {
+    message.info(`Task ${task.relTaskPath} is scheduled to start at ${task.startTime}`);
+
+  } else {
+    // Start task right away
+    tasksStatus.status = "running";
+    tasksStatusTable.value.push(tasksStatus);
+    taskEvents.value.push(taskStartEvent);
+    sendMessageToBackend(taskStartEvent);
   }
 };
 
@@ -286,7 +315,7 @@ function setupWsConn() {
     wsConn = new WebSocket("ws://127.0.0.1:5678/");
     wsConn.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      backendEventHandle(data);
+      backendEventHook(data);
     };
     wsConn.onopen = (event) => {
       sendMessageToBackend({
@@ -305,6 +334,7 @@ function setupWsConn() {
     }, 5000);
   }
 }
+
 
 const refreshApps = async () => {
   await ipcRenderer.invoke("reload-apps", {});

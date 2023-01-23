@@ -86,12 +86,15 @@ const startPythonSubprocess = () => {
 };
 
 
-const init = async () => {
+const showNotification = (title, body) => {
   new Notification({
     title: "AuTool SSR has started. ",
     body: "Aren't you excited about learning workflow automation?",
     icon: iconPath,
   }).show()
+}
+
+const init = async () => {
   startPythonSubprocess()
 
   mainWindow = await createMainWindow(userHeader)
