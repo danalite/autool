@@ -1,4 +1,4 @@
-import { app, ipcMain } from "electron";
+import { app, ipcMain, BrowserView } from "electron";
 import { appConfig } from "@/utils/main/config";
 import { loadApps } from '@/utils/main/queryTasks';
 
@@ -7,7 +7,37 @@ const fs = require('fs');
 
 export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.on('move-main', (event, pos) => {
-    mainWindow.setBounds({ x: pos.x, y: pos.y, width: 390, height: 650 })
+    let dim = appConfig.get('mainWindowDimension')
+    mainWindow.setBounds({ x: pos.x, y: pos.y, width: dim.width, height: dim.height })
+  })
+
+  // Collapse main console to floating bar
+  ipcMain.on('main-win-resize', (event, dim) => {
+
+    // https://gist.github.com/my-lalex/f81352ad69fba206b84e59341fc469ed
+    const startWidth = mainWindow.getBounds().width;
+    const startHeight = mainWindow.getBounds().height;
+    const targetWidth = dim.width;
+    const targetHeight = dim.height;
+
+    const easing = (t, b, c, d) => (t == d ? b + c : c * (-Math.pow(2, (-10 * t) / d) + 1) + b);
+    const duration = 100;
+
+    let currentFrame = 0;
+		const updateSize = () => {
+			currentFrame++;
+			mainWindow.setSize(
+				Math.round(easing(currentFrame, startWidth, targetWidth - startWidth, duration)),
+				Math.round(easing(currentFrame, startHeight, targetHeight - startHeight, duration)),
+			);
+			if (currentFrame < duration) setImmediate(updateSize);
+		};
+		setImmediate(updateSize);
+    if (targetHeight < 100) {
+      mainWindow.setAlwaysOnTop(true, 'floating', 1)
+    } else {
+      mainWindow.setAlwaysOnTop(false)
+    }
   })
 
   ipcMain.on('main-win-minimize', () => {
@@ -26,23 +56,21 @@ export const ipcListener = (mainWindow, assistWindow) => {
     app.quit()
   })
 
-  // 移动助手窗口
-  ipcMain.on('move-assistWindow', (event, pos) => {
-    assistWindow.setBounds({ x: pos.x, y: pos.y, width: 320, height: 720 })
-  })
+  // This handler updates our mouse event settings depending
+  // on whether the user is hovering over a clickable element
+  // in the call window.
+  ipcMain.handle("set-ignore-mouse-events", (e, ...args) => {
+    assistWindow.setIgnoreMouseEvents(...args);
+  });
 
-  // 刷新助手页面
-  ipcMain.on('setting-page-refresh-assist', () => {
-    assistWindow.webContents.send('client-connect-success')
-  })
-
-  ipcMain.handle('reload-apps', async (event) => {
-    console.log("[ NodeJS ] reloading-apps...")
+  // local app or tasks CURD
+  ipcMain.handle('app-reload', async (event) => {
+    // console.log("[ NodeJS ] reloading apps...")
     const apps = loadApps(appConfig.get('appHome'))
     appConfig.set('apps', apps.apps)
   })
 
-  ipcMain.handle('delete-app-task', async (event, appOrTask) => {
+  ipcMain.handle('app-task-delete', async (event, appOrTask) => {
     if (appOrTask.type === "task") {
       let taskPath = task.appPath + task.name + ".yaml"
       fs.unlink(taskPath, function (err) {
@@ -67,42 +95,5 @@ export const ipcListener = (mainWindow, assistWindow) => {
         console.error(`${appPath} not exists`)
       }
     }
-  })
-
-  ipcMain.on('save-task', (event, taskStr) => {
-    let task = JSON.parse(taskStr)
-    fs.writeFile(task.taskPath, task.content, err => {
-      if (err) {
-        console.error(err);
-      }
-    });
-    let appJsonPath = path.join(task.appPath, "tasks.json")
-    let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
-    if (!appJson.tasks.includes(task.name + ".yaml")) {
-      appJson.tasks.push(task.name + ".yaml")
-    }
-    fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
-      if (err) {
-        console.error(err);
-      }
-    });
-  })
-
-  ipcMain.on('run-task', (event, task) => {
-    let tempTaskPath = appConfig.get('appTemp')
-    fs.writeFile(tempTaskPath, task.content, err => {
-      if (err) {
-        console.error(err);
-      }
-      let newTasks = [{
-        name: task.name,
-        absTaskPath: tempTaskPath,
-        appPath: task.appPath,
-        inputs: [],
-        options: []
-      }]
-      mainWindow.webContents.send('run-task-from-main',
-        { is_autostart: false, tasks: newTasks })
-    });
   })
 }

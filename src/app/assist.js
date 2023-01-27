@@ -1,25 +1,19 @@
-import {BrowserWindow, screen} from "electron";
-import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
-import {appConfig} from "@/utils/main/config";
-
+import { BrowserWindow, screen } from "electron";
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 
 export const createAssistWindow = async (userHeader) => {
   const currentScreen = screen.getPrimaryDisplay()['size']
-  const assistWindowPosition = appConfig.get('assistWindowPosition')
-  if (assistWindowPosition.x ===0 && assistWindowPosition.y ===0){
-    assistWindowPosition.x = currentScreen.width -320
-    assistWindowPosition.y = (currentScreen.height -770)/2
-    appConfig.set('assistWindowPosition',{x:currentScreen.width -320,y:(currentScreen.height -770)/2})
-  }
+  const assistWindowPosition = { x: 0, y: 15 }
+
   const assistWin = new BrowserWindow({
-    title: 'FrankAssist',
-    show: false,
+    title: 'toolAssist',
     frame: false,
+    transparent:true,
     resizable: false,
-    width: 520,
-    height: 320,
-    x:assistWindowPosition.x,
-    y:assistWindowPosition.y,
+    width: 380,
+    height: currentScreen.height - 20,
+    x: assistWindowPosition.x,
+    y: assistWindowPosition.y,
     alwaysOnTop: true,
     webPreferences: {
       nodeIntegration: true,
@@ -30,13 +24,20 @@ export const createAssistWindow = async (userHeader) => {
     }
   })
 
-  // 通过不同的运行指令,选择对应的加载方式
+  assistWin.on('ready-to-show', () => {
+    assistWin.show()
+  })
+
+  assistWin.setIgnoreMouseEvents(false);
+  assistWin.setFocusable(true);
+  assistWin.webContents.openDevTools()
+
   if (process.env.npm_lifecycle_event === "electron:serve") {
-    await assistWin.loadURL('http://localhost:8080/#/assist', {userAgent: userHeader})
+    await assistWin.loadURL('http://localhost:8080/#/assist', { userAgent: userHeader })
 
   } else {
     createProtocol('app')
-    await assistWin.loadURL('app://./index.html/#/assist', {userAgent: userHeader})
+    await assistWin.loadURL('app://./index.html/#/assist', { userAgent: userHeader })
   }
   return assistWin
 }

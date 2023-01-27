@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "author": "Danalite",
   "main": "background.js",
-  "description": "A SaaS integration and RPA tool",
+  "description": "Software automation toolkit",
   "scripts": {
     "init": "python -m venv pyenv && run-script-os",
     "init:macos": "./pyenv/bin/pip install -r ./backend/requirements.txt",

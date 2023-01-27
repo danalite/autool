@@ -1,7 +1,6 @@
 import {
   app,
   BrowserWindow,
-  Notification,
 } from 'electron'
 
 const axios = require('axios')
@@ -14,8 +13,7 @@ import {
   createAssistWindow,
   createMainWindow,
   ipcListener,
-  makeTray,
-  queryMatchIpc
+  makeTray
 } from "./app";
 
 import { execFile, spawn } from "child_process"
@@ -85,26 +83,17 @@ const startPythonSubprocess = () => {
   subPy.stderr.pipe(process.stdout)
 };
 
-
-const showNotification = (title, body) => {
-  new Notification({
-    title: "AuTool SSR has started. ",
-    body: "Aren't you excited about learning workflow automation?",
-    icon: iconPath,
-  }).show()
-}
-
 const init = async () => {
   startPythonSubprocess()
 
   mainWindow = await createMainWindow(userHeader)
   assistWindow = await createAssistWindow(userHeader)
 
-  assistWindow.on('blur', () => {
-    if (!assistWindow.webContents.isDevToolsOpened()) {
-      assistWindow.hide()
-    }
-  })
+  // assistWindow.on('blur', () => {
+  //   if (!assistWindow.webContents.isDevToolsOpened()) {
+  //     assistWindow.hide()
+  //   }
+  // })
 
   makeTray(iconPath, mainWindow, assistWindow)
 
@@ -114,7 +103,6 @@ const init = async () => {
   ipcListener(mainWindow, assistWindow)
   mainWindow.webContents.send('start-wss-backend')
 
-  queryMatchIpc(mainWindow, userHeader) // 战绩查询窗口
   uioListenerStart(ioListenerTable)
 }
 
@@ -185,27 +173,15 @@ const appSetup = async () => {
     }
   }
 
-  appConfig.set("appTemp", path.join(path.join(appHome, "scripts"), "temp.yaml"))
-
   const apps = loadApps(appHome)
   appConfig.set('apps', apps.apps)
 
   // Auto-start tasks
-  let newTasks = []
-  apps.autostart.forEach((e) => {
-    newTasks.push({
-      relTaskPath: e.relTaskPath,
-      absTaskPath: e.absTaskPath,
-      appPath: e.appPath,
-      inputs: e.inputs,
-      options: e.options
-    })
-  })
-
-  let taskNames = newTasks.map((e) => e.relTaskPath)
+  let taskNames = apps.autostart.map((e) => e.relTaskPath)
   console.log(`[ NodeJS ] autostart ${taskNames}`)
+  
   setTimeout(async () => {
     mainWindow.webContents.send('run-task-from-main', 
-      {is_autostart: true, tasks: newTasks})
+      {is_autostart: true, tasks: apps.autostart})
   }, 2000)
 }

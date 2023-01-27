@@ -1,62 +1,60 @@
-import { app, Menu, nativeImage, Tray } from "electron";
+import { app, Menu, nativeImage, Tray, shell, dialog } from "electron";
 import { appConfig } from "@/utils/main/config";
-
-const toggleWindow = (window, tray) => {
-  if (window.isVisible()) {
-    window.hide()
-  } else {
-    showTrayWindow(window, tray)
-  }
-}
-
-const showTrayWindow = (window, tray) => {
-  const position = getWindowPosition(window, tray)
-  window.setPosition(position.x, position.y, false)
-  window.show()
-  window.focus()
-}
-
-const getWindowPosition = (window, tray) => {
-  const windowBounds = window.getBounds()
-  const trayBounds = tray.getBounds()
-
-  // Center window horizontally below the tray icon
-  const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
-
-  // Position window 1 pixel vertically below the tray icon
-  const y = Math.round(trayBounds.y + trayBounds.height + 1)
-
-  return {x: x, y: y}
-}
+import pkg from "../../package.json";
 
 // Create a status page (task scheduled or running. notifications etc.)
 export const makeTray = (iconPath, mainWindow, assistWindow) => {
   const icon = nativeImage.createFromPath(iconPath).resize({ width: 24, height: 24 })
-  const tray = new Tray(icon)
+  const appIcon = new Tray(icon)
 
-  tray.setToolTip('Frank')
+  appIcon.setToolTip('Frank')
 
-  tray.on('click', function (event) {
-    toggleWindow(assistWindow, tray)
-    // Show devtools when command clicked
-    if (assistWindow.isVisible() && process.defaultApp && event.metaKey) {
-      assistWindow.openDevTools({mode: 'detach'})
-    }
-  })
-  
+  const createContextMenu = () =>
+    Menu.buildFromTemplate([
+      {
+        label: "Help documents",
+        click: () => {
+          process.nextTick(() => {
+            shell.openExternal("https://github.com/clouDr-f2e/rubick");
+          });
+        },
+      },
+      { type: "separator" },
+      {
+        label: "Show main window",
+        // accelerator: getShowAndHiddenHotKey(),
+        click() {
+          mainWindow.show();
+        },
+      },
+      {
+        role: "quit",
+        label: "Exit",
+      },
+      {
+        label: "Restart",
+        click() {
+          app.relaunch();
+          app.quit();
+        },
+      },
+      { type: "separator" },
+      {
+        label: "About AuTool",
+        click() {
+          dialog.showMessageBox({
+            title: "Danalites AuTool",
+            message: "Fast and scalable workflow automation tool.",
+            detail: `Version: ${pkg.version}\n`,
+          });
+        },
+      },
+    ]);
+  appIcon.on("click", () => {
+    appIcon.setContextMenu(createContextMenu());
+    appIcon.popUpContextMenu();
+  });
+  appIcon.setContextMenu(createContextMenu());
+
 }
 
-const showWindow = (Window) => {
-  if (!Window) {
-    return
-  }
-
-  const visible = Window.isVisible()
-  if (!visible) {
-    Window.show()
-    Window.setSkipTaskbar(false)
-  } else {
-    Window.hide()
-    Window.setSkipTaskbar(true)
-  }
-}

@@ -1,15 +1,12 @@
 <script setup>
-import { NMessageProvider, NNotificationProvider } from "naive-ui";
+import { NMessageProvider } from "naive-ui";
 </script>
 
 <template>
-  <n-notification-provider :max="2">
-    <n-message-provider :placement="'bottom'">
-      <router-view></router-view>
-    </n-message-provider>
-  </n-notification-provider>
+  <n-message-provider :placement="'bottom'">
+    <router-view></router-view>
+  </n-message-provider>
 </template>
-
 
 <style>
 /* @font-face {
@@ -21,9 +18,6 @@ import { NMessageProvider, NNotificationProvider } from "naive-ui";
   padding: 0;
   font-family: Monospace, Arial, sans-serif;
   -webkit-user-select: none;
-}
-html {
-  background: #f5f5f5;
 }
 ::-webkit-scrollbar {
   width: 0;

@@ -1,16 +1,6 @@
 <template>
   <div>
     <n-space vertical>
-      <n-space justify="center" style="padding: 10px">
-        <n-select
-          size="medium"
-          v-model:value="showType"
-          :style="{ width: '250px' }"
-          :options="showTasksOptions"
-          :render-label="renderLabel"
-          :render-tag="renderSingleSelectTag"
-        />
-      </n-space>
 
       <!-- Event in and outs -->
       <n-scrollbar style="max-height: 370px">
@@ -28,12 +18,7 @@
         </n-collapse-transition>
 
         <n-collapse-transition :show="showType == 'running'">
-          <n-empty
-            v-if="runningTasks.length === 0"
-            description="No running tasks"
-          >
-          </n-empty>
-          <n-list size="large" style="padding-top: 2px; padding-bottom: 0px" v-else>
+          <n-list size="large" style="padding-top: 2px; padding-bottom: 0px">
             <n-list-item
               v-for="(task, taskIndex) in runningTasks"
               style="padding-top: 6px; padding-bottom: 6px"
@@ -202,122 +187,6 @@ export default {
     const message = useMessage();
     const showType = ref("running");
 
-    const renderTaskSelectIcon = (icon, color, hasMargin) => {
-      return h(
-        NIcon,
-        {
-          round: false,
-          size: 24,
-          style: {
-            marginRight: hasMargin ? "12px" : "0px",
-          },
-          color: color,
-        },
-        {
-          default: () => h(icon),
-        }
-      );
-    };
-
-    const renderSingleSelectTag = ({ option }) => {
-      return h(
-        "div",
-        {
-          style: {
-            display: "flex",
-            alignItems: "center",
-          },
-        },
-        [renderTaskSelectIcon(option.icon, option.color, true), option.label]
-      );
-    };
-
-    const renderLabel = (option) => {
-      return h(
-        "div",
-        {
-          style: {
-            display: "flex",
-            alignItems: "center",
-          },
-        },
-        [
-          renderTaskSelectIcon(option.icon, option.color, false),
-          h(
-            "div",
-            {
-              style: {
-                marginLeft: "12px",
-                padding: "4px 0",
-              },
-            },
-            [
-              h("div", null, [option.label]),
-              h(
-                NText,
-                { depth: 3, tag: "div" },
-                {
-                  default: () => option.description,
-                }
-              ),
-            ]
-          ),
-        ]
-      );
-    };
-
-    const showTasksOptions = [
-    {
-        label: "running",
-        value: "running",
-        icon: Box,
-        color: "#4caf50",
-        description: "running tasks",
-      },
-      {
-        label: "stopped",
-        value: "stopped",
-        icon: Box,
-        color: "#DB2544",
-        description: "stopped tasks",
-      },
-      {
-        label: "auto-start",
-        value: "auto-start",
-        icon: BrandAndroid,
-        color: "#4caf50",
-        description: "autorun on startup",
-      },
-      {
-        label: "hotkey",
-        value: "hotkey",
-        icon: Keyboard,
-        color: "grey",
-        description: "hotkey invoked",
-      },
-      {
-        label: "timed",
-        value: "timed",
-        icon: Clock,
-        color: "#2685c2",
-        description: "tasks scheduled",
-      },
-      {
-        label: "remote",
-        value: "remote",
-        icon: Cloud,
-        color: "#2685c2",
-        description: "tasks on cloud",
-      },
-      {
-        label: "events",
-        value: "events",
-        icon: TransferIn,
-        color: "#FFD73B",
-        description: "events",
-      },
-    ];
-
     const stopTask = (task) => {
       message.warning(`Stopping task ${task.taskName}...`);
       emit("stopTask", task);
@@ -395,9 +264,6 @@ export default {
     return {
       showType,
       stopTask,
-      showTasksOptions,
-      renderSingleSelectTag,
-      renderLabel,
       eventItems,
       runningTasks,
       stoppedTasks,

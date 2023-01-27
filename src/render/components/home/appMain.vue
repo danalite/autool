@@ -1,30 +1,31 @@
 <template>
-  <div class="mainCard">
-    <SearchBar @refreshApps="refreshApps" />
+  <n-collapse-transition :show="pageCount > 0">
+    <div class="mainCard">
+      <SearchBar @refreshApps="refreshApps" />
 
-    <!-- Second block under user information -->
-    <n-card class="boxShadow appCard" size="small">
-      <n-tabs type="segment" :animated="true">
-        <n-tab-pane style="padding-top: 3px" name="chap1" tab="Tasks">
-          <TaskPane
-            :apps="apps"
-            @runTask="runTask($event)"
-            @refreshApps="refreshApps"
-          />
-        </n-tab-pane>
+      <!-- Second block under user information -->
+      <n-card class="boxShadow appCard" size="small">
+        <n-tabs type="segment" :animated="true">
+          <n-tab-pane style="padding-top: 3px" name="chap1" tab="Tasks">
+            <TaskPane
+              :apps="apps"
+              @runTask="runTask($event)"
+              @refreshApps="refreshApps"
+            />
+          </n-tab-pane>
 
-        <n-tab-pane style="padding-top: 8px" name="chap2" tab="Scheduler">
-          <TaskSch
-            :apps="apps" 
-            :taskEvents="taskEvents"
-            :tasksStatusTable="tasksStatusTable"
-            @stopTask="stopTask($event)"
-          />
-        </n-tab-pane>
-
-      </n-tabs>
-    </n-card>
-  </div>
+          <n-tab-pane style="padding-top: 8px" name="chap2" tab="Scheduler">
+            <TaskSch
+              :apps="apps"
+              :taskEvents="taskEvents"
+              :tasksStatusTable="tasksStatusTable"
+              @stopTask="stopTask($event)"
+            />
+          </n-tab-pane>
+        </n-tabs>
+      </n-card>
+    </div>
+  </n-collapse-transition>
 </template>
 
 <script setup>
@@ -43,6 +44,7 @@ import {
   NListItem,
   NScrollbar,
   NButton,
+  NCollapseTransition,
   useMessage,
   useNotification,
   NTabs,
@@ -56,7 +58,13 @@ import { PlayerPlay } from "@vicons/tabler";
 import SearchBar from "./searchBar.vue";
 import TaskPane from "./taskPane.vue";
 import TaskSch from "./taskSch.vue";
+
 import { appConfig } from "@/utils/main/config";
+import { useStore } from "@/render/store";
+import { storeToRefs } from "pinia/dist/pinia";
+
+const store = useStore();
+let { pageCount } = storeToRefs(store);
 
 const EventType = {
   O_EVENT_TASK_STATUS: "O_EVENT_TASK_STATUS",
@@ -70,8 +78,6 @@ const EventType = {
 };
 
 const message = useMessage();
-const notification = useNotification();
-
 const taskEvents = ref([]);
 const tasksStatusTable = ref([]);
 
@@ -81,14 +87,11 @@ let apps = ref([]);
 const backendEventHook = (data) => {
   const value = data.value;
   data.time = new Date().toLocaleString();
-  taskEvents.value.push({'source': 'backend', ...data});
+  taskEvents.value.push({ source: "backend", ...data });
 
   switch (data.event) {
-
-    // 1. Task finish or failure
     case EventType.O_EVENT_TASK_STATUS:
       const taskId = data.uuid;
-
       tasksStatusTable.value = tasksStatusTable.value.map((task) => {
         if (task.id === taskId) {
           task.status = value.type;
@@ -136,8 +139,7 @@ const stopTask = (task) => {
       t.status = "stopped";
     }
     return t;
-  }
-  );
+  });
 
   let newEvent = {
     event: EventType.I_EVENT_TASK_REQ,
@@ -164,38 +166,43 @@ const runTask = (task) => {
     options: task.options,
     status: "",
     startTime: new Date().toLocaleString(),
-  }
+  };
 
   let taskStartEvent = {
-      event: EventType.I_EVENT_TASK_REQ,
-      source: "console",
-      uuid: taskId,
-      taskName: task.relTaskPath,
-      value: {
-        type: "runTask",
-        appPath: task.appPath,
-        absTaskPath: task.absTaskPath,
-        startTime: task.startTime,
-        inputs: task.inputs,
-        options: task.options,
-        content: task.content,
-      },
-      time: new Date().toLocaleString(),
-    };
+    event: EventType.I_EVENT_TASK_REQ,
+    source: "console",
+    uuid: taskId,
+    taskName: task.relTaskPath,
+    value: {
+      type: "runTask",
+      appPath: task.appPath,
+      absTaskPath: task.absTaskPath,
+      startTime: task.startTime,
+      inputs: task.inputs,
+      options: task.options,
+      content: task.content,
+    },
+    time: new Date().toLocaleString(),
+  };
 
-  // 1. Stall task until hotkey is triggered. 
+  // 1. Stall task until hotkey is triggered.
   if (task.hotkey) {
-
-    let isKeyRegistered = tasksStatusTable.value.find((t) => t.hotkey === task.hotkey && t.status === "queued");
+    let isKeyRegistered = tasksStatusTable.value.find(
+      (t) => t.hotkey === task.hotkey && t.status === "queued"
+    );
 
     if (isKeyRegistered) {
-      message.warning(`Hotkey ${task.hotkey} is already registered for task ${isKeyRegistered.name}`);
+      message.warning(
+        `Hotkey ${task.hotkey} is already registered for task ${isKeyRegistered.name}`
+      );
       return;
     }
-    
+
     tasksStatus.status = "queued";
     tasksStatusTable.value.push(tasksStatus);
-    message.info(`Task ${task.relTaskPath} is waiting for hotkey ${task.hotkey}`);
+    message.info(
+      `Task ${task.relTaskPath} is waiting for hotkey ${task.hotkey}`
+    );
 
     ipcRenderer.send("register-task-hotkey", {
       hotkey: task.hotkey,
@@ -208,13 +215,13 @@ const runTask = (task) => {
         taskEvents.value.push(taskStartEvent);
         sendMessageToBackend(taskStartEvent);
       }
-    }
-    );
-  
-  // 2. Wait for timer counts down
-  } else if (task.startTime) {
-    message.info(`Task ${task.relTaskPath} is scheduled to start at ${task.startTime}`);
+    });
 
+    // 2. Wait for timer counts down
+  } else if (task.startTime) {
+    message.info(
+      `Task ${task.relTaskPath} is scheduled to start at ${task.startTime}`
+    );
   } else {
     // Start task right away
     tasksStatus.status = "running";
@@ -233,81 +240,10 @@ ipcRenderer.on("run-task-from-main", (event, data) => {
     return;
   }
 
-  let count = 12;
-  let taskNames = data.tasks.map((t) => t.relTaskPath);
-  let autoRun = true;
-
-  const renderTaskList = (taskNames) => {
-    return h(
-      NList,
-      { style: { 'margin-top': '-15px', 'margin-bottom': '-15px' } },
-      {
-        default: () =>
-          taskNames.map((name) =>
-            h(
-              NListItem,
-              { key: name, style: {} },
-              {
-                default: () =>
-                  h(
-                    NTag,
-                    { closable: true, style: {}, type: "info" },
-                    { default: () => name }
-                  ),
-              }
-            )
-          ),
-      }
-    );
-  };
-
-  const nRef = notification.create({
-    title: "Auto run tasks?",
-    content: () => renderTaskList(taskNames),
-    duration: 12000,
-    meta: "start in 12 seconds...",
-    avatar: () =>
-      h(
-        NIcon,
-        { color: "green" },
-        {
-          default: () => h(PlayerPlay),
-        }
-      ),
-    action: () =>
-      h(
-        NButton,
-        {
-          type: "error",
-          secondary: true,
-          onClick: () => {
-            autoRun = false;
-            nRef.destroy();
-          },
-        },
-        {
-          default: () => h("span", { style: {} }, "Stop"),
-        }
-      ),
-    onAfterEnter: () => {
-      const minusCount = () => {
-        count--;
-        nRef.meta = `start in ${count} seconds...`;
-        if (count > 0) {
-          window.setTimeout(minusCount, 1e3);
-        }
-      };
-      window.setTimeout(minusCount, 1e3);
-    },
-    onAfterLeave: () => {
-      if (autoRun) {
-        message.info("Starting autostart tasks...");
-        data.tasks.forEach((task) => {
-          runTask(task);
-        });
-      }
-    },
-  });
+  // let taskNames = data.tasks.map((t) => t.relTaskPath);
+  // data.tasks.forEach((task) => {
+  //   runTask(task);
+  // });
 });
 
 function setupWsConn() {
@@ -335,9 +271,8 @@ function setupWsConn() {
   }
 }
 
-
 const refreshApps = async () => {
-  await ipcRenderer.invoke("reload-apps", {});
+  await ipcRenderer.invoke("app-reload", {});
   apps.value = appConfig.get("apps");
 };
 
@@ -355,7 +290,7 @@ onMounted(async () => {
   });
 
   // Event from user to backend (IO hook request/response)
-  ipcRenderer.on("io-hook-resp", (event, data) => {
+  ipcRenderer.on("event-to-backend", (event, data) => {
     sendMessageToBackend(data);
   });
 });

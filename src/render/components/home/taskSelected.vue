@@ -82,75 +82,15 @@ export default {
     NTimelineItem,
   },
   props: {
-    taskEventsIn: {
+    tasks: {
       type: Array,
-    },
-    taskEventsOut: {
-      type: Array,
-    },
+    }
   },
   setup(props, { emit }) {
     const showType = ref("1");
 
-    const genType = (item) => {
-      if (item.type === "taskError") {
-        return "error";
-      } else {
-        return "success";
-      }
-    };
-
-    const genContent = (item) => {
-      switch (item.type) {
-        case "taskFinish":
-          return item.message;
-
-        case "taskError":
-          return item.message;
-
-        // Inward events
-        case "runTask":
-          return `enqueue "${item.path}"`;
-
-        default:
-          return item.type;
-      }
-    };
-
-    const itemsEventsIn = computed(() => {
-      let index = 0;
-      return props.taskEventsIn.map((e) => {
-        return {
-          title: `${e.event} (${e.uuid.slice(0, 8)}`,
-          content: genContent(e.value),
-          key: index++,
-          type: genType(e.value),
-          time: e.time,
-        };
-      });
-    });
-
-    const itemsEventsOut = computed(() => {
-      let index = 0;
-      return props.taskEventsOut.map((e) => {
-        return {
-          title:
-            e.event +
-            " (" +
-            (e.uuid == "NULL" ? "NULL" : e.uuid.slice(0, 8)) +
-            ")",
-          content: genContent(e.value),
-          key: index++,
-          type: genType(e.value),
-          time: e.time,
-        };
-      });
-    });
-
     return {
-      showType,
-      itemsEventsIn,
-      itemsEventsOut,
+      showType
     };
   },
 };

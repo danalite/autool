@@ -52,7 +52,7 @@
                 >
                   <n-space>
                     <n-checkbox
-                      style="padding-left: 14px"
+                      style="padding-left: 8px"
                       @click.stop
                       @update:checked="handleTaskChecked(taskIndex, $event)"
                     />
@@ -62,7 +62,7 @@
                         <n-icon size="18" depth="3" style="padding-right: 3px">
                           <Box />
                         </n-icon>
-                        <n-ellipsis style="max-width: 140px">
+                        <n-ellipsis style="max-width: 160px">
                           {{
                           task.relTaskPath.includes("/")
                             ? task.relTaskPath.split("/")[1]
@@ -71,23 +71,22 @@
                         </n-ellipsis>
                       </n-button>
 
-                      <n-space>
+                      <n-space style="padding-top: 1px" >
                         <n-icon
                           v-show="task.options.includes('autostart')"
                           size="18"
                           color="#0e7a0d"
                           depth="2"
-                          style="padding-right: 3px; padding-top: 1px"
+                          
                         >
                           <BrandAndroid />
                         </n-icon>
 
                         <n-icon
-                          v-show="task.options.includes('remote')"
+                          
                           size="18"
                           color="#0e7a0d"
                           depth="2"
-                          style="padding-right: 3px; padding-top: 1px"
                         >
                           <BrandAndroid />
                         </n-icon>
@@ -296,7 +295,7 @@ export default {
 
     const handleAppAction = async (key, app) => {
       if (key === "delete") {
-        await ipcRenderer.invoke("delete-app-task", {
+        await ipcRenderer.invoke("app-task-delete", {
           type: "app",
           appPath: app.path,
         });

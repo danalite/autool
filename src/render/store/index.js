@@ -24,11 +24,11 @@ export const useStore = defineStore('app', {
       this.pageCount += 1
       // return to main home page (=1)
       if (this.pageCount > 2) {
-        this.pageReset()
+        this.pageReset(1)
       }
     },
-    pageReset() {
-      this.pageCount = 1
+    pageReset(count) {
+      this.pageCount = count
     },
   }
 })

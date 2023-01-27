@@ -10,7 +10,7 @@
               <n-input
                 v-model:value="license.key"
                 type="text"
-                style="width: 270px"
+                style="width: 240px"
               />
             </n-space>
 
@@ -42,9 +42,10 @@
                 <n-input
                   v-model:value="remoteServer.ocr.url"
                   type="text"
-                  style="width: 270px"
+                  style="width: 240px"
                 />
                 <n-switch
+                  size="small"
                   :round="false"
                   :rubber-band="false"
                   :value="remoteServer.ocr.valid"
@@ -52,8 +53,8 @@
                   @update:value="testServer($event, 'ocr')"
                   style="margin-left: 3px; margin-top: 5px"
                 >
-                  <template #checked> ON </template>
-                  <template #unchecked> OFF </template>
+                  <template #checked> </template>
+                  <template #unchecked> </template>
                 </n-switch>
               </n-space>
             </n-space>
@@ -64,17 +65,18 @@
                 <n-input
                   v-model:value="remoteServer.ui.url"
                   type="text"
-                  style="width: 270px"
+                  style="width: 240px"
                 />
                 <n-switch
+                size="small"
                   :round="false"
                   :value="remoteServer.ui.valid"
                   :loading="isTestRunning.ui"
                   @update:value="testServer($event, 'ui')"
                   style="margin-left: 2px; margin-top: 5px"
                 >
-                  <template #checked> ON </template>
-                  <template #unchecked> OFF </template>
+                  <template #checked> </template>
+                  <template #unchecked> </template>
                 </n-switch>
               </n-space>
             </n-space>
@@ -85,17 +87,18 @@
                 <n-input
                   v-model:value="remoteServer.parser.url"
                   type="text"
-                  style="width: 270px"
+                  style="width: 240px"
                 />
                 <n-switch
+                size="small"
                   :round="false"
                   :value="remoteServer.parser.valid"
                   :loading="isTestRunning.parser"
                   @update:value="testServer($event, 'parser')"
                   style="margin-left: 2px; margin-top: 5px"
                 >
-                  <template #checked> ON </template>
-                  <template #unchecked> OFF </template>
+                  <template #checked> </template>
+                  <template #unchecked> </template>
                 </n-switch>
               </n-space>
             </n-space>
@@ -133,7 +136,7 @@
                   <ShieldLock />
                 </n-icon>
               </template>
-              Securely access secret with $env[key]
+              How to use secrets?
             </n-button>
           </n-space>
 
@@ -151,12 +154,13 @@
                 />
                 <n-input
                   v-model:value="value.num"
-                  style="margin-right: 12px; width: 160px"
+                  style="margin-right: 12px; width: 100px"
                 />
                 <n-input
                   v-model:value="value.string"
                   type="password"
                   show-password-on="click"
+                  style="margin-right: 0px; width: 60px"
                 />
               </div>
             </template>

@@ -1,5 +1,5 @@
-import {createRouter, createWebHashHistory} from 'vue-router'
-
+import { createRouter, createWebHashHistory } from 'vue-router'
+import stylesheets from '@/render/router/middleware/stylesheets'
 
 const routes = [
   {
@@ -23,4 +23,5 @@ const router = createRouter({
   routes
 })
 
+// router.beforeEach(stylesheets)
 export default router

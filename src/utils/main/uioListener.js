@@ -96,7 +96,7 @@ export const uioListenerStart = async (hotkeyTable) => {
             traces: optimizedSeq
           }
         }
-        mainWindow.webContents.send('io-hook-resp', newEvent)
+        mainWindow.webContents.send('event-to-backend', newEvent)
         globalShortcut.unregister(start)
         globalShortcut.unregister(stop)
       })
@@ -106,11 +106,6 @@ export const uioListenerStart = async (hotkeyTable) => {
 
     } else if (type === 'keyWait') {
       const { key } = data.value
-      new Notification({
-        title: `keyWait: Hit "${key}" to continue task`,
-        body: `This keyWait won't be blocking execution of other tasks.`,
-        icon: iconPath,
-      }).show()
 
       let ret = globalShortcut.register(key, () => {
         console.log("Main app: keyWait event resolved (", key, ")")
@@ -123,7 +118,7 @@ export const uioListenerStart = async (hotkeyTable) => {
             key: key
           }
         }
-        mainWindow.webContents.send('io-hook-resp', newEvent)
+        mainWindow.webContents.send('event-to-backend', newEvent)
       })
       if (!ret) {
         console.log(`[ NodeJS ] ${stop} unhooking failed`)
@@ -222,7 +217,7 @@ export const uioListenerStart = async (hotkeyTable) => {
           area: [lt[0] - bounds.x, lt[1] - bounds.y, area_width, area_height]
         }
       }
-      mainWindow.webContents.send('io-hook-resp', newEvent)
+      mainWindow.webContents.send('event-to-backend', newEvent)
       selectAreaAction.started = false
     }
   })

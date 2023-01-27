@@ -2,10 +2,6 @@ import Store from 'electron-store'
 
 export const appConfig = new Store({
   defaults: {
-    'assistWindowPosition': {
-      x: 0,
-      y: 0,
-    },
     'autoPickChampion': {
       championId: "157",
       isAuto: false
