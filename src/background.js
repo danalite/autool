@@ -1,6 +1,7 @@
 import {
   app,
   BrowserWindow,
+  ipcMain,
 } from 'electron'
 
 const axios = require('axios')
@@ -162,7 +163,7 @@ const appSetup = async () => {
 
       if (res.status === 200) {
         appConfig.set("license.valid", res.data.valid)
-        
+
       } else {
         console.log("[ NodeJS ] failed verifying license")
       }
@@ -176,12 +177,27 @@ const appSetup = async () => {
   const apps = loadApps(appHome)
   appConfig.set('apps', apps.apps)
 
-  // Auto-start tasks
+  // Gather and confirm whether to autostart tasks
   let taskNames = apps.autostart.map((e) => e.relTaskPath)
   console.log(`[ NodeJS ] autostart ${taskNames}`)
-  
+
   setTimeout(async () => {
-    mainWindow.webContents.send('run-task-from-main', 
-      {is_autostart: true, tasks: apps.autostart})
+    // Once approved, options are forwarded to main window & backend
+    assistWindow.webContents.send('assist-win-push', {
+      type: "select-options",
+      options: taskNames,
+      title: "Auto-start these tasks?",
+      timeout: 6,
+      source: "console-manager",
+      callback: "auto-start-approve",
+      preset: Array(taskNames.length).fill(true)
+    })
+
+    ipcMain.once("auto-start-approve", (event, message) => {
+      let tasks = JSON.parse(message)
+      let approvedTasks = apps.autostart.filter(t => tasks.includes(t.relTaskPath))
+      mainWindow.webContents.send('to-main-win',
+        { action: "run-task", tasks: approvedTasks })
+    })
   }, 2000)
 }

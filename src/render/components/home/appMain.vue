@@ -232,18 +232,12 @@ const runTask = (task) => {
 };
 
 // Main process invoked tasks
-ipcRenderer.on("run-task-from-main", (event, data) => {
-  if (!data.is_autostart) {
-    data.tasks.forEach((task) => {
+ipcRenderer.on("to-main-win", (event, message) => {
+  if (message.action === "run-task") {
+    message.tasks.forEach((task) => {
       runTask(task);
     });
-    return;
   }
-
-  // let taskNames = data.tasks.map((t) => t.relTaskPath);
-  // data.tasks.forEach((task) => {
-  //   runTask(task);
-  // });
 });
 
 function setupWsConn() {
@@ -262,7 +256,10 @@ function setupWsConn() {
         },
       });
     };
-    message.success("Connected to backend server.");
+    let dim = appConfig.get("mainWindowDimension");
+    if (!dim.isCollapsed) {
+      message.success("Connected to backend server.");
+    }
   } catch (e) {
     message.error("Failed. Backend not responding.", e);
     setTimeout(() => {
@@ -272,7 +269,7 @@ function setupWsConn() {
 }
 
 const refreshApps = async () => {
-  await ipcRenderer.invoke("app-reload", {});
+  await ipcRenderer.invoke("to-console", { action: "app-reload" });
   apps.value = appConfig.get("apps");
 };
 
@@ -290,7 +287,7 @@ onMounted(async () => {
   });
 
   // Event from user to backend (IO hook request/response)
-  ipcRenderer.on("event-to-backend", (event, data) => {
+  ipcRenderer.on("to-backend", (event, data) => {
     sendMessageToBackend(data);
   });
 });

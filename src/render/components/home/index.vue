@@ -1,19 +1,24 @@
 <template>
   <!-- Logo and settings on the top -->
   <div>
-    <dashboard></dashboard>
-    <app-main v-show="pageCount == 1" class="slide-in-left"></app-main>
-    <setting v-show="pageCount == 2" class="slide-in-right"></setting>
+    <task-bar v-show="pageCount == 0"></task-bar>
+    <dashboard v-show="pageCount >0"></dashboard>
+    <app-main v-show="pageCount == 1"></app-main>
+    <setting v-show="pageCount == 2"></setting>
   </div>
 </template>
 
 <script setup>
+
 import Dashboard from "./dashboard.vue";
 import Setting from "./setting.vue";
 import AppMain from "./appMain.vue";
+import TaskBar from "./taskBar.vue";
 
 import { useStore } from "../../store";
 import { storeToRefs } from "pinia";
+import { onMounted } from "vue";
+import { appConfig } from "@/utils/main/config";
 
 document.title = "AuTool";
 document.getElementsByTagName("html")[0].className = "container";
@@ -21,6 +26,13 @@ document.getElementsByTagName("html")[0].className = "container";
 
 const store = useStore();
 let { pageCount } = storeToRefs(store);
+
+onMounted(() => {
+  let dim = appConfig.get("mainWindowDimension");
+  let openPage = dim.isCollapsed ? 0 : 1;
+  store.pageReset(openPage);
+});
+
 </script>
 
 <style>

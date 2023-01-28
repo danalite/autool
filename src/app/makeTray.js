@@ -4,10 +4,10 @@ import pkg from "../../package.json";
 
 // Create a status page (task scheduled or running. notifications etc.)
 export const makeTray = (iconPath, mainWindow, assistWindow) => {
-  const icon = nativeImage.createFromPath(iconPath).resize({ width: 24, height: 24 })
+  const icon = nativeImage.createFromPath(iconPath).resize({ width: 20, height: 20 })
   const appIcon = new Tray(icon)
 
-  appIcon.setToolTip('Frank')
+  appIcon.setToolTip('AuTool')
 
   const createContextMenu = () =>
     Menu.buildFromTemplate([
@@ -43,17 +43,24 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         label: "About AuTool",
         click() {
           dialog.showMessageBox({
-            title: "Danalites AuTool",
-            message: "Fast and scalable workflow automation tool.",
-            detail: `Version: ${pkg.version}\n`,
+            title: "AuTool copyright © 2021 Danalites LTD",
+            message: "Scalable Software Automation",
+            detail: `version: ${pkg.version}\n`,
           });
         },
       },
     ]);
+
   appIcon.on("click", () => {
     appIcon.setContextMenu(createContextMenu());
     appIcon.popUpContextMenu();
   });
+  
+  appIcon.on('drop-files', function(event, files) {
+    // Array with file paths!
+    // console.log(files);
+  });
+
   appIcon.setContextMenu(createContextMenu());
 
 }

@@ -4,6 +4,7 @@
       <n-list-item
         v-for="(app, index) in apps"
         style="padding-top: 8px; padding-bottom: 1px"
+        :key="index"
       >
         <n-card :bordered="true" hoverable size="small">
           <n-space vertical style="gap: 0px 0px">
@@ -26,7 +27,9 @@
                   @click="showAppTaskList(index)"
                   :bordered="false"
                 >
-                  <n-text :size="22" :underline="true"> {{ app.author }}/{{ app.app }} </n-text>
+                  <n-text :size="22" :underline="true">
+                    {{ app.author }}/{{ app.app }}
+                  </n-text>
                 </n-button>
               </n-space>
 
@@ -64,30 +67,24 @@
                         </n-icon>
                         <n-ellipsis style="max-width: 160px">
                           {{
-                          task.relTaskPath.includes("/")
-                            ? task.relTaskPath.split("/")[1]
-                            : task.relTaskPath
-                        }}
+                            task.relTaskPath.includes("/")
+                              ? task.relTaskPath.split("/")[1]
+                              : task.relTaskPath
+                          }}
                         </n-ellipsis>
                       </n-button>
 
-                      <n-space style="padding-top: 1px" >
+                      <n-space style="padding-top: 1px">
                         <n-icon
                           v-show="task.options.includes('autostart')"
                           size="18"
                           color="#0e7a0d"
                           depth="2"
-                          
                         >
                           <BrandAndroid />
                         </n-icon>
 
-                        <n-icon
-                          
-                          size="18"
-                          color="#0e7a0d"
-                          depth="2"
-                        >
+                        <n-icon size="18" color="#0e7a0d" depth="2">
                           <BrandAndroid />
                         </n-icon>
                       </n-space>
@@ -295,12 +292,12 @@ export default {
 
     const handleAppAction = async (key, app) => {
       if (key === "delete") {
-        await ipcRenderer.invoke("app-task-delete", {
-          type: "app",
+        await ipcRenderer.invoke("to-console", {
+          action: "app-delete",
           appPath: app.path,
         });
         emit("refreshApps", {});
-        message.warning(`Deleted App ${app.author}/${app.app}`);
+        message.warning(`deleted app ${app.author}/${app.app}`);
       } else if (key === "run") {
         enqueueTasks(app);
       } else if (key === "edit") {
@@ -314,7 +311,7 @@ export default {
     const yRef = ref(0);
     const taskItemOptions = [
       {
-        label: "Run",
+        label: "run",
         key: "run",
         icon: renderIcon(PlayerPlay, { color: "green" }),
       },
@@ -323,17 +320,17 @@ export default {
         key: "d1",
       },
       {
-        label: "Edit",
+        label: "edit",
         key: "edit",
         icon: renderIcon(Pencil, { color: "#2685c2" }),
       },
       {
-        label: () => h("span", {}, "Debug"),
+        label: () => h("span", {}, "debug"),
         key: "showLog",
         icon: renderIcon(FileReport, { color: "#FAD02C" }),
       },
       {
-        label: () => h("span", { style: { color: "#db2544" } }, "Delete"),
+        label: () => h("span", { style: { color: "#db2544" } }, "delete"),
         key: "delete",
         icon: renderIcon(Trash, { color: "#db2544" }),
       },
@@ -353,7 +350,7 @@ export default {
       showDropdown: showDropdownRef,
       x: xRef,
       y: yRef,
-      handleTaskAction(key) {
+      handleTaskAction: async (key) => {
         showDropdownRef.value = false;
         if (key === "run") {
           runTask(activeSelectedTask.value);
@@ -362,9 +359,17 @@ export default {
             `vscode://file/${activeSelectedTask.value.absTaskPath}`
           );
         } else if (key === "delete") {
-          message.info("Delete Task");
+          await ipcRenderer.invoke("to-console", {
+            action: "task-delete",
+            taskPath: activeSelectedTask.value.absTaskPath,
+            appPath: activeSelectedTask.value.appPath,
+            taskName: activeSelectedTask.value.relTaskPath,
+          });
+
+          emit("refreshApps", {});
+          message.info(`delete task ${activeSelectedTask.value.relTaskPath}`);
         } else if (key === "showLog") {
-          message.info("Show Log");
+          message.info("Show log");
         }
       },
       handleContextMenu(e, task) {

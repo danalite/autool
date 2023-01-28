@@ -2,6 +2,11 @@ import Store from 'electron-store'
 
 export const appConfig = new Store({
   defaults: {
+    'mainWindowDimension': {
+      isCollapsed: false,
+      width: 390,
+      height: 650
+    },
     'autoPickChampion': {
       championId: "157",
       isAuto: false

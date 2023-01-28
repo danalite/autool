@@ -1,5 +1,6 @@
-import { app, ipcMain, BrowserView } from "electron";
+import { app, ipcMain } from "electron";
 import { appConfig } from "@/utils/main/config";
+
 import { loadApps } from '@/utils/main/queryTasks';
 
 const path = require("path");
@@ -21,18 +22,18 @@ export const ipcListener = (mainWindow, assistWindow) => {
     const targetHeight = dim.height;
 
     const easing = (t, b, c, d) => (t == d ? b + c : c * (-Math.pow(2, (-10 * t) / d) + 1) + b);
-    const duration = 100;
+    const duration = 80;
 
     let currentFrame = 0;
-		const updateSize = () => {
-			currentFrame++;
-			mainWindow.setSize(
-				Math.round(easing(currentFrame, startWidth, targetWidth - startWidth, duration)),
-				Math.round(easing(currentFrame, startHeight, targetHeight - startHeight, duration)),
-			);
-			if (currentFrame < duration) setImmediate(updateSize);
-		};
-		setImmediate(updateSize);
+    const updateSize = () => {
+      currentFrame++;
+      mainWindow.setSize(
+        Math.round(easing(currentFrame, startWidth, targetWidth - startWidth, duration)),
+        Math.round(easing(currentFrame, startHeight, targetHeight - startHeight, duration)),
+      );
+      if (currentFrame < duration) setImmediate(updateSize);
+    };
+    setImmediate(updateSize);
     if (targetHeight < 100) {
       mainWindow.setAlwaysOnTop(true, 'floating', 1)
     } else {
@@ -48,37 +49,56 @@ export const ipcListener = (mainWindow, assistWindow) => {
     mainWindow.minimize()
   })
 
-  // Close window and terminate py server
+  // Close window and save collapsed status
   ipcMain.on('main-win-close', () => {
-    const assistWindowBounds = assistWindow.getBounds()
-    appConfig.set('assistWindowPosition', { x: assistWindowBounds.x, y: assistWindowBounds.y })
-    appConfig.set('credentials.port', '')
+    const dim = mainWindow.getBounds()
+    let isCollapsed = dim.height < 100
+    appConfig.set('mainWindowDimension', {
+      width: dim.width, height: dim.height, isCollapsed: isCollapsed
+    })
     app.quit()
   })
 
   // This handler updates our mouse event settings depending
   // on whether the user is hovering over a clickable element
   // in the call window.
-  ipcMain.handle("set-ignore-mouse-events", (e, ...args) => {
+  ipcMain.handle("assist-ignore-mouse-events", (e, ...args) => {
     assistWindow.setIgnoreMouseEvents(...args);
   });
 
-  // local app or tasks CURD
-  ipcMain.handle('app-reload', async (event) => {
-    // console.log("[ NodeJS ] reloading apps...")
-    const apps = loadApps(appConfig.get('appHome'))
-    appConfig.set('apps', apps.apps)
+  // Proxy message from main window to assist window
+  // https://stackoverflow.com/a/40251412
+  ipcMain.on('to-assist-window', (event, message) => {
+    assistWindow.webContents.send('assist-win-push', message)
   })
 
-  ipcMain.handle('app-task-delete', async (event, appOrTask) => {
-    if (appOrTask.type === "task") {
-      let taskPath = task.appPath + task.name + ".yaml"
+  // read or update local apps, invoke shell command (from windows)
+  ipcMain.handle('to-console', (event, message) => {
+    let action = message.action
+
+    if (action === "app-reload") {
+      const apps = loadApps(appConfig.get('appHome'))
+      appConfig.set('apps', apps.apps)
+    
+    } else if (action === "app-delete") {
+      let appPath = message.appPath
+      if (fs.existsSync(appPath)) {
+        fs.rmSync(appPath, { recursive: true, force: true })
+      } else {
+        console.error(`${appPath} not exists`)
+      }
+
+    } else if (action === "task-delete") {
+      let taskPath = message.taskPath
+      let appPath = message.appPath
+      let taskName = message.taskName
+
       fs.unlink(taskPath, function (err) {
         if (err) return console.log(err);
 
-        let appJsonPath = path.join(task.appPath, "tasks.json")
+        let appJsonPath = path.join(appPath, "tasks.json")
         let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
-        let newTasks = appJson.tasks.filter(t => t !== task.name + ".yaml")
+        let newTasks = appJson.tasks.filter(t => t !== taskName + ".yaml")
         appJson.tasks = newTasks
         fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
           if (err) {
@@ -86,14 +106,6 @@ export const ipcListener = (mainWindow, assistWindow) => {
           }
         });
       });
-
-    } else if (appOrTask.type === "app") {
-      let appPath = appOrTask.appPath
-      if (fs.existsSync(appPath)) {
-        fs.rmSync(appPath, { recursive: true, force: true })
-      } else {
-        console.error(`${appPath} not exists`)
-      }
     }
   })
 }

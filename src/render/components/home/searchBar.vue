@@ -13,7 +13,11 @@
         </n-button>
       </n-dropdown>
 
-      <n-input :style="{ width: '100%' }" placeholder="Search tasks" />
+      <n-input
+        :style="{ width: '100%' }"
+        placeholder="search keywords"
+        v-model:value="searchKeyword"
+      />
       <n-button type="primary" @click="addNewApp" ghost>
         <n-icon size="20">
           <Plus />
@@ -39,70 +43,78 @@
           >
             Import app from Github
           </n-radio>
-          <n-input
-            v-model:value="githubFolderLink"
-            placeholder="E.g. https://github.com/danalites/apps/tree/master/macos"
-            :disabled="checkedValue !== 'Import app from Github'"
-          />
+          <n-collapse-transition
+            :show="checkedValue == 'Import app from Github'"
+          >
+            <n-space vertical justify="center">
+              <n-input
+                size="small"
+                v-model:value="githubFolderLink"
+                placeholder="E.g. https://github.com/danalites/apps/tree/master/macos"
+                :disabled="checkedValue !== 'Import app from Github'"
+              />
+
+              <n-space justify="center">
+                <n-button text type="info" size="tiny">
+                  <template #icon>
+                    <n-icon>
+                      <Search />
+                    </n-icon>
+                  </template>
+                  more FREE apps in store!
+                </n-button>
+              </n-space>
+            </n-space>
+          </n-collapse-transition>
 
           <n-divider dashed />
           <n-radio
             :checked="checkedValue === 'Macro record'"
             value="Macro record"
-            name="basic-demo"
             @change="handleChange"
           >
             Macro recorder
           </n-radio>
-          <n-collapse-transition :show="checkedValue !== 'Import app from Github'">
-          <n-space vertical :style="'padding-left: 20px'" justify="center">
-          
-
-            <n-checkbox-group
-              v-model:value="trackTarget"
-              :disabled="checkedValue !== 'Macro record'"
-            >
-              <n-space item-style="display: flex;">
-                <n-checkbox value="mouse-click" label="mouse click" />
-                <n-checkbox value="mouse-move" label="mouse move" />
-                <n-checkbox value="keyboard" label="key up+down" />
-                <n-checkbox value="delay" label="time delay" />
+          <n-collapse-transition
+            :show="checkedValue !== 'Import app from Github'"
+          >
+            <n-space vertical :style="'padding-left: 20px'" justify="center">
+              <n-space item-style="display: flex;" vertical>
+                <n-checkbox
+                  disabled
+                  checked
+                  value="mouse-keyboard"
+                  label="mouse-click and keyboard"
+                />
+                <n-checkbox
+                  value="mouse-movement"
+                  label="mouse-movement trace"
+                />
               </n-space>
-            </n-checkbox-group>
 
-            <n-input-group>
-              <n-tag type="primary" :bordered="false">Start</n-tag>
-              <n-input
-                size="small"
-                style="width: 150px"
-                placeholder="Ctrl+Shift+I"
-              />
-            </n-input-group>
-            <n-input-group>
-              <n-tag type="primary" :bordered="false">Stop&nbsp;</n-tag>
-              <n-input
-                size="small"
-                style="width: 150px"
-                placeholder="Ctrl+Shift+P"
-              />
-            </n-input-group>
+              <n-input-group size="small">
+                <n-tag type="primary" :bordered="false">record name</n-tag>
+                <n-input
+                  size="small"
+                  style="width: 150px"
+                  placeholder="my-record-01"
+                />
+              </n-input-group>
 
-            <!-- Mouse click recording types -->
-           
-              
+              <!-- Mouse click recording types -->
               <n-input-group>
-                <n-tag size="medium" type="primary" :bordered="false">Mouse click record</n-tag>
-                <n-popselect 
-          
-                v-model:value="mouseClickRecordType" :options="mouseRecordTypes">
-    <n-button size="small">{{ mouseClickRecordType }}</n-button>
-  </n-popselect>
-
-            </n-input-group>
-
-          
-          </n-space>
-        </n-collapse-transition>
+                <n-tag size="medium" type="primary" :bordered="false"
+                  >record mouse click</n-tag
+                >
+                <n-popselect
+                  v-model:value="mouseClickRecordType"
+                  :options="mouseRecordTypes"
+                >
+                  <n-button size="small">{{ mouseClickRecordType }}</n-button>
+                </n-popselect>
+              </n-input-group>
+            </n-space>
+          </n-collapse-transition>
         </n-space>
       </div>
       <template #action>
@@ -120,7 +132,7 @@
 </template>
 
 <script>
-import { h, ref, onMounted } from "vue";
+import { h, ref, onMounted, watch } from "vue";
 import {
   Plus,
   Refresh,
@@ -135,8 +147,6 @@ import {
 
 import {
   NCard,
-  NAvatar,
-  NProgress,
   NSpace,
   NTag,
   NPopover,
@@ -145,12 +155,9 @@ import {
   NDrawerContent,
   NInput,
   NInputGroup,
-  NList,
-  NListItem,
   NScrollbar,
   NCheckboxGroup,
   NCheckbox,
-  NDataTable,
   NDropdown,
   NButton,
   useMessage,
@@ -161,7 +168,6 @@ import {
   NPopselect,
   NDivider,
   NTabPane,
-  NRate,
   NIcon,
   NModal,
 } from "naive-ui";
@@ -170,8 +176,6 @@ export default {
   name: "taskPane",
   components: {
     NCard,
-    NAvatar,
-    NProgress,
     NSpace,
     NTag,
     NPopover,
@@ -185,16 +189,12 @@ export default {
     NRadioButton,
     NRadioGroup,
     NDivider,
-    NList,
-    NListItem,
     NScrollbar,
-    NDataTable,
     NDropdown,
     NButton,
     useMessage,
     NTabs,
     NTabPane,
-    NRate,
     NIcon,
     NModal,
     NCheckboxGroup,
@@ -211,6 +211,7 @@ export default {
   },
   emits: ["refreshApps"],
   setup(props, { emit }) {
+    const searchKeyword = ref("");
     const message = useMessage();
 
     const renderIcon = (icon, attrs) => {
@@ -223,8 +224,24 @@ export default {
 
     // task type dropdown (i.e. YAMLs)
     const handleTaskTypeSelect = (option) => {
-      message.info(String(option));
+      if (searchKeyword.value == "") {
+        searchKeyword.value = `type:${option}`;
+      } else if (searchKeyword.value.startsWith("type:")) {
+        if (!searchKeyword.value.includes(option)) {
+          searchKeyword.value += `+${option}`;
+        }
+      } else {
+        searchKeyword.value = `type:${option}`;
+      }
     };
+
+    // Filter tasks by keyword
+    watch(searchKeyword, (newValue, oldValue) => {
+      if (newValue == "") {
+        // emit("refreshApps");
+      }
+      console.log("sssss");
+    });
 
     const taskTypeOptions = [
       {
@@ -305,7 +322,7 @@ export default {
 
     const trackTarget = ref(["mouse-click", "delay", "keyboard"]);
     const checkedValueRef = ref("Import app from Github");
-    const mouseClickRecordType = ref('position');
+    const mouseClickRecordType = ref("position");
     const mouseRecordTypes = [
       {
         value: "position",
@@ -316,7 +333,9 @@ export default {
         label: "icon capture",
       },
     ];
+
     return {
+      searchKeyword,
       githubFolderLink,
       showModalRef,
 

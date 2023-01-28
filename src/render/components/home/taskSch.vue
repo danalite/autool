@@ -1,9 +1,9 @@
 <template>
   <div>
     <n-space vertical>
-
-      <!-- Event in and outs -->
       <n-scrollbar style="max-height: 370px">
+        
+        <!-- Event in and outs -->
         <n-collapse-transition :show="showType == 'events'">
           <n-timeline size="large" :style="{ 'padding-top': '5px' }">
             <n-timeline-item
@@ -52,43 +52,6 @@
               </n-space>
             </n-list-item>
           </n-list>
-        </n-collapse-transition>
-
-        <n-collapse-transition :show="showType == 'stopped'">
-          <n-empty
-            v-if="stoppedTasks.length === 0"
-            description="No finished or stopped tasks"
-          >
-          </n-empty>
-
-          <n-list size="large" style="padding-top: 2px; padding-bottom: 0px" v-else>
-            <n-list-item
-              v-for="task in stoppedTasks"
-              :key="task.id"
-              style="padding-top: 6px; padding-bottom: 6px"
-            >
-              <n-space style="padding-top: 2px" justify="center">
-                <n-button :text="true" size="small" @click="">
-                  <n-icon
-                    size="18"
-                    v-if="task.options.includes('remote')"
-                    style="padding-right: 3px"
-                  >
-                    <Cloud color="#409eff" />
-                  </n-icon>
-                  <n-icon size="18" v-else style="padding-right: 3px">
-                    <DevicesPc style="color: #409eff" />
-                  </n-icon>
-
-                  {{ task.taskName }} ({{ task.id.slice(0, 8) }})
-                </n-button>
-              </n-space>
-            </n-list-item>
-          </n-list>
-        </n-collapse-transition>
-
-        <n-collapse-transition :show="showType == 'auto-start'">
-          {{ autoStartTasks }}
         </n-collapse-transition>
       
       </n-scrollbar>

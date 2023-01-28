@@ -133,7 +133,7 @@
             <n-button text>
               <template #icon>
                 <n-icon>
-                  <ShieldLock />
+                  <Lock />
                 </n-icon>
               </template>
               How to use secrets?
@@ -193,7 +193,7 @@ import {
   NPopconfirm,
   NIcon,
 } from "naive-ui";
-import { ArrowUpLeftCircle, Help, ShieldLock } from "@vicons/tabler";
+import { ArrowUpLeftCircle, Help, Lock } from "@vicons/tabler";
 
 import { optionsChampion } from "@/utils/render/lolDataList";
 import { ref, reactive } from "vue";

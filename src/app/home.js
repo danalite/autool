@@ -1,16 +1,19 @@
 import { BrowserWindow } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { appConfig } from '@/utils/main/config'
 
 export const createMainWindow = async (userHeader) => {
+  let dim = appConfig.get('mainWindowDimension')
   const win = new BrowserWindow({
     title: 'AuTool',
     center: true,
     transparent: true,
     show: true,
+    hasShadow: true,
     frame: false,
     resizable: false,
-    width: 390,
-    height: 650,
+    width: dim.width,
+    height: dim.height,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -20,9 +23,11 @@ export const createMainWindow = async (userHeader) => {
     }
   })
 
-  // Enable dev tools in chrome
-  win.webContents.openDevTools()
+  if (dim.isCollapsed) {
+    win.setAlwaysOnTop(true, 'floating', 1)
+  }
 
+  win.webContents.openDevTools()
   win.on('ready-to-show', () => {
     win.show()
   })

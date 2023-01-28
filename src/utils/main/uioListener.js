@@ -42,19 +42,6 @@ export const uioListenerStop = async () => {
 }
 
 export const uioListenerStart = async (hotkeyTable) => {
-  // IO hook event from AppMain/Ts
-  //  Example data = {
-  //     event: 'O_EVENT_HOOK_REQ',
-  //     uuid: 'f2f4a303-e9f9-45dd-a5e4-58754baffb62',
-  //     value: {
-  //       type: 'osRecord',
-  //       start: 'Enter+Enter',
-  //       stop: 'Esc+Esc',
-  //       mode: 'screenshot',
-  //       track: [ 'key', 'click', 'move', 'time' ]
-  //     },
-  //     taskName: 'example-task-name'
-  //   }
   ipcMain.on('io-hook-request', (event, data) => {
     const taskId = data.uuid
     const { type } = data.value
@@ -96,7 +83,7 @@ export const uioListenerStart = async (hotkeyTable) => {
             traces: optimizedSeq
           }
         }
-        mainWindow.webContents.send('event-to-backend', newEvent)
+        mainWindow.webContents.send('to-backend', newEvent)
         globalShortcut.unregister(start)
         globalShortcut.unregister(stop)
       })
@@ -118,7 +105,7 @@ export const uioListenerStart = async (hotkeyTable) => {
             key: key
           }
         }
-        mainWindow.webContents.send('event-to-backend', newEvent)
+        mainWindow.webContents.send('to-backend', newEvent)
       })
       if (!ret) {
         console.log(`[ NodeJS ] ${stop} unhooking failed`)
@@ -217,7 +204,7 @@ export const uioListenerStart = async (hotkeyTable) => {
           area: [lt[0] - bounds.x, lt[1] - bounds.y, area_width, area_height]
         }
       }
-      mainWindow.webContents.send('event-to-backend', newEvent)
+      mainWindow.webContents.send('to-backend', newEvent)
       selectAreaAction.started = false
     }
   })

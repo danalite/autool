@@ -10,6 +10,7 @@ import {
   NSpace,
   NTag,
   NIcon,
+  NText,
   NInput,
   NInputGroup,
   NBadge,
@@ -20,7 +21,7 @@ import {
   useNotification,
 } from "naive-ui";
 
-import { Select } from "@vicons/tabler";
+import { Select, Mail } from "@vicons/tabler";
 import { h, ref, onMounted } from "vue";
 import { appConfig } from "../../../utils/main/config";
 
@@ -29,6 +30,7 @@ const notification = useNotification();
 // Closable options selection
 let isInputAcquired = true;
 const currentOptions = ref([]);
+
 const renderOptions = (optionNames) => {
   currentOptions.value = optionNames;
   return h(
@@ -55,12 +57,14 @@ const renderOptions = (optionNames) => {
 };
 
 const createSelectOptions = (command) => {
-  let count = command.count;
+  let count = command.timeout;
   const nRef = notification.create({
     title: command.title,
     content: () => renderOptions(command.options),
-    duration: count * 1000,
-    meta: `task (${command.source}): start in ${count} seconds...`,
+    duration: count ? count * 1000 : undefined,
+    meta: count
+      ? `task (${command.source}): continue in ${count} seconds...`
+      : `task (${command.source})`,
     avatar: () =>
       h(
         NIcon,
@@ -86,18 +90,66 @@ const createSelectOptions = (command) => {
         }
       ),
     onAfterEnter: () => {
-      const minusCount = () => {
-        count--;
-        nRef.meta = `task (${command.source}): start in ${count} seconds...`;
-        if (count > 0) {
-          window.setTimeout(minusCount, 1e3);
-        }
-      };
-      window.setTimeout(minusCount, 1e3);
+      if (count) {
+        const minusCount = () => {
+          count--;
+          nRef.meta = `task (${command.source}): continue in ${count} seconds...`;
+          if (count > 0) {
+            window.setTimeout(minusCount, 1e3);
+          }
+        };
+        window.setTimeout(minusCount, 1e3);
+      }
     },
     onAfterLeave: () => {
       if (isInputAcquired) {
-        // TDOD: Send back selection result
+        // console.log("Sending back options: ", currentOptions.value, command.callback);
+        ipcRenderer.send(
+          command.callback,
+          JSON.stringify(currentOptions.value)
+        );
+      }
+    },
+  });
+};
+
+const renderTextContent = (content) => {
+  return h(
+    NText,
+    {
+      style: { "font-size": "15px", color: "#db2544" },
+    },
+    { default: () => content }
+  );
+};
+
+const createNotification = (command) => {
+  let count = command.timeout;
+  const nRef = notification.create({
+    title: command.title,
+    content: () => renderTextContent(command.content),
+    duration: count ? count * 1000 : undefined,
+    meta: count
+      ? `task (${command.source}): close in ${count} seconds...`
+      : `task (${command.source})`,
+    avatar: () =>
+      h(
+        NIcon,
+        { color: "#2685c2" },
+        {
+          default: () => h(Mail),
+        }
+      ),
+    onAfterEnter: () => {
+      if (count) {
+        const minusCount = () => {
+          count--;
+          nRef.meta = `task (${command.source}): continue in ${count} seconds...`;
+          if (count > 0) {
+            window.setTimeout(minusCount, 1e3);
+          }
+        };
+        window.setTimeout(minusCount, 1e3);
       }
     },
   });
@@ -119,7 +171,7 @@ const renderInputText = (command) => {
               default: () =>
                 h(
                   NInputGroup,
-                  { size: "small" },
+                  { size: "small", style: { width: "280px" } },
                   {
                     default: () => [
                       h(NTag, { type: "info" }, { default: () => key }),
@@ -171,19 +223,19 @@ const createTextInput = (command) => {
 
 onMounted(() => {
   setTimeout(() => {
-    createSelectOptions({
-      title: "Auto run tasks?",
-      source: "task-manager",
-      count: 32,
-      options: ["task1-few", "task2-dewfeew", "task3-fwfwdwedew"],
+    createNotification({
+      title: "AuTool started running...",
+      content: "Aren't you excited?",
+      source: "console",
+      timeout: 10,
     });
 
-    createTextInput({
-      title: "Input text",
-      source: "another-task-manager",
-      options: ["yourName", "postalCode"],
-      placeholders: ["Mike Hu", "11234"],
-    });
+    // createTextInput({
+    //   title: "Input text",
+    //   source: "another-task-manager",
+    //   options: ["yourName", "postalCode"],
+    //   placeholders: ["LastName, FirstName", "22234"],
+    // });
   }, 1000);
 });
 
@@ -197,6 +249,20 @@ const deleteAutoRune = () => {
     isAutoRune.value = 0;
   }
 };
+
+ipcRenderer.on("assist-win-push", (event, message) => {
+  if (message.type === "select-options") {
+    createSelectOptions({
+      title: message.title,
+      source: message.source,
+      timeout: message.timeout,
+      options: message.options,
+      callback: message.callback,
+    });
+  } else if (message.type === "input-text") {
+    createTextInput(message);
+  }
+});
 </script>
 
 <style scoped>

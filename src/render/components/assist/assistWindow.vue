@@ -25,12 +25,12 @@ document.addEventListener(
   function (e) {
     if (e.target.tagName == "BODY" && !isClickThrough) {
       // console.log("mouse enter BODY", e.target.tagName);
-      ipcRenderer.invoke("set-ignore-mouse-events", true, { forward: true });
+      ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
       isClickThrough = true
 
     } else if (e.target.tagName !== "BODY" && isClickThrough) {
       // console.log("mouse enter ", e.target.tagName);
-      ipcRenderer.invoke("set-ignore-mouse-events", false);
+      ipcRenderer.invoke("assist-ignore-mouse-events", false);
       isClickThrough = false
     }
   }
