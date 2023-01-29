@@ -8,28 +8,40 @@
         @click="handleCollapse"
       />
       <n-text>AuTool</n-text>
-      <n-space style="padding-bottom: 2px; width: 330px">
+      <n-space style="padding-bottom: 2px; width: 340px">
+        <!-- reminder if there is no selected tasks -->
         <n-button
-          v-for="(task, taskIndex) in displayTasks"
+          v-if="displayTasks.length == 0"
+          :bordered="false"
+          secondary
+          type="warning"
+          size="tiny"
+          style="margin-top: 3px;"
+        >
+          <template #icon>
+            <n-icon>
+              <Search />
+            </n-icon>
+          </template>
+          check the checkbox to select tasks
+        </n-button>
+
+        <n-button
+          v-for="(taskName, taskIndex) in displayTasks"
           :key="taskIndex"
           :bordered="false"
           type="success"
           secondary
           size="tiny"
-          style="margin-right: 0px; width: 154px"
-          @click="runTargetTask($event)"
+          style="margin-right: 0px; width: 164px"
+          @click="runTargetTask($event, taskName)"
         >
-          {{ task }}
+          {{ taskName }}
         </n-button>
       </n-space>
+
       <n-input-group style="text-align: center">
-        <n-button
-          secondary
-          size="tiny"
-          color="black"
-          style="margin-right: 0px"
-          @click="decreasePage"
-        >
+        <n-button secondary size="tiny" color="black" @click="decreasePage">
           <n-icon size="15">
             <ChevronLeft />
           </n-icon>
@@ -83,11 +95,14 @@ import {
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
+  Search,
 } from "@vicons/tabler";
 
 import { ipcRenderer } from "electron";
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, computed, onBeforeUpdate } from "vue";
+
 import { appConfig } from "@/utils/main/config";
+import eventBus from "@/utils/main/eventBus";
 
 import { useStore } from "@/render/store";
 const store = useStore();
@@ -151,30 +166,52 @@ const decreasePage = () => {
 
 // reLoad local apps before collapse
 const taskPage = ref("1");
-const selectedTasks = ref([
-  "keep-screen-alive",
-  "auto-logout",
-  "auto-login-admin",
-]);
+const selectedTasks = ref([]);
+const selectedTaskNames = computed(() => {
+  return selectedTasks.value.map((task) => task.relTaskPath);
+});
+
+onBeforeUpdate(async () => {
+  let isCollapsed = appConfig.get("mainWindowDimension.isCollapsed");
+  if (isCollapsed) {
+    await ipcRenderer.invoke("to-console", {
+      action: "app-reload",
+    });
+    let apps = appConfig.get("apps");
+    selectedTasks.value = [];
+
+    for (let i = 0; i < apps.length; i++) {
+      let app = apps[i];
+      for (let j = 0; j < app.tasks.length; j++) {
+        let task = app.tasks[j];
+
+        if (task.shortcut) {
+          selectedTasks.value.push(task);
+        }
+      }
+    }
+  }
+});
 
 // Show selected tasks in a drop list
-const runTargetTask = (e) => {
-  console.log("selectedTasks", selectedTasks.value);
+const runTargetTask = (e, taskName) => {
+  let task = selectedTasks.value.find((task) => task.relTaskPath == taskName);
+  eventBus.emit("run-task-from-bar", task);
 };
 
 // total width = 333px. gap = 12px
 // per char width = (333 - 12 * 2 - 6 * 6) / 38 = 7.1px
 const displayTasks = computed(() => {
-  if (selectedTasks.value.length == 0) {
+  if (selectedTaskNames.value.length == 0) {
     return [];
   }
 
   let page = Number(taskPage.value);
   let upper =
-    page * 2 > selectedTasks.value.length
-      ? selectedTasks.value.length
+    page * 2 > selectedTaskNames.value.length
+      ? selectedTaskNames.value.length
       : page * 2;
-  return selectedTasks.value.slice((page - 1) * 2, upper);
+  return selectedTaskNames.value.slice((page - 1) * 2, upper);
 });
 </script>
 
@@ -207,5 +244,4 @@ header {
   width: 100%;
   flex-wrap: nowrap !important;
 }
-
 </style>

@@ -19,9 +19,11 @@ import {
   NListItem,
   NPopconfirm,
   useNotification,
+  NUpload,
+  NUploadFileList,
 } from "naive-ui";
 
-import { Select, Mail } from "@vicons/tabler";
+import { Select, Mail, FileImport, Upload } from "@vicons/tabler";
 import { h, ref, onMounted } from "vue";
 import { appConfig } from "../../../utils/main/config";
 
@@ -63,7 +65,7 @@ const createSelectOptions = (command) => {
     content: () => renderOptions(command.options),
     duration: count ? count * 1000 : undefined,
     meta: count
-      ? `task (${command.source}): continue in ${count} seconds...`
+      ? `task (${command.source}): continue in ${count} s...`
       : `task (${command.source})`,
     avatar: () =>
       h(
@@ -93,7 +95,7 @@ const createSelectOptions = (command) => {
       if (count) {
         const minusCount = () => {
           count--;
-          nRef.meta = `task (${command.source}): continue in ${count} seconds...`;
+          nRef.meta = `task (${command.source}): exit in ${count} s...`;
           if (count > 0) {
             window.setTimeout(minusCount, 1e3);
           }
@@ -117,7 +119,7 @@ const renderTextContent = (content) => {
   return h(
     NText,
     {
-      style: { "font-size": "15px", color: "#db2544" },
+      style: { "font-size": "14px", color: "#3a4dbf" },
     },
     { default: () => content }
   );
@@ -130,7 +132,7 @@ const createNotification = (command) => {
     content: () => renderTextContent(command.content),
     duration: count ? count * 1000 : undefined,
     meta: count
-      ? `task (${command.source}): close in ${count} seconds...`
+      ? `task (${command.source}): exit in ${count} s...`
       : `task (${command.source})`,
     avatar: () =>
       h(
@@ -144,7 +146,7 @@ const createNotification = (command) => {
       if (count) {
         const minusCount = () => {
           count--;
-          nRef.meta = `task (${command.source}): continue in ${count} seconds...`;
+          nRef.meta = `task (${command.source}): continue in ${count} s...`;
           if (count > 0) {
             window.setTimeout(minusCount, 1e3);
           }
@@ -221,25 +223,98 @@ const createTextInput = (command) => {
   });
 };
 
+const fileListRef = ref([]);
+const renderFileInput = () => {
+  return h(
+    NSpace,
+    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
+    {
+      default: () => [
+        h(
+          "span",
+          { style: { "font-size": "14px", color: "#3a4dbf" } },
+          "Drop files to tray icon to upload."
+        ),
+        h(
+          NUpload,
+          {
+            abstract: true,
+            fileList: fileListRef.value,
+            onChange: (event) => {
+              const { file, fileList } = event;
+              fileListRef.value = fileList;
+            },
+          },
+          {
+            default: () => h(NUploadFileList, { width: "300px" }, null),
+          }
+        ),
+      ],
+    }
+  );
+};
+
+ipcRenderer.on("drop-files", (event, files) => {
+  fileListRef.value = [
+    ...files.map((t, index) => {
+      return {
+        id: String(index),
+        name: t,
+        status: "finished",
+        type: "text/plain",
+      };
+    }),
+    ...fileListRef.value,
+  ];
+});
+
+const createFileInput = (command) => {
+  fileListRef.value = [];
+  let nRef = notification.create({
+    title: command.title,
+    content: () => renderFileInput(),
+    meta: `task (${command.source})`,
+    avatar: () =>
+      h(
+        NIcon,
+        { color: "green" },
+        {
+          default: () => h(FileImport),
+        }
+      ),
+    action: () =>
+      h(
+        NButton,
+        {
+          size: "small",
+          type: "success",
+          onClick: () => {
+            nRef.destroy();
+          },
+        },
+        {
+          default: () => h("span", { style: {} }, "Submit"),
+        }
+      ),
+    onAfterLeave: () => {},
+  });
+};
+
 onMounted(() => {
   setTimeout(() => {
     createNotification({
-      title: "AuTool started running...",
-      content: "Aren't you excited?",
+      title: "AuTool started",
+      content: "Aren't you excited to learn more about computer architectures?",
       source: "console",
-      timeout: 10,
     });
-
-    // createTextInput({
-    //   title: "Input text",
-    //   source: "another-task-manager",
-    //   options: ["yourName", "postalCode"],
-    //   placeholders: ["LastName, FirstName", "22234"],
+    // createFileInput({
+    //   title: "File Input",
+    //   source: "console",
     // });
   }, 1000);
 });
 
-const getImaUrl = (imgId) => {
+const getImageUrl = (imgId) => {
   return require(`../../assets/runes/${imgId}.png`);
 };
 
@@ -251,16 +326,45 @@ const deleteAutoRune = () => {
 };
 
 ipcRenderer.on("assist-win-push", (event, message) => {
-  if (message.type === "select-options") {
-    createSelectOptions({
-      title: message.title,
-      source: message.source,
-      timeout: message.timeout,
-      options: message.options,
-      callback: message.callback,
-    });
-  } else if (message.type === "input-text") {
-    createTextInput(message);
+  let messageType = message.type;
+  switch (messageType) {
+    case "select-options":
+      createSelectOptions({
+        title: message.title,
+        source: message.source,
+        timeout: message.timeout,
+        options: message.options,
+        callback: message.callback,
+      });
+      break;
+
+    case "input-text":
+      createTextInput({
+        title: message.title,
+        source: message.source,
+        options: message.options,
+        placeholders: message.hints,
+      });
+      break;
+    case "push-notification":
+      createNotification({
+        title: message.title,
+        content: message.content,
+        source: message.source,
+      });
+      break;
+
+    case "input-files":
+      createFileInput({
+        title: message.title,
+        source: message.source,
+        options: message.options,
+        placeholders: message.hints,
+        callback: message.callback,
+      });
+      break;
+    default:
+      break;
   }
 });
 </script>

@@ -5,6 +5,7 @@ import { loadApps } from '@/utils/main/queryTasks';
 
 const path = require("path");
 const fs = require('fs');
+const yaml = require('js-yaml')
 
 export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.on('move-main', (event, pos) => {
@@ -56,6 +57,7 @@ export const ipcListener = (mainWindow, assistWindow) => {
     appConfig.set('mainWindowDimension', {
       width: dim.width, height: dim.height, isCollapsed: isCollapsed
     })
+    appConfig.set('mainWindowPosition', { x: dim.x, y: dim.y })
     app.quit()
   })
 
@@ -79,7 +81,7 @@ export const ipcListener = (mainWindow, assistWindow) => {
     if (action === "app-reload") {
       const apps = loadApps(appConfig.get('appHome'))
       appConfig.set('apps', apps.apps)
-    
+
     } else if (action === "app-delete") {
       let appPath = message.appPath
       if (fs.existsSync(appPath)) {
@@ -87,6 +89,21 @@ export const ipcListener = (mainWindow, assistWindow) => {
       } else {
         console.error(`${appPath} not exists`)
       }
+
+    } else if (action === "task-configs-update") {
+      let taskPath = message.taskPath
+      let key = message.key
+      let doc = yaml.load(fs.readFileSync(taskPath, 'utf8'));
+
+      if (!("configs" in doc)) {
+        doc.configs = {}
+      }
+      doc.configs[key] = message.update;
+      fs.writeFile(taskPath, yaml.dump(doc), (err) => {
+        if (err) {
+          console.error(err);
+        }
+      });
 
     } else if (action === "task-delete") {
       let taskPath = message.taskPath
@@ -105,6 +122,20 @@ export const ipcListener = (mainWindow, assistWindow) => {
             console.error(err);
           }
         });
+      });
+
+    } else if (action === "shell") {
+      const { exec } = require("child_process");
+      exec(message.cmd, (error, stdout, stderr) => {
+        if (error) {
+          console.log(`error: ${error.message}`);
+          return;
+        }
+        if (stderr) {
+          console.log(`stderr: ${stderr}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
       });
     }
   })

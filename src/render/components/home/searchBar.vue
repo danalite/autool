@@ -3,7 +3,7 @@
     <n-input-group>
       <n-dropdown
         trigger="click"
-        :options="taskTypeOptions"
+        :options="isTaskPaneTab ? taskTypeOptions : instancesTypeOptions"
         @select="handleTaskTypeSelect"
       >
         <n-button type="primary">
@@ -79,6 +79,10 @@
             :show="checkedValue !== 'Import app from Github'"
           >
             <n-space vertical :style="'padding-left: 20px'" justify="center">
+              <n-input
+                size="small"
+                placeholder="E.g., action-record-feb-2021"
+              />
               <n-space item-style="display: flex;" vertical>
                 <n-checkbox
                   disabled
@@ -87,32 +91,31 @@
                   label="mouse-click and keyboard"
                 />
                 <n-checkbox
-                  value="mouse-movement"
-                  label="mouse-movement trace"
+                  value="mouse click by image"
+                  label="mouse-click-by-image"
                 />
+                <n-checkbox value="mouse-movement" label="mouse-movement" />
+                <n-checkbox value="delay" label="time delay" />
               </n-space>
-
-              <n-input-group size="small">
-                <n-tag type="primary" :bordered="false">record name</n-tag>
-                <n-input
-                  size="small"
-                  style="width: 150px"
-                  placeholder="my-record-01"
-                />
-              </n-input-group>
-
-              <!-- Mouse click recording types -->
-              <n-input-group>
-                <n-tag size="medium" type="primary" :bordered="false"
-                  >record mouse click</n-tag
-                >
-                <n-popselect
-                  v-model:value="mouseClickRecordType"
-                  :options="mouseRecordTypes"
-                >
-                  <n-button size="small">{{ mouseClickRecordType }}</n-button>
-                </n-popselect>
-              </n-input-group>
+              <n-space justify="center">
+                <n-tooltip :style="{ maxWidth: '400px' }" trigger="hover">
+                  <template #trigger>
+                    <n-button text type="info" size="tiny">
+                      <template #icon>
+                        <n-icon>
+                          <Search />
+                        </n-icon>
+                      </template>
+                      how to record macro?
+                    </n-button>
+                  </template>
+                  Start: Ctrl + 1
+                  <br />
+                  Stop&nbsp;: Ctrl + 2
+                  <br />
+                  Pause: Ctrl + 3
+                </n-tooltip>
+              </n-space>
             </n-space>
           </n-collapse-transition>
         </n-space>
@@ -133,6 +136,7 @@
 
 <script>
 import { h, ref, onMounted, watch } from "vue";
+import eventBus from "@/utils/main/eventBus";
 import {
   Plus,
   Refresh,
@@ -143,6 +147,7 @@ import {
   Keyboard,
   Cloud,
   Checkbox,
+  PlayerPause,
 } from "@vicons/tabler";
 
 import {
@@ -167,6 +172,7 @@ import {
   NRadioGroup,
   NPopselect,
   NDivider,
+  NTooltip,
   NTabPane,
   NIcon,
   NModal,
@@ -195,6 +201,7 @@ export default {
     useMessage,
     NTabs,
     NTabPane,
+    NTooltip,
     NIcon,
     NModal,
     NCheckboxGroup,
@@ -208,11 +215,16 @@ export default {
     Keyboard,
     Cloud,
     Checkbox,
+    PlayerPause,
+    eventBus,
   },
   emits: ["refreshApps"],
   setup(props, { emit }) {
     const searchKeyword = ref("");
     const message = useMessage();
+
+    const trackTarget = ref(["mouse-click", "delay", "keyboard"]);
+    const checkedValueRef = ref("Import app from Github");
 
     const renderIcon = (icon, attrs) => {
       return () => {
@@ -237,42 +249,90 @@ export default {
 
     // Filter tasks by keyword
     watch(searchKeyword, (newValue, oldValue) => {
-      if (newValue == "") {
-        // emit("refreshApps");
-      }
-      console.log("sssss");
+      // emit("refreshFilter", { keyword: newValue });
     });
 
+    const isTaskPaneTab = ref(true);
+    eventBus.on("switchTab", (tab) => {
+      if (tab == "taskPane") {
+        isTaskPaneTab.value = true;
+      } else {
+        isTaskPaneTab.value = false;
+      }
+    });
+
+    const instancesTypeOptions = [
+    {
+        type: "group",
+        label: "Show task instances",
+        key: "main",
+        children: [
+          {
+            label: "Running",
+            key: "running",
+            icon: renderIcon(Checkbox, { size: 20, color: "#4caf50" }),
+          },
+          {
+            label: "Queued",
+            key: "queued",
+            icon: renderIcon(Checkbox, { size: 20, color: "#4caf50" }),
+          },
+          {
+            label: "Stopped",
+            key: "stopped",
+            icon: renderIcon(BrandAndroid, { size: 20, color: "#4caf50" }),
+          },
+
+          {
+            label: "Events",
+            key: "events",
+            icon: renderIcon(Keyboard, { size: 20, color: "grey" }),
+          }
+        ],
+      },
+    ]
     const taskTypeOptions = [
       {
-        label: "All tasks",
-        key: "all",
-        icon: renderIcon(Filter, { size: 20 }),
-      },
-      {
-        label: "Selected",
-        key: "selected",
-        icon: renderIcon(Checkbox, { size: 20, color: "#4caf50" }),
-      },
-      {
-        label: "Auto-start",
-        key: "autostart",
-        icon: renderIcon(BrandAndroid, { size: 20, color: "#4caf50" }),
-      },
-      {
-        label: "Scheduled",
-        key: "scheduled",
-        icon: renderIcon(Clock, { color: "#2685c2", size: 20 }),
-      },
-      {
-        label: "Hotkey",
-        key: "hotkey",
-        icon: renderIcon(Keyboard, { size: 20, color: "grey" }),
-      },
-      {
-        label: "Remote",
-        key: "remote",
-        icon: renderIcon(Cloud, { size: 20, color: "#2685c2" }),
+        type: "group",
+        label: "Show tasks of types",
+        key: "main",
+        children: [
+          {
+            label: "Shortcut",
+            key: "shortcut",
+            icon: renderIcon(Checkbox, { size: 20, color: "#4caf50" }),
+          },
+          {
+            label: "Auto-start",
+            key: "autostart",
+            icon: renderIcon(BrandAndroid, { size: 20, color: "#4caf50" }),
+          },
+          {
+            label: "Timed",
+            key: "scheduled",
+            icon: renderIcon(Clock, { color: "#2685c2", size: 20 }),
+          },
+          {
+            label: "Hotkey",
+            key: "hotkey",
+            icon: renderIcon(Keyboard, { size: 20, color: "grey" }),
+            // children: [
+            //   {
+            //     label: "queued",
+            //     key: "hotkey-queued",
+            //   },
+            //   {
+            //     label: "unqueued",
+            //     key: "hotkey-unqueued",
+            //   },
+            // ],
+          },
+          {
+            label: "Remote",
+            key: "remote",
+            icon: renderIcon(Cloud, { size: 20, color: "#2685c2" }),
+          },
+        ],
       },
     ];
 
@@ -282,32 +342,24 @@ export default {
       showModalRef.value = true;
     };
 
-    const onPositiveClick = () => {
-      if (
-        githubFolderLink.value === "" ||
-        !githubFolderLink.value.startsWith("http")
-      ) {
-        message.warning("Please enter a valid link");
-        return;
-      }
-
-      message.success(`Importing "${githubFolderLink.value}"...`);
+    const downloadAppFromGithub = (link) => {
+      message.success(`Importing "${link}"...`);
       let wsConn = new WebSocket("ws://127.0.0.1:5678/");
       wsConn.onmessage = async (event) => {
         emit("refreshApps", {});
         wsConn.close();
       };
       wsConn.onopen = (event) => {
-        let msg = {
+        let message = {
           event: "I_EVENT_TASK_REQ",
           value: {
             type: "REQUEST",
             worker: "DownloadWorker",
-            url: githubFolderLink.value,
+            url: link,
           },
         };
         try {
-          wsConn.send(JSON.stringify(msg));
+          wsConn.send(JSON.stringify(message));
         } catch (e) {
           console.log(e);
           message.warning("Failed downloading...");
@@ -316,23 +368,24 @@ export default {
       showModalRef.value = false;
     };
 
+    const onPositiveClick = () => {
+      if (checkedValueRef.value === "Import app from Github") {
+        if (
+          githubFolderLink.value === "" ||
+          !githubFolderLink.value.startsWith("http")
+        ) {
+          message.warning("Please enter a valid link");
+          return;
+        }
+        downloadAppFromGithub(githubFolderLink.value);
+      } else {
+        recordMacro();
+      }
+    };
+
     const onNegativeClick = () => {
       showModalRef.value = false;
     };
-
-    const trackTarget = ref(["mouse-click", "delay", "keyboard"]);
-    const checkedValueRef = ref("Import app from Github");
-    const mouseClickRecordType = ref("position");
-    const mouseRecordTypes = [
-      {
-        value: "position",
-        label: "position",
-      },
-      {
-        value: "icon capture",
-        label: "icon capture",
-      },
-    ];
 
     return {
       searchKeyword,
@@ -344,16 +397,16 @@ export default {
         checkedValueRef.value = e.target.value;
       },
       refreshApps() {
-        emit("refreshApps");
+        emit("refreshApps", {});
       },
       addNewApp,
       onPositiveClick,
       onNegativeClick,
 
-      mouseRecordTypes,
-      mouseClickRecordType,
       trackTarget,
+      isTaskPaneTab,
       taskTypeOptions,
+      instancesTypeOptions,
       handleTaskTypeSelect,
     };
   },

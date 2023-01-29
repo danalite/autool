@@ -1,6 +1,7 @@
 import json
 import asyncio
 import random
+
 import websockets
 from libauto import new_task_sch, download
 
@@ -50,7 +51,7 @@ async def loopMain(websocket):
 
         else:
             backendEvent.cancel()
-        await asyncio.sleep(random.random())
+        await asyncio.sleep(random.random() * 0.2)
 
 
 async def wssRegister(websocket):

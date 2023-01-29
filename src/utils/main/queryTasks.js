@@ -43,6 +43,9 @@ export const loadApps = (appDir) => {
           if ("hotkey" in doc.configs) {
             taskItem.hotkey = doc.configs.hotkey
           }
+          if ("shortcut" in doc.configs) {
+            taskItem.shortcut = doc.configs.shortcut
+          }
         }
 
         if (doc.inputs) {

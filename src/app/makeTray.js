@@ -28,15 +28,19 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         },
       },
       {
-        role: "quit",
-        label: "Exit",
-      },
-      {
         label: "Restart",
         click() {
           app.relaunch();
           app.quit();
         },
+      },
+      {
+        label: "Exit",
+        click() {
+          let dim = mainWindow.getBounds();
+          appConfig.set('mainWindowPosition', { x: dim.x, y: dim.y })
+          app.quit();
+        }
       },
       { type: "separator" },
       {
@@ -57,8 +61,7 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
   });
   
   appIcon.on('drop-files', function(event, files) {
-    // Array with file paths!
-    // console.log(files);
+    assistWindow.webContents.send('drop-files', files)
   });
 
   appIcon.setContextMenu(createContextMenu());

@@ -5,8 +5,8 @@
 
       <!-- Second block under user information -->
       <n-card class="boxShadow appCard" size="small">
-        <n-tabs type="segment" :animated="true">
-          <n-tab-pane style="padding-top: 3px" name="chap1" tab="Tasks">
+        <n-tabs type="segment" :animated="true" v-model:value="currentTab">
+          <n-tab-pane style="padding-top: 3px" name="taskPane" tab="Tasks">
             <TaskPane
               :apps="apps"
               @runTask="runTask($event)"
@@ -14,7 +14,7 @@
             />
           </n-tab-pane>
 
-          <n-tab-pane style="padding-top: 8px" name="chap2" tab="Scheduler">
+          <n-tab-pane style="padding-top: 8px" name="taskSch" tab="Scheduler">
             <TaskSch
               :apps="apps"
               :taskEvents="taskEvents"
@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted } from "vue";
+import { h, ref, onMounted, watch } from "vue";
 import { ipcRenderer } from "electron";
 import {
   NCard,
@@ -62,6 +62,7 @@ import TaskSch from "./taskSch.vue";
 import { appConfig } from "@/utils/main/config";
 import { useStore } from "@/render/store";
 import { storeToRefs } from "pinia/dist/pinia";
+import eventBus from "@/utils/main/eventBus";
 
 const store = useStore();
 let { pageCount } = storeToRefs(store);
@@ -80,8 +81,8 @@ const EventType = {
 const message = useMessage();
 const taskEvents = ref([]);
 const tasksStatusTable = ref([]);
+let tasksChecklist = [];
 
-// local apps/tasks list
 let apps = ref([]);
 
 const backendEventHook = (data) => {
@@ -231,6 +232,10 @@ const runTask = (task) => {
   }
 };
 
+eventBus.on("run-task-from-bar", (task) => {
+  runTask(task);
+});
+
 // Main process invoked tasks
 ipcRenderer.on("to-main-win", (event, message) => {
   if (message.action === "run-task") {
@@ -292,13 +297,11 @@ onMounted(async () => {
   });
 });
 
-const queryMatch = () => {
-  ipcRenderer.send("show-query-match");
-};
+const currentTab = ref('taskPane');
+watch(currentTab, (val) => {
+  eventBus.emit("switchTab", val);
+});
 
-const getImaUrl = (imgUrl) => {
-  return require(`../../assets/statstones/${imgUrl.toLowerCase()}`);
-};
 </script>
 
 <style scoped>

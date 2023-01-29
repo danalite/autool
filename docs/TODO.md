@@ -1,15 +1,17 @@
 ## TODOs
-- [ ] Update layouts for autostart/timed tasks
 - [ ] Update logging and debugging interface
 - [ ] Add and example to test event bus
 
 ## 2023-01
+- [ ] Update task scheduler panel (include app icon)
+- [ ] Update macro recorder NodeJS module
+- [x] Assist pane support drop files operations
+- [x] Task starred status tracking (`task.shortcut`)
+- [x] Event bus for communication between taskBar and appMain
 - [x] Simplify macro recording UI interface
 - [x] Message passing between console, windows, and backend
 - [x] Maintain the collapsed status on startup
 - [x] (cancelled) Add system load indicator to status bar
-- [ ] Task starred status tracking
-- [ ] Update task scheduler panel (include app icon)
 - [x] Fix CSS when window is being collapsed
 - [x] Add file drop event to console (i.e., NodeJS process)
 - [x] Separate component for floating taskBar

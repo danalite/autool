@@ -4,6 +4,8 @@ import { appConfig } from '@/utils/main/config'
 
 export const createMainWindow = async (userHeader) => {
   let dim = appConfig.get('mainWindowDimension')
+  let pos = appConfig.get('mainWindowPosition')
+
   const win = new BrowserWindow({
     title: 'AuTool',
     center: true,
@@ -12,6 +14,8 @@ export const createMainWindow = async (userHeader) => {
     hasShadow: true,
     frame: false,
     resizable: false,
+    x: pos.x,
+    y: pos.y,
     width: dim.width,
     height: dim.height,
     webPreferences: {

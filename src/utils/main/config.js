@@ -7,6 +7,10 @@ export const appConfig = new Store({
       width: 390,
       height: 650
     },
+    'mainWindowPosition': {
+      x: 0,
+      y: 0
+    },
     'autoPickChampion': {
       championId: "157",
       isAuto: false

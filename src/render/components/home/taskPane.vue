@@ -57,15 +57,13 @@
                     <n-checkbox
                       style="padding-left: 8px"
                       @click.stop
-                      @update:checked="handleTaskChecked(taskIndex, $event)"
+                      v-model:checked="task.shortcut"
+                      @update:checked="handleTaskChecked($event, app.tasks[taskIndex])"
                     />
 
-                    <n-space style="padding-top: 2px">
+                    <n-space>
                       <n-button :text="true" size="small" @click="">
-                        <n-icon size="18" depth="3" style="padding-right: 3px">
-                          <Box />
-                        </n-icon>
-                        <n-ellipsis style="max-width: 160px">
+                        <n-ellipsis style="max-width: 180px">
                           {{
                             task.relTaskPath.includes("/")
                               ? task.relTaskPath.split("/")[1]
@@ -74,7 +72,7 @@
                         </n-ellipsis>
                       </n-button>
 
-                      <n-space style="padding-top: 1px">
+                      <n-space style="padding-top: 3px">
                         <n-icon
                           v-show="task.options.includes('autostart')"
                           size="18"
@@ -220,14 +218,14 @@ export default {
       emit("runTask", task);
     };
 
-    const handleTaskChecked = (taskIndex, event) => {
-      if (event) {
-        checkedTaskKeys.value.push(taskIndex);
-      } else {
-        checkedTaskKeys.value = checkedTaskKeys.value.filter(
-          (key) => key !== taskIndex
-        );
-      }
+    const handleTaskChecked = async (isChecked, task) => {
+      // Update local task config
+      await ipcRenderer.invoke("to-console", {
+        action: "task-configs-update",
+        taskPath: task.absTaskPath,
+        key: "shortcut",
+        update: isChecked,
+      });
     };
 
     const copyToClipboard = (text) => {
@@ -237,26 +235,12 @@ export default {
 
     const activeSelectedTask = ref(null);
     const activeAppIndex = ref(0);
-    const checkedTaskKeys = ref([]);
 
     const showAppTaskList = (index) => {
       if (activeAppIndex.value != index) {
-        checkedTaskKeys.value = [];
         activeAppIndex.value = index;
       } else {
         activeAppIndex.value = -1;
-      }
-    };
-
-    const enqueueTasks = async (app) => {
-      if (checkedTaskKeys.value.length === 0) {
-        message.warning("Please select tasks from task list");
-      } else {
-        for (let i = 0; i < checkedTaskKeys.value.length; i++) {
-          let task = app.tasks[i];
-          runTask(task);
-          message.info("Enqueue tasks: " + app.tasks[0].name);
-        }
       }
     };
 
@@ -298,8 +282,7 @@ export default {
         });
         emit("refreshApps", {});
         message.warning(`deleted app ${app.author}/${app.app}`);
-      } else if (key === "run") {
-        enqueueTasks(app);
+
       } else if (key === "edit") {
         shell.openExternal(`vscode://file/${app.path}`);
       }
@@ -338,9 +321,8 @@ export default {
 
     return {
       activeAppIndex,
-      checkedTaskKeys,
       showAppTaskList,
-      enqueueTasks,
+
       bulkTaskOptions,
       handleAppAction,
       handleTaskChecked,

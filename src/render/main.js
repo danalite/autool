@@ -4,10 +4,15 @@ import { createPinia } from 'pinia'
 import animated  from'animate.css'
 import { createApp } from 'vue'
 import Directive from './directives'
+import mitt from 'mitt';
 
-createApp(App)
-  .use(router)
-  .use(animated)
-  .use(Directive)
-  .use(createPinia())
-  .mount('#app')
+const emitter = mitt();
+const app = createApp(App)
+
+app.use(router)
+app.use(animated)
+app.use(Directive)
+app.use(createPinia())
+app.mount('#app')
+
+app.config.globalProperties.$emitter = emitter;
