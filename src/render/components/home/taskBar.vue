@@ -30,13 +30,16 @@
           v-for="(taskName, taskIndex) in displayTasks"
           :key="taskIndex"
           :bordered="false"
+          :loading="loadingTask == taskName"
           type="success"
           secondary
           size="tiny"
           style="margin-right: 0px; width: 164px"
           @click="runTargetTask($event, taskName)"
         >
+        <n-ellipsis style="max-width: 164px" :tooltip="false">
           {{ taskName }}
+        </n-ellipsis>
         </n-button>
       </n-space>
 
@@ -75,6 +78,7 @@ import {
   NIcon,
   NSpace,
   NButton,
+  NEllipsis,
   NInput,
   NPopover,
   NPopconfirm,
@@ -194,9 +198,14 @@ onBeforeUpdate(async () => {
 });
 
 // Show selected tasks in a drop list
+const loadingTask = ref("");
 const runTargetTask = (e, taskName) => {
   let task = selectedTasks.value.find((task) => task.relTaskPath == taskName);
   eventBus.emit("run-task-from-bar", task);
+  loadingTask.value = taskName;
+  setTimeout(() => {
+    loadingTask.value = "";
+  }, 1500);
 };
 
 // total width = 333px. gap = 12px

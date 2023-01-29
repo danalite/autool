@@ -10,16 +10,19 @@
           <n-space vertical style="gap: 0px 0px">
             <n-space justify="space-between">
               <n-space>
-                <n-avatar
-                  style="
-                    margin-right: 0px;
-                    border-radius: 2px;
-                    background-color: #ffffff;
-                  "
-                  :bordered="false"
-                  :size="25"
-                  :src="app.icon"
-                />
+                <n-badge value="new">
+                  <n-avatar
+                    style="
+                      margin-right: 0px;
+                      border-radius: 2px;
+                      background-color: #ffffff;
+                    "
+                    :bordered="false"
+                    :size="25"
+                    :src="app.icon"
+                  />
+                </n-badge>
+
                 <n-button
                   ghost
                   size="small"
@@ -55,15 +58,22 @@
                 >
                   <n-space>
                     <n-checkbox
-                      style="padding-left: 8px"
+                      style="padding-left: 6px"
                       @click.stop
                       v-model:checked="task.shortcut"
-                      @update:checked="handleTaskChecked($event, app.tasks[taskIndex])"
+                      @update:checked="
+                        handleTaskChecked($event, app.tasks[taskIndex])
+                      "
                     />
 
-                    <n-space>
-                      <n-button :text="true" size="small" @click="">
-                        <n-ellipsis style="max-width: 180px">
+                    <n-space style="gap: 8px 2px">
+                      <n-button
+                        :text="true"
+                        size="small"
+                        @click="runTask(task)"
+                        style="text-align: left"
+                      >
+                        <n-ellipsis style="width: 180px; max-width: 180px">
                           {{
                             task.relTaskPath.includes("/")
                               ? task.relTaskPath.split("/")[1]
@@ -72,20 +82,46 @@
                         </n-ellipsis>
                       </n-button>
 
-                      <n-space style="padding-top: 3px">
+                      <n-input-group style="padding-top: 3px; max-width: 40px">
+                        <n-icon
+                          v-show="task.hotkey"
+                          size="18"
+                          color="grey"
+                          depth="2"
+                        >
+                          <Keyboard />
+                        </n-icon>
+
                         <n-icon
                           v-show="task.options.includes('autostart')"
                           size="18"
                           color="#0e7a0d"
                           depth="2"
+                          style="padding-left: 1px"
                         >
                           <BrandAndroid />
                         </n-icon>
 
-                        <n-icon size="18" color="#0e7a0d" depth="2">
-                          <BrandAndroid />
+                        <n-icon
+                          size="18"
+                          color="#0e7a0d"
+                          depth="2"
+                          style="padding-left: 1px"
+                          v-show="task.startTime"
+                        >
+                          <Clock />
                         </n-icon>
-                      </n-space>
+
+                        <n-icon
+                          size="18"
+                          color="#0e7a0d"
+                          depth="2"
+                          style="padding-left: 1px"
+                          v-show="task.options.includes('remote')"
+                        >
+                          <Cloud />
+                        </n-icon>
+                      </n-input-group>
                     </n-space>
                   </n-space>
                 </n-list-item>
@@ -106,6 +142,36 @@
       </n-list-item>
     </n-scrollbar>
   </n-list>
+
+  <n-modal v-model:show="showTaskConfigModalRef" preset="dialog">
+    <template #header>
+      <div style="padding-left: 10px">Quick config task</div>
+    </template>
+    <div>
+      <n-space vertical style="padding-top: 10px">
+        <n-checkbox value="autostart" label="autostart" />
+        <n-checkbox value="remote" label="remote  (run on cloud)" />
+
+        <n-text>start time </n-text>
+        <n-input-group>
+          <n-input size="small"> </n-input>
+          <n-button secondary size="small" type="primary">check</n-button>
+        </n-input-group>
+
+        <n-text>hotkey </n-text>
+        <n-input-group>
+          <n-input size="small"> </n-input>
+          <n-button secondary size="small" type="primary">check</n-button>
+        </n-input-group>
+      </n-space>
+    </div>
+    <template #action>
+      <n-space>
+        <n-button @click="onNegativeClick">Cancel</n-button>
+        <n-button type="primary" @click="onPositiveClick"> Save </n-button>
+      </n-space>
+    </template>
+  </n-modal>
 </template>
 
 <script>
@@ -113,6 +179,7 @@ import { h, ref, nextTick } from "vue";
 import {
   NCard,
   NAvatar,
+  NBadge,
   NProgress,
   NSpace,
   NTag,
@@ -129,32 +196,32 @@ import {
   NTabs,
   NTabPane,
   NIcon,
-  NForm,
-  NFormItem,
-  NFormItemGi,
+  NModal,
   NInput,
   NSwitch,
   NCollapseTransition,
   NTooltip,
   NInputGroup,
   NEllipsis,
-  NCollapse,
-  NCollapseItem,
 } from "naive-ui";
 
 import {
   PlayerPlay,
   BrandAndroid,
   Trash,
+  ToggleLeft,
   Pencil,
   FileSearch,
   Box,
   Star,
   PlaylistAdd,
   Copy,
-  CloudUpload,
+  Cloud,
+  CloudDownload,
+  Clock,
   FileReport,
   WorldDownload,
+  Keyboard,
 } from "@vicons/tabler";
 
 import { ipcRenderer, shell } from "electron";
@@ -164,6 +231,7 @@ export default {
   components: {
     NCard,
     NAvatar,
+    NBadge,
     NProgress,
     NSpace,
     NTag,
@@ -183,26 +251,26 @@ export default {
     NTabPane,
     NTooltip,
     NIcon,
-    NForm,
-    NFormItem,
-    NFormItemGi,
+    NModal,
     NInput,
     NInputGroup,
     NEllipsis,
     PlayerPlay,
     BrandAndroid,
     Trash,
+    ToggleLeft,
     Pencil,
     Star,
     PlaylistAdd,
     FileSearch,
     Box,
     Copy,
-    CloudUpload,
+    Cloud,
+    CloudDownload,
+    Clock,
     FileReport,
-    NCollapse,
-    NCollapseItem,
     WorldDownload,
+    Keyboard,
   },
   props: {
     apps: {
@@ -268,9 +336,9 @@ export default {
         key: "d1",
       },
       {
-        label: "Run",
-        key: "run",
-        icon: renderIcon(PlayerPlay, { color: "green" }),
+        label: "Update",
+        key: "update",
+        icon: renderIcon(CloudDownload, { color: "green" }),
       },
     ];
 
@@ -282,7 +350,6 @@ export default {
         });
         emit("refreshApps", {});
         message.warning(`deleted app ${app.author}/${app.app}`);
-
       } else if (key === "edit") {
         shell.openExternal(`vscode://file/${app.path}`);
       }
@@ -294,34 +361,56 @@ export default {
     const yRef = ref(0);
     const taskItemOptions = [
       {
-        label: "run",
+        label: "Run",
         key: "run",
         icon: renderIcon(PlayerPlay, { color: "green" }),
+      },
+      {
+        label: () => h("span", {}, "Quick config"),
+        key: "config",
+        icon: renderIcon(ToggleLeft, { color: "green" }),
       },
       {
         type: "divider",
         key: "d1",
       },
       {
-        label: "edit",
+        label: "Edit",
         key: "edit",
         icon: renderIcon(Pencil, { color: "#2685c2" }),
       },
       {
-        label: () => h("span", {}, "debug"),
+        label: () => h("span", {}, "Debug"),
         key: "showLog",
         icon: renderIcon(FileReport, { color: "#FAD02C" }),
       },
       {
-        label: () => h("span", { style: { color: "#db2544" } }, "delete"),
+        label: () => h("span", { style: { color: "#db2544" } }, "Delete"),
         key: "delete",
         icon: renderIcon(Trash, { color: "#db2544" }),
       },
     ];
 
+    // Quick task config
+    const showTaskConfigModalRef = ref(false);
+    const onNegativeClick = () => {
+      showTaskConfigModalRef.value = false;
+    };
+
+    const onPositiveClick = async () => {
+      showTaskConfigModalRef.value = false;
+      // await ipcRenderer.invoke("to-console", {
+      //   action: "task-configs-update",
+      //   taskPath: activeSelectedTask.value.absTaskPath,
+      //   key: "shortcut",
+      //   update: true,
+      // });
+    };
+
     return {
       activeAppIndex,
       showAppTaskList,
+      showTaskConfigModalRef,
 
       bulkTaskOptions,
       handleAppAction,
@@ -352,6 +441,8 @@ export default {
           message.info(`delete task ${activeSelectedTask.value.relTaskPath}`);
         } else if (key === "showLog") {
           message.info("Show log");
+        } else if (key === "config") {
+          showTaskConfigModalRef.value = true;
         }
       },
       handleContextMenu(e, task) {
@@ -367,6 +458,9 @@ export default {
       onClickOutside() {
         showDropdownRef.value = false;
       },
+
+      onPositiveClick,
+      onNegativeClick,
     };
   },
 };

@@ -46,6 +46,9 @@ export const loadApps = (appDir) => {
           if ("shortcut" in doc.configs) {
             taskItem.shortcut = doc.configs.shortcut
           }
+          if ("start-time" in doc.configs) {
+            taskItem.startTime = doc.configs["start-time"]
+          }
         }
 
         if (doc.inputs) {

@@ -2,9 +2,15 @@
   <div>
     <n-space vertical>
       <n-scrollbar style="max-height: 370px">
-        
         <!-- Event in and outs -->
-        <n-collapse-transition :show="showType == 'events'">
+        <n-space v-if="showType == 'events'" justify="center">
+          <n-empty description="No events available" style="padding-top: 10px" v-show="eventItems.length === 0">
+            <template #icon>
+              <n-icon>
+                <PlaneInflight />
+              </n-icon>
+            </template>
+          </n-empty>
           <n-timeline size="large" :style="{ 'padding-top': '5px' }">
             <n-timeline-item
               v-for="e in eventItems.slice().reverse()"
@@ -15,9 +21,16 @@
               :time="e.time"
             />
           </n-timeline>
-        </n-collapse-transition>
+        </n-space>
 
-        <n-collapse-transition :show="showType == 'running'">
+        <n-space v-if="showType == 'running'" justify="center">
+          <n-empty description="No running tasks now" style="padding-top: 10px" v-show="runningTasks.length === 0">
+            <template #icon>
+              <n-icon>
+                <PlaneInflight />
+              </n-icon>
+            </template>
+          </n-empty>
           <n-list size="large" style="padding-top: 2px; padding-bottom: 0px">
             <n-list-item
               v-for="(task, taskIndex) in runningTasks"
@@ -41,7 +54,7 @@
                     {{ task.taskName }} ({{ task.id.slice(0, 8) }})
                   </n-ellipsis>
                 </n-button>
-                <n-switch size="small" />
+
                 <n-button
                   size="tiny"
                   type="error"
@@ -52,8 +65,52 @@
               </n-space>
             </n-list-item>
           </n-list>
-        </n-collapse-transition>
-      
+        </n-space>
+
+        <n-space v-if="showType == 'stopped'" justify="center">
+          <n-empty description="No stopped or finished tasks" style="padding-top: 10px" v-show="stoppedTasks.length === 0">
+            <template #icon>
+              <n-icon>
+                <PlaneInflight />
+              </n-icon>
+            </template>
+          </n-empty>
+          <n-list size="large" style="padding-top: 2px; padding-bottom: 0px">
+            <n-list-item
+              v-for="(task, taskIndex) in stoppedTasks"
+              style="padding-top: 6px; padding-bottom: 6px"
+              :key="taskIndex"
+            >
+              <n-space justify="space-between">
+                <n-button :text="true" size="small" @click="">
+                  <n-icon
+                    size="18"
+                    v-if="task.options.includes('remote')"
+                    style="padding-right: 3px"
+                  >
+                    <Cloud color="#409eff" />
+                  </n-icon>
+                  <n-icon size="18" v-else style="padding-right: 3px">
+                    <DevicesPc style="color: #409eff" />
+                  </n-icon>
+
+                  <n-ellipsis style="max-width: 220px">
+                    {{ task.taskName }} ({{ task.id.slice(0, 8) }})
+                  </n-ellipsis>
+                </n-button>
+
+                <n-button
+                  size="tiny"
+                  type="success"
+                  @click="() => {}"
+                >
+                  Rerun
+                </n-button>
+              </n-space>
+            </n-list-item>
+          </n-list>
+        </n-space>
+        
       </n-scrollbar>
     </n-space>
   </div>
@@ -70,6 +127,7 @@ import {
   TransferIn,
   Clock,
   Keyboard,
+  PlaneInflight,
 } from "@vicons/tabler";
 
 import {
@@ -96,6 +154,7 @@ import {
 } from "naive-ui";
 
 import { h, ref, computed } from "vue";
+import eventBus from "@/utils/main/eventBus";
 
 export default {
   name: "taskSch",
@@ -113,7 +172,6 @@ export default {
     NTag,
     NIcon,
     NText,
-
     NSwitch,
     NTabs,
     NTabPane,
@@ -130,13 +188,11 @@ export default {
     Cloud,
     DevicesPc,
     BrandAndroid,
+    PlaneInflight,
   },
 
   // Tasks and instances
   props: {
-    apps: {
-      type: Array,
-    },
     taskEvents: {
       type: Array,
     },
@@ -212,16 +268,14 @@ export default {
       );
     });
 
-    const autoStartTasks = computed(() => {
-      let tasks = []
-      props.apps.forEach((app) => {
-        app.tasks.forEach((task) => {
-          if (task.options.includes("autostart")) {
-            tasks.push(task)
-          }
-        })
-      })
-      return tasks
+    // Filter task instances by keyword
+    eventBus.on("search-task-sch", (keyword) => {
+      let filters = keyword.split("+");
+      let types = filters.filter((e) => e.startsWith("type:"));
+      if (types.length > 0) {
+        showType.value = types[0].replace("type:", "");
+        // console.log(showType.value, "@@");
+      }
     });
 
     return {
@@ -230,7 +284,6 @@ export default {
       eventItems,
       runningTasks,
       stoppedTasks,
-      autoStartTasks
     };
   },
 };

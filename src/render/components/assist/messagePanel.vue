@@ -119,7 +119,7 @@ const renderTextContent = (content) => {
   return h(
     NText,
     {
-      style: { "font-size": "14px", color: "#3a4dbf" },
+      style: { "font-size": "14px", color: "#3a4dbf", "font-family": '"Lucida Console", "Courier New", monospace'},
     },
     { default: () => content }
   );

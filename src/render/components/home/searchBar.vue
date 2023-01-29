@@ -32,7 +32,7 @@
 
     <n-modal v-model:show="showModalRef" preset="dialog">
       <template #header>
-        <div>Add new apps</div>
+        <div style="padding-left: 10px">Add new apps</div>
       </template>
       <div>
         <n-space vertical>
@@ -95,7 +95,7 @@
                   label="mouse-click-by-image"
                 />
                 <n-checkbox value="mouse-movement" label="mouse-movement" />
-                <n-checkbox value="delay" label="time delay" />
+                <n-checkbox value="delay" label="time" />
               </n-space>
               <n-space justify="center">
                 <n-tooltip :style="{ maxWidth: '400px' }" trigger="hover">
@@ -236,29 +236,26 @@ export default {
 
     // task type dropdown (i.e. YAMLs)
     const handleTaskTypeSelect = (option) => {
-      if (searchKeyword.value == "") {
-        searchKeyword.value = `type:${option}`;
-      } else if (searchKeyword.value.startsWith("type:")) {
-        if (!searchKeyword.value.includes(option)) {
-          searchKeyword.value += `+${option}`;
-        }
-      } else {
-        searchKeyword.value = `type:${option}`;
-      }
+      searchKeyword.value = `type:${option}`;
     };
 
     // Filter tasks by keyword
+    const isTaskPaneTab = ref(true);
     watch(searchKeyword, (newValue, oldValue) => {
-      // emit("refreshFilter", { keyword: newValue });
+      if (isTaskPaneTab.value) {
+        eventBus.emit("search-task-pane", newValue);
+      } else {
+        eventBus.emit("search-task-sch", newValue);
+      }
     });
 
-    const isTaskPaneTab = ref(true);
-    eventBus.on("switchTab", (tab) => {
+    eventBus.on("switch-tab", (tab) => {
       if (tab == "taskPane") {
         isTaskPaneTab.value = true;
       } else {
         isTaskPaneTab.value = false;
       }
+      searchKeyword.value = "";
     });
 
     const instancesTypeOptions = [

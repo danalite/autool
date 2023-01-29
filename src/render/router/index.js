@@ -1,6 +1,4 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import stylesheets from '@/render/router/middleware/stylesheets'
-
 const routes = [
   {
     path: '/',

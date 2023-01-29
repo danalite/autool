@@ -16,7 +16,6 @@
 
           <n-tab-pane style="padding-top: 8px" name="taskSch" tab="Scheduler">
             <TaskSch
-              :apps="apps"
               :taskEvents="taskEvents"
               :tasksStatusTable="tasksStatusTable"
               @stopTask="stopTask($event)"
@@ -299,7 +298,7 @@ onMounted(async () => {
 
 const currentTab = ref('taskPane');
 watch(currentTab, (val) => {
-  eventBus.emit("switchTab", val);
+  eventBus.emit("switch-tab", val);
 });
 
 </script>
