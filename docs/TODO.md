@@ -1,12 +1,20 @@
 ## TODOs
 - [ ] Update logging and debugging interface
 - [ ] Add and example to test event bus
+- [ ] Update macro recorder NodeJS module
+- [ ] Click app icon to show documents
 
 ## 2023-01
-- [ ] Quick config modal to change the config task in UI
-- [ ] Write docs (read-the-docs, Hugo Kube, vitepress). 
+- [x] A pop-up model to config start time and hotkey
+- [x] Handle queued tasks in appMain
+- [x] Send stop signal to backend instead of killing
+- [x] Apps (open chrome history, web search, translate)
+- [x] Move notification panel to RHS
+- [x] Notification part click to copy
+- [x] Deprecated quick config and use icons
+- [x] Quick config modal to configure task in UI
+- [x] Think about docs (read-the-docs, vite press). 
 - [x] Update task scheduler panel
-- [ ] Update macro recorder NodeJS module
 - [x] Click taskName to run in taskPanel
 - [x] Use a small loading button for taskBar tasks
 - [x] Update the task icon rendering part
@@ -28,4 +36,4 @@
 
 ### Long Term
 - [ ] Paid task running service (ATC, viewing ads, etc)
-- [ ] Solve the memory performance issue; Revamp using Tauri
+- [ ] Solve the memory performance issue. Revamp using Tauri

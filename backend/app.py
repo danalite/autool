@@ -20,37 +20,41 @@ async def eventQueueListener(task_sch):
 
 async def loopMain(websocket):
     while True:
-        userReq = asyncio.ensure_future(websocket.recv())
+        userEvent = asyncio.ensure_future(websocket.recv())
         backendEvent = asyncio.ensure_future(
             eventQueueListener(ts))
 
         done, pending = await asyncio.wait(
-            [userReq, backendEvent],
+            [userEvent, backendEvent],
             return_when=asyncio.FIRST_COMPLETED)
 
-        if userReq in done:
-            message = userReq.result()
-            print(f"(I_Event)", message)
-            request = json.loads(message)
-            ts.event_proxy.resolve(request)
+        if userEvent in done:
+            message = json.loads(userEvent.result())
+            # if message["event"] == "I_EVENT_WSS_REQUEST":
+            #     action = message["action"]
+            #     if action == "close":
+            #         asyncio.get_event_loop().stop()
+            #         break
+            ts.event_proxy.resolve(message)
 
         else:
-            userReq.cancel()
+            userEvent.cancel()
 
         if backendEvent in done:
             events = backendEvent.result()
-            print("(O_Event)", events)
+            # print("(O_Event)", events)
             for event in events:
                 await websocket.send(json.dumps(event))
 
         elif backendEvent.done():
             events = backendEvent.result()
-            print("(O_Event)", events)
+            # print("(O_Event)", events)
             for event in events:
                 await websocket.send(json.dumps(event))
 
         else:
             backendEvent.cancel()
+
         await asyncio.sleep(random.random() * 0.2)
 
 
@@ -58,7 +62,7 @@ async def wssRegister(websocket):
     message = await websocket.recv()
     event = json.loads(message)
 
-    print(f"<<< {event}")
+    # print(f"<<< {event}")
     data = event["value"]
     worker = data["worker"]
 

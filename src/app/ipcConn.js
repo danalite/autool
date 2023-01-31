@@ -1,11 +1,9 @@
 import { app, ipcMain } from "electron";
 import { appConfig } from "@/utils/main/config";
 
-import { loadApps } from '@/utils/main/queryTasks';
+import { deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
 
-const path = require("path");
-const fs = require('fs');
-const yaml = require('js-yaml')
+var parser = require('cron-parser');
 
 export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.on('move-main', (event, pos) => {
@@ -84,45 +82,25 @@ export const ipcListener = (mainWindow, assistWindow) => {
 
     } else if (action === "app-delete") {
       let appPath = message.appPath
-      if (fs.existsSync(appPath)) {
-        fs.rmSync(appPath, { recursive: true, force: true })
-      } else {
-        console.error(`${appPath} not exists`)
+      deleteApp(appPath)
+
+    } else if (action === "task-cron-parse") {
+
+      try {
+        let cron = message.startTime
+        let next = parser.parseExpression(cron).next()
+        console.log(next, next.toString())
+      } catch (e) {
+        console.error(e)
+        event.sender.reply
       }
 
     } else if (action === "task-configs-update") {
-      let taskPath = message.taskPath
-      let key = message.key
-      let doc = yaml.load(fs.readFileSync(taskPath, 'utf8'));
-
-      if (!("configs" in doc)) {
-        doc.configs = {}
-      }
-      doc.configs[key] = message.update;
-      fs.writeFile(taskPath, yaml.dump(doc), (err) => {
-        if (err) {
-          console.error(err);
-        }
-      });
+      updateTaskYaml(message.taskPath, message.key, message.update)
 
     } else if (action === "task-delete") {
-      let taskPath = message.taskPath
-      let appPath = message.appPath
-      let taskName = message.taskName
+      deleteTask(message.taskPath, message.taskPath, message.taskName)
 
-      fs.unlink(taskPath, function (err) {
-        if (err) return console.log(err);
-
-        let appJsonPath = path.join(appPath, "tasks.json")
-        let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
-        let newTasks = appJson.tasks.filter(t => t !== taskName + ".yaml")
-        appJson.tasks = newTasks
-        fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
-          if (err) {
-            console.error(err);
-          }
-        });
-      });
 
     } else if (action === "shell") {
       const { exec } = require("child_process");

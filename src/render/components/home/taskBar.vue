@@ -11,7 +11,7 @@
       <n-space style="padding-bottom: 2px; width: 340px">
         <!-- reminder if there is no selected tasks -->
         <n-button
-          v-if="displayTasks.length == 0"
+          v-if="displayTasks.length == 0 && false"
           :bordered="false"
           secondary
           type="warning"

@@ -10,7 +10,7 @@
           <n-space vertical style="gap: 0px 0px">
             <n-space justify="space-between">
               <n-space>
-                <n-badge value="new">
+                <n-badge value="new" v-if="index == 1">
                   <n-avatar
                     style="
                       margin-right: 0px;
@@ -22,6 +22,17 @@
                     :src="app.icon"
                   />
                 </n-badge>
+                <n-avatar
+                  style="
+                    margin-right: 0px;
+                    border-radius: 2px;
+                    background-color: #ffffff;
+                  "
+                  :bordered="false"
+                  :size="25"
+                  :src="app.icon"
+                  v-else
+                />
 
                 <n-button
                   ghost
@@ -38,6 +49,7 @@
 
               <n-space v-if="activeAppIndex === index">
                 <n-dropdown
+                  trigger="click"
                   :options="bulkTaskOptions"
                   @select="handleAppAction($event, app)"
                 >
@@ -53,6 +65,8 @@
                 <n-list-item
                   v-for="(task, taskIndex) in app.tasks"
                   style="padding-top: 6px; padding-bottom: 6px"
+                  @mouseover="handleMouseOver(index, taskIndex)"
+                  @mouseleave="handleMouseLeave(index, taskIndex)"
                   @contextmenu="handleContextMenu($event, task)"
                   :key="taskIndex"
                 >
@@ -73,7 +87,7 @@
                         @click="runTask(task)"
                         style="text-align: left"
                       >
-                        <n-ellipsis style="width: 180px; max-width: 180px">
+                        <n-ellipsis style="width: 170px; max-width: 170px">
                           {{
                             task.relTaskPath.includes("/")
                               ? task.relTaskPath.split("/")[1]
@@ -82,42 +96,78 @@
                         </n-ellipsis>
                       </n-button>
 
-                      <n-input-group style="padding-top: 3px; max-width: 40px">
+                      <n-input-group style="padding-top: 1px; max-width: 40px">
                         <n-icon
-                          v-show="task.hotkey"
+                          :class="{
+                            invisible: !(
+                              task.options?.includes('autostart') ||
+                              (hoverAppIndex == index &&
+                                hoverTaskIndex == taskIndex)
+                            ),
+                          }"
                           size="18"
-                          color="grey"
+                          :color="
+                            task.options?.includes('autostart')
+                              ? '#0e7a0d'
+                              : 'grey'
+                          "
                           depth="2"
-                        >
-                          <Keyboard />
-                        </n-icon>
-
-                        <n-icon
-                          v-show="task.options.includes('autostart')"
-                          size="18"
-                          color="#0e7a0d"
-                          depth="2"
-                          style="padding-left: 1px"
+                          style="padding-left: 0px"
+                          @click="handleToggleProperty(task, 'autostart')"
                         >
                           <BrandAndroid />
                         </n-icon>
 
                         <n-icon
                           size="18"
-                          color="#0e7a0d"
+                          :color="task.startTime ? '#0e7a0d' : 'grey'"
                           depth="2"
                           style="padding-left: 1px"
-                          v-show="task.startTime"
+                          :class="{
+                            invisible: !(
+                              task.startTime ||
+                              (hoverAppIndex == index &&
+                                hoverTaskIndex == taskIndex)
+                            ),
+                          }"
+                          @click="handleToggleProperty(task, 'startTime')"
                         >
                           <Clock />
                         </n-icon>
 
                         <n-icon
+                          :class="{
+                            invisible: !(
+                              task.hotkey ||
+                              (hoverAppIndex == index &&
+                                hoverTaskIndex == taskIndex)
+                            ),
+                          }"
                           size="18"
-                          color="#0e7a0d"
+                          style="padding-left: 1px"
+                          :color="task.hotkey ? 'green' : 'grey'"
+                          @click="handleToggleProperty(task, 'hotkey')"
+                          depth="2"
+                        >
+                          <Keyboard />
+                        </n-icon>
+                        <n-icon
+                          size="18"
+                          :color="
+                            task.options?.includes('remote')
+                              ? '#0e7a0d'
+                              : 'grey'
+                          "
                           depth="2"
                           style="padding-left: 1px"
-                          v-show="task.options.includes('remote')"
+                          :class="{
+                            invisible: !(
+                              task.options?.includes('remote') ||
+                              (hoverAppIndex == index &&
+                                hoverTaskIndex == taskIndex)
+                            ),
+                          }"
+                          @click="handleToggleProperty(task, 'remote')"
                         >
                           <Cloud />
                         </n-icon>
@@ -143,31 +193,85 @@
     </n-scrollbar>
   </n-list>
 
-  <n-modal v-model:show="showTaskConfigModalRef" preset="dialog">
+  <!-- Model to do quick config on startTime and Hotkey -->
+  <n-modal v-model:show="showModalRef" preset="dialog">
     <template #header>
-      <div style="padding-left: 10px">Quick config task</div>
+      <div style="padding-left: 10px">Setup {{ quickConfigTarget }}</div>
     </template>
     <div>
       <n-space vertical style="padding-top: 10px">
-        <n-checkbox value="autostart" label="autostart" />
-        <n-checkbox value="remote" label="remote  (run on cloud)" />
+        <n-space>
+          <n-button style="width: 50px" size="small">App </n-button>
+          <n-ellipsis
+            style="width: 220px; max-width: 220px; padding-top: 2px"
+            :tooltip="false"
+          >
+            {{ activeSelectedTask.app }}
+          </n-ellipsis>
+        </n-space>
+        <n-space>
+          <n-button style="width: 50px" size="small">Task</n-button>
+          <n-ellipsis
+            style="width: 220px; max-width: 220px; padding-top: 2px"
+            :tooltip="false"
+          >
+            {{ activeSelectedTask.relTaskPath }}
+          </n-ellipsis>
+        </n-space>
 
-        <n-text>start time </n-text>
-        <n-input-group>
-          <n-input size="small"> </n-input>
-          <n-button secondary size="small" type="primary">check</n-button>
+        <n-divider>
+          {{ quickConfigTarget == "hotkey" ? "Hotkey" : "Start Time" }}
+        </n-divider>
+
+        <n-space v-if="quickConfigTarget == 'startTime'">
+          <n-button size="small" @click="updateConfigValue = '15 9 * * mon'"
+            >9:15am on Monday weekly</n-button
+          >
+          <n-button size="small" @click="updateConfigValue = '0 */6 * * *'">
+            Every 6 hours
+          </n-button>
+          <n-button size="small" @click="updateConfigValue = '0 7,17 * * *'">
+            7am, 5pm daily
+          </n-button>
+          <n-button size="small" @click="updateConfigValue = '0 8 1-28 feb *'">
+            8am daily from Feb 1st to 28th
+          </n-button>
+        </n-space>
+
+        <n-input-group style="margin-top: 10px">
+          <n-input
+            size="small"
+            v-model:value="updateConfigValue"
+            :placeholder="
+              quickConfigTarget == 'hotkey'
+                ? 'Specify task hotkey'
+                : 'E.g., 15 09 * * 3'
+            "
+            style="width: 100%"
+          />
+          <n-button
+            v-if="activeSelectedTask[quickConfigTarget]"
+            type="warning"
+            size="small"
+            @click="updateConfigValue = ''"
+            >Clear</n-button
+          >
         </n-input-group>
 
-        <n-text>hotkey </n-text>
-        <n-input-group>
-          <n-input size="small"> </n-input>
-          <n-button secondary size="small" type="primary">check</n-button>
-        </n-input-group>
+        <n-space justify="center" v-if="quickConfigTarget == 'startTime'">
+          <n-button text type="info" size="tiny" @click="openCron">
+            <template #icon>
+              <n-icon>
+                <Clock />
+              </n-icon>
+            </template>
+            More examples of cron syntax
+          </n-button>
+        </n-space>
       </n-space>
     </div>
     <template #action>
       <n-space>
-        <n-button @click="onNegativeClick">Cancel</n-button>
         <n-button type="primary" @click="onPositiveClick"> Save </n-button>
       </n-space>
     </template>
@@ -183,6 +287,7 @@ import {
   NProgress,
   NSpace,
   NTag,
+  NDivider,
   NGrid,
   NCheckbox,
   NCheckboxGroup,
@@ -236,6 +341,7 @@ export default {
     NSpace,
     NTag,
     NGrid,
+    NDivider,
     NSwitch,
     NCollapseTransition,
     NDropdown,
@@ -294,11 +400,6 @@ export default {
         key: "shortcut",
         update: isChecked,
       });
-    };
-
-    const copyToClipboard = (text) => {
-      navigator.clipboard.writeText(text);
-      message.success(`Copied ${text} to clipboard`);
     };
 
     const activeSelectedTask = ref(null);
@@ -360,20 +461,11 @@ export default {
     const xRef = ref(0);
     const yRef = ref(0);
     const taskItemOptions = [
-      {
-        label: "Run",
-        key: "run",
-        icon: renderIcon(PlayerPlay, { color: "green" }),
-      },
-      {
-        label: () => h("span", {}, "Quick config"),
-        key: "config",
-        icon: renderIcon(ToggleLeft, { color: "green" }),
-      },
-      {
-        type: "divider",
-        key: "d1",
-      },
+      // {
+      //   label: "Run",
+      //   key: "run",
+      //   icon: renderIcon(PlayerPlay, { color: "green" }),
+      // },
       {
         label: "Edit",
         key: "edit",
@@ -391,31 +483,60 @@ export default {
       },
     ];
 
-    // Quick task config
-    const showTaskConfigModalRef = ref(false);
-    const onNegativeClick = () => {
-      showTaskConfigModalRef.value = false;
+    // show property icons for task hovered
+    const hoverAppIndex = ref(-1);
+    const hoverTaskIndex = ref(-1);
+    const handleMouseOver = (appIndex, taskIndex) => {
+      hoverAppIndex.value = appIndex;
+      hoverTaskIndex.value = taskIndex;
     };
 
+    const handleMouseLeave = (appIndex, taskIndex) => {
+      hoverAppIndex.value = -1;
+      hoverTaskIndex.value = -1;
+    };
+
+    const showModalRef = ref(false);
+    const quickConfigTarget = ref("");
+
     const onPositiveClick = async () => {
-      showTaskConfigModalRef.value = false;
-      // await ipcRenderer.invoke("to-console", {
-      //   action: "task-configs-update",
-      //   taskPath: activeSelectedTask.value.absTaskPath,
-      //   key: "shortcut",
-      //   update: true,
-      // });
+      showModalRef.value = false;
+      console.log("update", updateConfigValue.value, quickConfigTarget.value, activeSelectedTask.value.absTaskPath);
+      await ipcRenderer.invoke("to-console", {
+        action: "task-configs-update",
+        taskPath: activeSelectedTask.value.absTaskPath,
+        key: quickConfigTarget.value,
+        update: updateConfigValue.value,
+      });
+      emit("refreshApps", {});
+    };
+
+    const updateConfigValue = ref("");
+    const handleToggleProperty = async (task, property) => {
+      if (property === "autostart" || property === "remote") {
+        await ipcRenderer.invoke("to-console", {
+          action: "task-configs-update",
+          taskPath: task.absTaskPath,
+          key: property,
+          update: !task.options?.includes(property),
+        });
+      } else {
+        showModalRef.value = true;
+        activeSelectedTask.value = task;
+        updateConfigValue.value = task[property];
+        quickConfigTarget.value = property;
+      }
+      emit("refreshApps", {});
     };
 
     return {
       activeAppIndex,
       showAppTaskList,
-      showTaskConfigModalRef,
 
       bulkTaskOptions,
       handleAppAction,
       handleTaskChecked,
-      copyToClipboard,
+
       runTask,
       taskItemOptions,
       showDropdown: showDropdownRef,
@@ -441,8 +562,6 @@ export default {
           message.info(`delete task ${activeSelectedTask.value.relTaskPath}`);
         } else if (key === "showLog") {
           message.info("Show log");
-        } else if (key === "config") {
-          showTaskConfigModalRef.value = true;
         }
       },
       handleContextMenu(e, task) {
@@ -459,8 +578,21 @@ export default {
         showDropdownRef.value = false;
       },
 
+      hoverAppIndex,
+      hoverTaskIndex,
+      handleMouseOver,
+      handleMouseLeave,
+      handleToggleProperty,
+
+      quickConfigTarget,
+      showModalRef,
       onPositiveClick,
-      onNegativeClick,
+      activeSelectedTask,
+      updateConfigValue,
+
+      openCron() {
+        shell.openExternal("https://crontab.guru/");
+      },
     };
   },
 };
@@ -513,6 +645,10 @@ export default {
 .rightCorner {
   padding-top: 8px;
   margin-right: 3px;
+}
+
+.invisible {
+  visibility: hidden;
 }
 </style>
     

@@ -165,7 +165,8 @@ const runTask = (task) => {
     hotkey: task.hotkey,
     options: task.options,
     status: "",
-    startTime: new Date().toLocaleString(),
+    startTime: task.startTime,
+    stamp: new Date().toLocaleString(),
   };
 
   let taskStartEvent = {
@@ -182,15 +183,14 @@ const runTask = (task) => {
       options: task.options,
       content: task.content,
     },
-    time: new Date().toLocaleString(),
+    stamp: new Date().toLocaleString(),
   };
 
-  // 1. Stall task until hotkey is triggered.
   if (task.hotkey) {
+    // 1. Stall task until hotkey is triggered.
     let isKeyRegistered = tasksStatusTable.value.find(
       (t) => t.hotkey === task.hotkey && t.status === "queued"
     );
-
     if (isKeyRegistered) {
       message.warning(
         `Hotkey ${task.hotkey} is already registered for task ${isKeyRegistered.name}`
@@ -211,17 +211,24 @@ const runTask = (task) => {
 
     ipcRenderer.on("task-hotkey-invoked", (event, data) => {
       if (data.taskId === taskId) {
-        taskStartEvent.value.startTime = new Date().toLocaleString();
+        taskStartEvent.value.stamp = new Date().toLocaleString();
         taskEvents.value.push(taskStartEvent);
         sendMessageToBackend(taskStartEvent);
       }
     });
 
-    // 2. Wait for timer counts down
   } else if (task.startTime) {
+    // 2. Wait for timer counts down
     message.info(
       `Task ${task.relTaskPath} is scheduled to start at ${task.startTime}`
     );
+    ipcRenderer.invoke("to-console", {
+      action: "task-cron-parse",
+      startTime: task.startTime,
+      taskId: taskId,
+    });
+
+
   } else {
     // Start task right away
     tasksStatus.status = "running";
@@ -296,11 +303,10 @@ onMounted(async () => {
   });
 });
 
-const currentTab = ref('taskPane');
+const currentTab = ref("taskPane");
 watch(currentTab, (val) => {
   eventBus.emit("switch-tab", val);
 });
-
 </script>
 
 <style scoped>

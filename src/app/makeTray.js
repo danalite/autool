@@ -22,9 +22,10 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
       { type: "separator" },
       {
         label: "Show main window",
-        // accelerator: getShowAndHiddenHotKey(),
+        accelerator: "CmdOrCtrl+1",
         click() {
           mainWindow.show();
+          mainWindow.focus();
         },
       },
       {

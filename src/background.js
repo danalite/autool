@@ -37,6 +37,8 @@ let assistWindow;
 
 // Backend PyWebsocket server
 let subPy = null;
+let subPyExited = false
+
 const PY_SRC_FOLDER = "../backend"
 const PY_MODULE = "app.py"
 
@@ -71,9 +73,11 @@ const startPythonSubprocess = () => {
   }
 
   console.log("[ Backend ] websocket server started. PID ", subPy.pid);
+
   subPy.on('exit', function (code, signal) {
-    console.log('[ Backend ] process exited with ' +
+    console.log('[ NodeJS ] process exited with ' +
       `code ${code} and signal ${signal}`);
+    subPyExited = true
   });
 
   subPy.stdout.on('data', (data) => {
@@ -130,11 +134,18 @@ app.whenReady().then(async () => {
     }
   });
 
-  app.on("before-quit", () => {
-    console.log("[ NodeJS ] Terminating subPy...")
-    uioListenerStop()
-    subPy.kill()  // 'SIGTERM'
-    // process.exit(0)
+  app.on("before-quit", async () => {
+    // Send stop signal to backend
+    // await mainWindow.webContents.send('to-backend', {
+    //   event: 'I_EVENT_WSS_REQUEST',
+    //   action: 'stop'
+    // })
+
+    if (!subPyExited) {
+      console.log("[ NodeJS ] subPy not exited. Killing...")
+      subPy.kill('SIGTERM')
+    }
+    process.exit(0)
   })
 
 })
@@ -179,25 +190,27 @@ const appSetup = async () => {
 
   // Gather and confirm whether to autostart tasks
   let taskNames = apps.autostart.map((e) => e.relTaskPath)
-  console.log(`[ NodeJS ] autostart ${taskNames}`)
 
-  setTimeout(async () => {
-    // Once approved, options are forwarded to main window & backend
-    assistWindow.webContents.send('assist-win-push', {
-      type: "select-options",
-      options: taskNames,
-      title: "Auto-start these tasks?",
-      timeout: 6,
-      source: "console-manager",
-      callback: "auto-start-approve",
-      preset: Array(taskNames.length).fill(true)
-    })
+  if (taskNames.length > 0) {
+    console.log(`[ NodeJS ] autostart ${taskNames}`)
+    setTimeout(async () => {
+      // Once approved, options are forwarded to main window & backend
+      assistWindow.webContents.send('assist-win-push', {
+        type: "select-options",
+        options: taskNames,
+        title: "Auto-start these tasks?",
+        timeout: 6,
+        source: "console-manager",
+        callback: "auto-start-approve",
+        preset: Array(taskNames.length).fill(true)
+      })
 
-    ipcMain.once("auto-start-approve", (event, message) => {
-      let tasks = JSON.parse(message)
-      let approvedTasks = apps.autostart.filter(t => tasks.includes(t.relTaskPath))
-      mainWindow.webContents.send('to-main-win',
-        { action: "run-task", tasks: approvedTasks })
-    })
-  }, 2000)
+      ipcMain.once("auto-start-approve", (event, message) => {
+        let tasks = JSON.parse(message)
+        let approvedTasks = apps.autostart.filter(t => tasks.includes(t.relTaskPath))
+        mainWindow.webContents.send('to-main-win',
+          { action: "run-task", tasks: approvedTasks })
+      })
+    }, 2000)
+  }
 }

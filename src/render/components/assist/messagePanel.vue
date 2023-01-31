@@ -119,7 +119,11 @@ const renderTextContent = (content) => {
   return h(
     NText,
     {
-      style: { "font-size": "14px", color: "#3a4dbf", "font-family": '"Lucida Console", "Courier New", monospace'},
+      style: {
+        "font-size": "14px",
+        color: "#3a4dbf",
+        "font-family": '"Lucida Console", "Courier New", monospace',
+      },
     },
     { default: () => content }
   );
@@ -140,6 +144,41 @@ const createNotification = (command) => {
         { color: "#2685c2" },
         {
           default: () => h(Mail),
+        }
+      ),
+    action: () =>
+      h(
+        NSpace,
+        { style: { "margin-top": "5px", "margin-bottom": "2px" } },
+        {
+          default: () => [
+            h(
+              NButton,
+              {
+                size: "small",
+                type: "info",
+                onClick: () => {
+                  navigator.clipboard.writeText(command.content);
+                },
+              },
+              {
+                default: () => h("span", { style: {} }, "Copy"),
+              }
+            ),
+            h(
+              NButton,
+              {
+                size: "small",
+                type: "error",
+                onClick: () => {
+                  nRef.destroy();
+                },
+              },
+              {
+                default: () => h("span", { style: {} }, "Exit"),
+              }
+            ),
+          ],
         }
       ),
     onAfterEnter: () => {

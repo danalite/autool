@@ -27,6 +27,7 @@
   "dependencies": {
     "active-win": "^7.7.2",
     "core-js": "^3.8.3",
+    "cron-parser": "^4.7.1",
     "electron-builder": "^23.0.2",
     "js-yaml": "^4.1.0",
     "mitt": "^3.0.0",
@@ -45,8 +46,6 @@
     "@vue/eslint-config-standard": "^6.1.0",
     "animate.css": "^4.1.1",
     "axios": "^0.27.2",
-    "cheerio": "^1.0.0-rc.11",
-    "default-passive-events": "^2.0.0",
     "electron": "^20.0.1",
     "electron-devtools-installer": "^3.1.0",
     "electron-store": "^8.0.1",

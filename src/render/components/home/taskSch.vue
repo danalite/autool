@@ -248,7 +248,7 @@ export default {
           content: genContent(e.value, e.taskName),
           key: index++,
           type: genType(e.value, e.source),
-          time: e.time,
+          time: e.stamp,
         };
       });
     });
