@@ -1,9 +1,24 @@
 import { app, ipcMain } from "electron";
 import { appConfig } from "@/utils/main/config";
-
 import { deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
+import { registerUioEvent, uioStop } from "@/utils/main/uioListener";
 
 var parser = require('cron-parser');
+
+async function runShellCommand(cmd) {
+  const { exec } = require("child_process");
+  exec(cmd, (error, stdout, stderr) => {
+    if (error) {
+      console.log(`error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+  });
+}
 
 export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.on('move-main', (event, pos) => {
@@ -56,6 +71,8 @@ export const ipcListener = (mainWindow, assistWindow) => {
       width: dim.width, height: dim.height, isCollapsed: isCollapsed
     })
     appConfig.set('mainWindowPosition', { x: dim.x, y: dim.y })
+
+    uioStop()
     app.quit()
   })
 
@@ -66,6 +83,10 @@ export const ipcListener = (mainWindow, assistWindow) => {
     assistWindow.setIgnoreMouseEvents(...args);
   });
 
+  ipcMain.handle("assist-focus", () => {
+    assistWindow.focus();
+  });
+
   // Proxy message from main window to assist window
   // https://stackoverflow.com/a/40251412
   ipcMain.on('to-assist-window', (event, message) => {
@@ -73,11 +94,11 @@ export const ipcListener = (mainWindow, assistWindow) => {
   })
 
   // read or update local apps, invoke shell command (from windows)
-  ipcMain.handle('to-console', (event, message) => {
+  ipcMain.handle('to-console', async (event, message) => {
     let action = message.action
 
     if (action === "app-reload") {
-      const apps = loadApps(appConfig.get('appHome'))
+      const apps = await loadApps(appConfig.get('appHome'))
       appConfig.set('apps', apps.apps)
 
     } else if (action === "app-delete") {
@@ -85,14 +106,40 @@ export const ipcListener = (mainWindow, assistWindow) => {
       deleteApp(appPath)
 
     } else if (action === "task-cron-parse") {
-
+      let taskName = message.taskName
       try {
         let cron = message.startTime
-        let next = parser.parseExpression(cron).next()
-        console.log(next, next.toString())
+        // var options = {iterator: true, currentDate: new Date()};
+        var interval = parser.parseExpression(cron)
+
+        var count = 0
+        var nextDates = []
+        var hasNext = true
+        while (hasNext && count < 25) {
+          try {
+            var obj = interval.next();
+            const nextStamp = obj.getTime()
+            nextDates.push({ stamp: nextStamp, diff: nextStamp - Date.now() })
+            count++
+          } catch (e) {
+            hasNext = false
+            break;
+          }
+        }
+
+        // console.log("@@", nextDates)
+        mainWindow.webContents.send(message.callback, {
+          nextDates: nextDates,
+        })
+
       } catch (e) {
-        console.error(e)
-        event.sender.reply
+        assistWindow.webContents.send('assist-win-push', {
+          type: "push-notification",
+          title: "Cron parse error",
+          content: e.message,
+          timeout: 15,
+          source: taskName,
+        })
       }
 
     } else if (action === "task-configs-update") {
@@ -103,18 +150,22 @@ export const ipcListener = (mainWindow, assistWindow) => {
 
 
     } else if (action === "shell") {
-      const { exec } = require("child_process");
-      exec(message.cmd, (error, stdout, stderr) => {
-        if (error) {
-          console.log(`error: ${error.message}`);
-          return;
+      runShellCommand(message.cmd)
+
+    } else if (action == "uio-event") {
+      const source = message.source
+      // E.g., when recording is done or hotkey triggered
+      // assistWindow should be hidden in some cases
+
+      // console.log("@@@", message)
+      registerUioEvent(assistWindow, {
+        type: message.type,
+        source: source,
+        options: message.options,
+        callback: (ret) => {
+          mainWindow.webContents.send("uio-callback", ret)
         }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-        }
-        console.log(`stdout: ${stdout}`);
-      });
+      })
     }
   })
 }

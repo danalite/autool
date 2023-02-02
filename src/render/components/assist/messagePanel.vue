@@ -23,11 +23,12 @@ import {
   NUploadFileList,
 } from "naive-ui";
 
-import { Select, Mail, FileImport, Upload } from "@vicons/tabler";
+import { Select, Mail, FileImport } from "@vicons/tabler";
 import { h, ref, onMounted } from "vue";
 import { appConfig } from "../../../utils/main/config";
 
 const notification = useNotification();
+// const emits = defineEmits(['refreshListeners']);
 
 // Closable options selection
 let isInputAcquired = true;
@@ -113,6 +114,7 @@ const createSelectOptions = (command) => {
       }
     },
   });
+  // emits('refreshListeners', {})
 };
 
 const renderTextContent = (content) => {
@@ -194,6 +196,9 @@ const createNotification = (command) => {
       }
     },
   });
+
+  // emits('refreshListeners', {})
+  // console.log("Notification created: ", nRef, nRef.$el);
 };
 
 // Input-text request
@@ -390,6 +395,7 @@ ipcRenderer.on("assist-win-push", (event, message) => {
         title: message.title,
         content: message.content,
         source: message.source,
+        timeout: message.timeout,
       });
       break;
 

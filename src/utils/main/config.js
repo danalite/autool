@@ -46,11 +46,14 @@ export const appConfig = new Store({
     },
     'isSwitchBlacklist': true,
     'blacklist': {},
+    'taskSch': {
+      'showType': 'running',
+    },
     'apps': [],
     'remoteServer': {
-      'ocr': {'url': 'http://localhost:8866/predict/ocr_system', 'valid': false},
-      'ui': {'url': 'http://localhost:8867/ui', 'valid': false},
-      'parser': {'url': 'http://localhost:8868/parser', 'valid': false},
+      'ocr': { 'url': 'http://localhost:8866/predict/ocr_system', 'valid': false },
+      'ui': { 'url': 'http://localhost:8867/ui', 'valid': false },
+      'parser': { 'url': 'http://localhost:8868/parser', 'valid': false },
     }
   }
 })

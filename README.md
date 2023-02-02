@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/cover.png" height="90" title="main">
+</p>
+
 ## What is AuTool?
 - 类似IFTTT的 效率工具, 用来 streamline / automate 繁琐的UI操作
 
@@ -52,7 +56,8 @@ actions:
 
 
 ## Competitors
-- Low-code: Microsoft Power Automate, UiPath, UiBot, Alfred
-- Web Agents: uTools, Zapier, n8n, IFTTT，HugInn, Raycast
-- DSL: AppleScript, TagUI, VBA, Anjian, AutoHotKey, Keyboard Maestro
+- Low-code: Microsoft Power Automate, UiPath, UiBot
+- Web Automator: uTools, Zapier, n8n, IFTTT，HugInn
+- App launcher: Alfred, LaunchBar, Quicksilver, Spotlight, Raycast
+- DSL: AppleScript, TagUI, VBA, Anjian, AutoHotKey, Keyboard Maestro, Hammerspoon
 - Mobile: Android Tasker, iOS shortcut

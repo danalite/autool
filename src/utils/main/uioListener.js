@@ -1,21 +1,31 @@
 import {
   screen,
   ipcMain,
-  Notification,
   globalShortcut,
-  desktopCapturer
+  desktopCapturer,
+  shell
 } from 'electron'
 
-const path = require('path')
-
 import { optimizeMacroSeq } from '@/utils/main/macroOpt';
-import { uIOhook } from 'uiohook-napi'
-
-const iconPath = path.join(
-  `${__dirname}/../resources`, 'logo.png',
-)
+import { uIOhook, UiohookKey } from 'uiohook-napi'
+import { appConfig } from '@/utils/main/config'
 
 const activeWindow = require('active-win');
+
+const uioEventEnum = {
+  4: "keydown",
+  5: "keyup"
+}
+
+// queue the incoming IO hook requests
+let ioEventQueue = []
+
+// TODO: support mouseup, mousedown
+var recordOptions = {
+  "click": true,
+  "keydown": true,
+  "keyup": true
+}
 
 // IO hook event tracing
 let macroRecordCsr = {
@@ -25,7 +35,7 @@ let macroRecordCsr = {
   stopKey: '',
   track: [],
 }
-var lastTimeStamp = 0
+
 var recordedActions = []
 let selectAreaAction = {
   started: false,
@@ -37,61 +47,312 @@ let selectAreaAction = {
   }
 }
 
-export const uioListenerStop = async () => {
+var isMacroRecording = false
+var macroRecordedSequence = []
+
+// A history window to record the last 10 key strokes
+const keyStrokesWindow = []
+const keyboardActionTable = []
+
+var isTrackingTime = false
+var lastActionTimeStamp = 0
+
+const mouseActionTables = []
+var isOverAssist = false
+
+const assistWindowMouseWatch = (assistWindow) => {
+  // If no macro recording, activate assist window and DOM listeners  
+  //    when mouse is hovered on assist window area. 
+  //   Otherwise, assist window is hidden and DOM listeners are disabled.
+  mouseActionTables.push(
+    {
+      name: "move-assist-window-enter",
+      rule: (e) => {
+        const assistBounds = assistWindow.getBounds()
+        return !isOverAssist && e.x > assistBounds.x && e.x < assistBounds.x + assistBounds.width
+          && e.y > assistBounds.y && e.y < assistBounds.y + assistBounds.height
+      },
+      action: (e) => {
+        // console.log("enter assist window area")
+        isOverAssist = true
+        assistWindow.focus()
+        assistWindow.webContents.send('mouse-over-assist', {})
+      }
+    },
+
+    // Leave assist window area
+    {
+      name: "move-assist-window-leave",
+      rule: (e) => {
+        const assistBounds = assistWindow.getBounds()
+        return isOverAssist && !(e.x > assistBounds.x && e.x < assistBounds.x + assistBounds.width
+          && e.y > assistBounds.y && e.y < assistBounds.y + assistBounds.height)
+      },
+      action: (e) => {
+        // console.log("leave assist window area")
+        isOverAssist = false
+      }
+    }
+  )
+}
+
+export const uioStartup = (assistWindow) => {
+  uIOhook.start()
+  assistWindowMouseWatch(assistWindow)
+
+  uIOhook.on('mousemove', async (e) => {
+    await Promise.all(mouseActionTables.map(async (action) => {
+      // Movement hook specific actions
+      if (action.rule(e) && action.name.startsWith("move")) {
+        await action.action(e)
+      }
+    }))
+  })
+
+  uIOhook.on('click', async (e) => {
+    await Promise.all(mouseActionTables.map(async (action) => {
+      if (action.rule(e) && action.name.startsWith("click")) {
+        await action.action(e)
+      }
+    }))
+  })
+
+  let keyTargets = ['keyup', 'keydown']
+  for (let i = 0; i < keyTargets.length; i++) {
+    uIOhook.on(keyTargets[i], (e) => {
+
+      // Key stroke window
+      keyStrokesWindow.push(e)
+      if (keyStrokesWindow.length > 10) {
+        keyStrokesWindow.shift()
+      }
+
+      // Keyboard match and action table
+      keyboardActionTable.map(async (action) => {
+        if (action.rule(e)) {
+          await action.action(e)
+        }
+      })
+    })
+  }
+}
+
+const isConsecutiveKeys = (targetKey) => {
+  if (keyStrokesWindow.length < 4) return false
+  let newKeys = [...keyStrokesWindow].reverse().slice(0, 4)
+  const interval = (newKeys[0].time - newKeys[3].time) / 10e8
+
+  // console.log("@@", newKeys.map((k) => k.keycode), interval)
+  return uioEventEnum[newKeys[0].type] == "keyup" && newKeys.reduce((a, c) => a && (c.keycode == targetKey), true) && (interval < 0.5)
+}
+
+const detectIcon = (e, reception = { width: 600, height: 120 }) => {
+  // https://stackoverflow.com/a/71663530
+  const screenSize = screen.getPrimaryDisplay()['size']
+  desktopCapturer.getSources({
+    types: ['screen'], thumbnailSize: {
+      height: screenSize.height,
+      width: screenSize.width
+    }
+  }).then(sources => {
+    // https://subscription.packtpub.com/book/mobile/9781838552206/4/ch04lvl1sec34/resizing-and-cropping-the-image
+    let region = {
+      x: Math.max(e.x - reception.width / 2, 0),
+      y: Math.max(e.y - reception.height / 2, 0),
+      width: reception.width,
+      height: reception.height
+    }
+    const content = sources[0].thumbnail.crop(region).toDataURL()
+    // const screenshotPath = path.join(os.tmpdir(), 'screenshot.png')
+    // fs.writeFileSync("/Users/Desktop/test.png", content)
+
+    let payload = { "image": content }
+    const uiServer = appConfig.get('remoteServer.ui')
+
+    axios.post(uiServer, payload).then((resp) => {
+      console.log(resp.data)
+
+    }).catch((err) => {
+      console.log(err)
+    })
+
+  }).catch(err => {
+    console.log(err)
+  })
+}
+
+
+const macroRecordUpdateMAT = (options) => {
+  // key-shift-shift: restart and clear the seq
+  // key-meta-meta: stop and return the seq
+
+  // key-all: record 
+  // click-all: record mouse clicks (no drag)
+
+  keyboardActionTable.push({
+    name: "key-all",
+    rule: (e) => {
+      return true
+    },
+    action: (e) => {
+      if (isMacroRecording) {
+        if (isTrackingTime) {
+          let delta = e.time - lastActionTimeStamp
+          if (delta > 0.1 * 1e8) {
+            macroRecordedSequence.push({
+              type: "delay",
+              time: delta
+            })
+          }
+          lastActionTimeStamp = e.time
+        }
+        macroRecordedSequence.push(e)
+      }
+    }
+  })
+
+  mouseActionTables.push({
+    name: "click-all",
+    rule: (e) => {
+      return true
+    },
+    action: (e) => {
+      if (isMacroRecording) {
+        if (isTrackingTime) {
+          let delta = e.time - lastActionTimeStamp
+          if (delta > 0.1 * 1e8) {
+            macroRecordedSequence.push({
+              type: "delay",
+              time: delta
+            })
+          }
+          lastActionTimeStamp = e.time
+        }
+        macroRecordedSequence.push(e)
+      }
+    }
+  })
+
+  if (options.includes("delay")) {
+    isTrackingTime = true
+    lastActionTimeStamp = Date.now() * 100
+  }
+}
+
+export const registerUioEvent = (assistWindow, event) => {
+  // Notes: only one Uio event is handled at a time
+  //        if there are multiple events, they are queued
+
+  // 1. keyWait:
+  //    - wait for a key press event for target keys
+  //    - return the key pressed
+
+  // 2. osRecord:
+  //    - Shift + Shift: start recording
+  //    - Command + Command: stop recording
+  //    - all user-defined hotkeys are NOT disabled 
+
+  if (event.type == "macro-record") {
+    if (isMacroRecording) {
+      assistWindow.webContents.send('assist-win-push', {
+        type: "push-notification",
+        title: 'WARNING: NO stacked macro recording!',
+        content: 'Please finish the current recording first.',
+        source: 'console.uiohook',
+        timeout: 15
+      })
+      return
+
+    } else {
+      assistWindow.webContents.send('assist-win-push', {
+        type: "push-notification",
+        title: "Macro recorder ready!",
+        content: "Press \"Shift+Shift\" to start\n \"Command+Command\" to stop\nThe notification will disappear when you start.",
+        source: event.source,
+      })
+
+      // Wait for start key (Shift + Shift)
+      keyboardActionTable.push({
+        name: "key-shift-shift",
+        rule: (e) => {
+          return isConsecutiveKeys(UiohookKey.Shift)
+        },
+        action: (e) => {
+          // console.log("@@", "start recording macro")
+          if (isMacroRecording) {
+            // Clear recorded sequence and restart
+            shell.beep()
+            macroRecordedSequence = []
+
+          } else {
+            mouseActionTables.splice(0, mouseActionTables.length)
+            assistWindow.minimize()
+            
+            // load MAT and start recording
+            macroRecordUpdateMAT(event.options)
+            isMacroRecording = true
+          }
+        }
+      })
+
+      // Wait for stop key (Command + Command)
+      keyboardActionTable.push({
+        name: "key-command-command",
+        rule: (e) => {
+          return isConsecutiveKeys(UiohookKey.Meta)
+        }
+        ,
+        action: (e) => {
+          // console.log("@@", "stop recording macro")
+          isMacroRecording = false
+
+          // clear and reset MAT
+          keyboardActionTable.splice(0, keyboardActionTable.length)
+          mouseActionTables.splice(0, mouseActionTables.length)
+          assistWindowMouseWatch(assistWindow)
+
+          // send recorded sequence back to requestor
+          let seq = optimizeMacroSeq(macroRecordedSequence)
+          // console.log("@@@", macroRecordedSequence)
+          event.callback(seq)
+        }
+      })
+    }
+
+
+  } else if (event.type == "key-wait") {
+    isMacroRecording = false
+  }
+}
+
+const getActiveWindowClickPos = async (e) => {
+  let options = {}
+  let win = await activeWindow(options)
+  if (win == undefined) {
+    return {
+      window: null,
+      x: e.x,
+      y: e.y,
+    }
+  } else {
+    return {
+      window: win.owner.name,
+      x: e.x - win.bounds.x,
+      y: e.y - win.bounds.y,
+    }
+  }
+};
+
+export const uioStop = async () => {
   uIOhook.stop()
 }
 
 export const uioListenerStart = async (hotkeyTable) => {
   ipcMain.on('io-hook-request', (event, data) => {
     const taskId = data.uuid
+
     const { type } = data.value
-    if (type === 'osRecord') {
-      const { start, stop, mode, track } = data.value
-      new Notification({
-        title: `osRecord: Hit "${start}" to start recording`,
-        body: `${stop} to stop. All other local tasks are suspended.`,
-        icon: iconPath,
-      }).show()
-      macroRecordCsr["started"] = false
-      macroRecordCsr["taskId"] = taskId
-      macroRecordCsr["track"] = track
-      macroRecordCsr["mode"] = mode
-      macroRecordCsr["start"] = start
-      macroRecordCsr["stop"] = stop
-
-      // Global hotkey for start/stop recording
-      let ret = globalShortcut.register(start, () => {
-        macroRecordCsr["started"] = true
-        lastTimeStamp = Date.now()
-        recordedActions = []
-        console.log("Main app: osRecord started")
-      })
-      if (!ret) {
-        console.log(`[ NodeJS ] ${start} registration failed`)
-      }
-
-      ret = globalShortcut.register(stop, () => {
-        macroRecordCsr["started"] = false
-        const optimizedSeq = optimizeMacroSeq(macroRecordCsr, recordedActions)
-        console.log("Main app: osRecord stopped", optimizedSeq)
-
-        let newEvent = {
-          event: 'I_EVENT_USER_INPUT',
-          uuid: taskId,
-          value: {
-            type: 'osRecord',
-            traces: optimizedSeq
-          }
-        }
-        mainWindow.webContents.send('to-backend', newEvent)
-        globalShortcut.unregister(start)
-        globalShortcut.unregister(stop)
-      })
-      if (!ret) {
-        console.log(`[ NodeJS ] ${stop} unhooking failed`)
-      }
-
-    } else if (type === 'keyWait') {
+    if (type === 'keyWait') {
       const { key } = data.value
 
       let ret = globalShortcut.register(key, () => {
@@ -113,11 +374,7 @@ export const uioListenerStart = async (hotkeyTable) => {
 
     } else if (type === 'selectArea') {
       const { window } = data.value
-      new Notification({
-        title: `selectArea: Please drag a rectangle to select area`,
-        body: `target window: ${window}`,
-        icon: iconPath,
-      }).show()
+      // Notification
 
       let options = {}
       activeWindow(options).then(
@@ -147,27 +404,6 @@ export const uioListenerStart = async (hotkeyTable) => {
       lastTimeStamp = now
     }
   }
-
-  // IO hook event recording
-  uIOhook.on('keyup', (e) => {
-    if (macroRecordCsr["started"] && macroRecordCsr["track"].includes("key")) {
-      trackTime()
-      recordedActions.push({
-        type: 'keyup',
-        key: e.keycode,
-      })
-    }
-  })
-
-  uIOhook.on('keydown', (e) => {
-    if (macroRecordCsr["started"] && macroRecordCsr["track"].includes("key")) {
-      trackTime()
-      recordedActions.push({
-        type: 'keydown',
-        key: e.keycode,
-      })
-    }
-  })
 
   // Mouse dragging events (e.g., select area)
   uIOhook.on('mousedown', (e) => {
@@ -209,80 +445,4 @@ export const uioListenerStart = async (hotkeyTable) => {
     }
   })
 
-  // Mouse up and down at same location
-  uIOhook.on('click', (e) => {
-    // console.log("@@ click", e)
-    if (macroRecordCsr["started"] && macroRecordCsr["track"].includes("click")) {
-      trackTime()
-
-      // Screenshot and recognize
-      switch (macroRecordCsr["mode"]) {
-        case 'screenshot':
-          // https://stackoverflow.com/a/71663530
-          const screenSize = screen.getPrimaryDisplay()['size']
-          desktopCapturer.getSources({
-            types: ['screen'], thumbnailSize: {
-              height: screenSize.height,
-              width: screenSize.width
-            }
-          }).then(sources => {
-            // https://subscription.packtpub.com/book/mobile/9781838552206/4/ch04lvl1sec34/resizing-and-cropping-the-image
-            let region = {
-              x: Math.max(e.x - 300, 0),
-              y: Math.max(e.y - 60, 0),
-              width: 600,
-              height: 120
-            }
-            const content = sources[0].thumbnail.crop(region).toDataURL()
-            // const screenshotPath = path.join(os.tmpdir(), 'screenshot.png')
-            // fs.writeFileSync("/Users/Desktop/test.png", content)
-
-            let payload = { "image": content }
-            const uiServer = appConfig.get('remoteServer.ui')
-            axios.post(uiServer, payload).then((resp) => {
-              console.log(resp.data)
-            }).catch((err) => {
-              console.log(err)
-            })
-
-          }).catch(err => {
-            console.log(err)
-          })
-          break;
-
-        case 'mouse':
-          recordedActions.push({
-            type: 'click',
-            x: e.x,
-            y: e.y,
-          })
-          break;
-
-        case 'mouseWin':
-          let options = {}
-          activeWindow(options).then(
-            win => {
-              if (win == undefined) {
-                // Click on background
-                recordedActions.push({
-                  type: 'click',
-                  x: e.x,
-                  y: e.y,
-                })
-              } else {
-                // Click on a foreground window
-                recordedActions.push({
-                  type: 'click',
-                  window: win.owner.name,
-                  x: e.x - win.bounds.x,
-                  y: e.y - win.bounds.y,
-                })
-              }
-            });
-          break;
-      }
-    }
-  })
-
-  uIOhook.start()
 }

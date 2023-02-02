@@ -30,12 +30,20 @@ async def loopMain(websocket):
 
         if userEvent in done:
             message = json.loads(userEvent.result())
-            # if message["event"] == "I_EVENT_WSS_REQUEST":
-            #     action = message["action"]
-            #     if action == "close":
-            #         asyncio.get_event_loop().stop()
-            #         break
-            ts.event_proxy.resolve(message)
+            if message["event"] == "I_EVENT_WSS_REQUEST":
+                action = message["action"]
+                # if action == "close":
+                #     asyncio.get_event_loop().stop()
+                #     break
+                if action == "download":
+                    try:
+                        download(message["url"])
+                        await websocket.send(json.dumps({"event": "O_EVENT_WSS_RESP", "action": "download", "message": "Done"}))
+
+                    except Exception as e:
+                        await websocket.send(json.dumps({"event": "O_EVENT_WSS_RESP", "action": "download", "message": str(e)}))
+            else:
+                ts.event_proxy.resolve(message)
 
         else:
             userEvent.cancel()
@@ -72,17 +80,6 @@ async def wssRegister(websocket):
             "ws": websocket,
         }
         await loopMain(websocket)
-
-    elif worker == "DownloadWorker":
-        try:
-            download(data["url"])
-            print("DownloadWorker: complete")
-            await websocket.send(json.dumps({"type": "DownloadWorker", "value": "Done"}))
-
-        except Exception as e:
-            await websocket.send(json.dumps({"type": "DownloadWorker", "value": "Error"}))
-
-        await websocket.close()
 
 
 async def main():

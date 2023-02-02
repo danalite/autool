@@ -5,10 +5,7 @@ import {
 } from 'electron'
 
 const axios = require('axios')
-
-import { UiohookKey } from 'uiohook-napi'
 import { appConfig, userAgentList } from './utils/main/config'
-import { uioListenerStart, uioListenerStop } from './utils/main/uioListener';
 
 import {
   createAssistWindow,
@@ -19,6 +16,7 @@ import {
 
 import { execFile, spawn } from "child_process"
 import { loadApps } from './utils/main/queryTasks';
+import { uioStartup } from "./utils/main/uioListener";
 
 const Store = require("electron-store")
 Store.initRenderer()
@@ -41,9 +39,6 @@ let subPyExited = false
 
 const PY_SRC_FOLDER = "../backend"
 const PY_MODULE = "app.py"
-
-var ioListenerTable = new Object()
-ioListenerTable[UiohookKey.Q] = "hello"
 
 const getPythonScriptPath = () => {
   if (devMode) {
@@ -100,6 +95,7 @@ const init = async () => {
   //   }
   // })
 
+  uioStartup(assistWindow)
   makeTray(iconPath, mainWindow, assistWindow)
 
   // Setting up app path and server checking
@@ -107,8 +103,6 @@ const init = async () => {
 
   ipcListener(mainWindow, assistWindow)
   mainWindow.webContents.send('start-wss-backend')
-
-  uioListenerStart(ioListenerTable)
 }
 
 app.whenReady().then(async () => {
@@ -140,7 +134,6 @@ app.whenReady().then(async () => {
     //   event: 'I_EVENT_WSS_REQUEST',
     //   action: 'stop'
     // })
-
     if (!subPyExited) {
       console.log("[ NodeJS ] subPy not exited. Killing...")
       subPy.kill('SIGTERM')
@@ -185,7 +178,7 @@ const appSetup = async () => {
     }
   }
 
-  const apps = loadApps(appHome)
+  const apps = await loadApps(appHome)
   appConfig.set('apps', apps.apps)
 
   // Gather and confirm whether to autostart tasks

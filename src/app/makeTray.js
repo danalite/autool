@@ -15,17 +15,17 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         label: "Help documents",
         click: () => {
           process.nextTick(() => {
-            shell.openExternal("https://github.com/clouDr-f2e/rubick");
+            shell.openExternal("https://github.com/danalites/autoo");
           });
         },
       },
       { type: "separator" },
       {
         label: "Show main window",
-        accelerator: "CmdOrCtrl+1",
         click() {
           mainWindow.show();
           mainWindow.focus();
+          shell.beep()
         },
       },
       {

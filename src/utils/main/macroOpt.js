@@ -1,4 +1,4 @@
-const CharTable = {
+const charEncodingTable = {
     11: '0',
     2: '1',
     3: '2',
@@ -37,6 +37,10 @@ const CharTable = {
     44: 'z',
 }
 
+export const postProcSeq = (eq) => {
+    
+}
+
 export const optimizeMacroSeq = (config, seq) => {
     let keyNum = config['start'].split('+').length
     if (config['track'].includes('delay')) {
@@ -50,8 +54,8 @@ export const optimizeMacroSeq = (config, seq) => {
         while (r < seq.length - keyNum - 1) {
             if (seq[r].type === 'keydown'
                 && seq[r + 1].type === 'keyup' && seq[r + 1].key === seq[r].key) {
-                    if (seq[r].key in CharTable) {
-                        inputSeq += CharTable[seq[r].key]
+                    if (seq[r].key in charEncodingTable) {
+                        inputSeq += charEncodingTable[seq[r].key]
                         r += 2
                     } else {
                         optSeq.push(seq[r])

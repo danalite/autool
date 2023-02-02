@@ -1,10 +1,26 @@
 ## TODOs
 - [ ] Update logging and debugging interface
 - [ ] Add and example to test event bus
-- [ ] Update macro recorder NodeJS module
 - [ ] Click app icon to show documents
+- [ ] Make window resizable
+- [ ] Separate add new apps and tasks
+
+## 2023-02
+- [ ] Add tooltip for icons
+- [x] Update taskSch switch button 
+- [ ] Show red tags for tasks stopped with errors (and error message)
+- [x] Update the hotkey trigger section
+- [x] Clean up the search bar
+- [x] Add templates for new tasks in tutorials app
+- [x] Countdown for queued tasks
+- [x] UI for stopped tasks
 
 ## 2023-01
+- [x] Adjust taskSch panel to show more info (app icon, time)
+- [x] Fix the assist window focus issue
+- [x] Fix the app display order (it changed with async load)
+- [x] Update macro recorder NodeJS module
+- [x] Fix readSync issue in NodeJS
 - [x] A pop-up model to config start time and hotkey
 - [x] Handle queued tasks in appMain
 - [x] Send stop signal to backend instead of killing

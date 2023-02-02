@@ -1,6 +1,19 @@
 const fs = require('fs');
+// const fs = require('fs').promises;
+
 const path = require('path');
 const yaml = require('js-yaml');
+
+async function readFile(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, 'utf8', function (err, data) {
+      if (err) {
+        reject(err);
+      }
+      resolve(data);
+    });
+  });
+}
 
 export const deleteTask = (appPath, taskPath, taskName) => {
   fs.unlink(taskPath, function (err) {
@@ -19,8 +32,10 @@ export const deleteTask = (appPath, taskPath, taskName) => {
 }
 
 export const updateTaskYaml = (taskPath, key, update) => {
-  let doc = yaml.load(fs.readFileSync(taskPath, 'utf8'));
+  let content = fs.readFileSync(taskPath, 'utf8')
+  let doc = yaml.load(content);
 
+  // console.log("@@", taskPath, key, update, content)
   // autocomplete if no configs provided
   if (!("configs" in doc)) {
     doc.configs = {}
@@ -63,40 +78,42 @@ export const deleteApp = (appPath) => {
   }
 }
 
-export const loadApps = (appDir) => {
+export const loadApps = async (appDir) => {
 
   let scripts = path.join(appDir, 'scripts');
-  const apps = findTasksJson(scripts)
+  const appEntries = findTasksJson(scripts)
 
   let appList = []
   let autostartTasks = []
 
-  apps.forEach(app => {
-    let tasks = path.join(app, 'tasks.json')
-    let appJson = JSON.parse(fs.readFileSync(tasks, 'utf8'))
-    appJson.path = app
+  // Read apps in parallel without forEach
+  // https://stackoverflow.com/a/37576787
+  await Promise.all(appEntries.map(async (appEntry, appIndex) => {
+    let tasks = path.join(appEntry, 'tasks.json')
+    const content = await fs.readFileSync(tasks, 'utf8')
 
+    let appJson = JSON.parse(content)
+    appJson.path = appEntry
     let taskList = []
-    var index = 0
-    appJson.tasks.forEach(task => {
-      let taskFile = path.join(app, task)
+
+    // Read tasks in parallel without forEach
+    await Promise.all(appJson.tasks.map(async (task, taskIndex) => {
+      let taskFile = path.join(appEntry, task)
       var taskItem = {
-        'key': index++,
+        'key': taskIndex,
         'relTaskPath': task.replace('.yaml', ''), // relative path
         'absTaskPath': taskFile, // absolute path
-        'appPath': app,          // app path (dir)
+        'appPath': appEntry,     // app path (dir)
         'app': appJson.app,
         'author': appJson.author,
       }
 
       try {
-        let content = fs.readFileSync(taskFile, 'utf8') 
-        const doc = yaml.load(content);
+        let content = await readFile(taskFile)
+        let doc = yaml.load(content);
 
         if (doc === undefined) {
-          console.log("@@", content == undefined, typeof(content))
-          content = fs.readFileSync(taskFile, 'utf8')
-          console.error("@@", content)
+          console.error("@@ loadApps. ", content)
           console.error(`Error: ${taskFile} is empty`)
           return
         }
@@ -105,7 +122,7 @@ export const loadApps = (appDir) => {
         if ("desc" in doc) taskItem.desc = doc.desc
         taskItem.doc = ""
         if ("doc" in doc) taskItem.doc = doc.doc
-        
+
         // options: autostart, remote
         taskItem.options = []
         if ("configs" in doc) {
@@ -126,7 +143,7 @@ export const loadApps = (appDir) => {
         taskItem.inputs = []
         if (doc.inputs) {
           for (const [key, value] of Object.entries(doc.inputs)) {
-            taskItem.inputs.push({"key": key, "value": value})
+            taskItem.inputs.push({ "key": key, "value": value })
           }
         }
 
@@ -137,14 +154,19 @@ export const loadApps = (appDir) => {
       } catch (e) {
         console.log(e);
       }
-      
-      // console.log("@@", JSON.stringify(taskItem))
       taskList.push(taskItem)
-    })
+    }))
+
+    // console.log("@@", JSON.stringify(taskList))
+    taskList.sort(function(a, b) {return a.key - b.key})
     appJson.tasks = taskList
+
+    appJson.index = appIndex
     appList.push(appJson)
-  })
+  }))
+
   // console.log("appList", appList)
+  appList.sort(function(a, b) {return a.index - b.index})
   return { 'apps': appList, 'autostart': autostartTasks }
 }
 

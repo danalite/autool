@@ -43,7 +43,7 @@
         </n-button>
       </n-space>
 
-      <n-input-group style="text-align: center">
+      <n-input-group style="text-align: center" v-show="displayTasks.length > 0">
         <n-button secondary size="tiny" color="black" @click="decreasePage">
           <n-icon size="15">
             <ChevronLeft />

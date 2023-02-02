@@ -1,36 +1,57 @@
 <template>
   <n-notification-provider :placement="'top'">
-    <messagePanel class="slide-in-bottom"></messagePanel>
+    <messagePanel></messagePanel>
   </n-notification-provider>
 </template>
 
 <script setup>
-import { NTabs, NTabPane, NNotificationProvider } from "naive-ui";
+import { NNotificationProvider } from "naive-ui";
 import messagePanel from "./messagePanel.vue";
-
-import { onMounted, ref } from "vue";
 import { ipcRenderer } from "electron";
-
-import { appConfig } from "@/utils/main/config";
-import { useStore } from "@/render/store";
-import { storeToRefs } from "pinia/dist/pinia";
 
 document.title = "Assist";
 document.getElementsByTagName("html")[0].style.height = "100%";
 document.getElementsByTagName("body")[0].style.height = "100%";
-let isClickThrough = false;
 
-onMounted(() => {
-  document.addEventListener("mouseover", function (e) {
-    // console.log("ENTER ", e.target.tagName);
-    if (e.target.tagName == "BODY" && !isClickThrough) {
-      ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
-      isClickThrough = true;
-    } else if (e.target.tagName !== "BODY" && isClickThrough) {
-      ipcRenderer.invoke("assist-ignore-mouse-events", false);
-      isClickThrough = false;
+var isMouseClickThrough = false;
+
+document.getElementsByTagName("body")[0].addEventListener("mouseover", (e) => {
+  // console.log("@@", "over body", e.path);
+  if (!isMouseClickThrough && e.path.length < 5) {
+    ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
+  } else if (isMouseClickThrough && e.path.length > 8) {
+    ipcRenderer.invoke("assist-ignore-mouse-events", false);
+  }
+});
+
+ipcRenderer.on("mouse-over-assist", async (event) => {
+  const listeningAttr = "listeningForMouse";
+
+  var elements = document.getElementsByClassName("n-notification");
+  if (elements.length == 0) {
+    isMouseClickThrough = true;
+    ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
+    return;
+  }
+
+  for (const ele of elements) {
+    if (ele.getAttribute(listeningAttr)) {
+      continue;
     }
-  });
+    ele.addEventListener("mouseenter", () => {
+      // console.log("@@", "in notification. block");
+      isMouseClickThrough = false;
+      ipcRenderer.invoke("assist-ignore-mouse-events", false);
+    });
+    ele.addEventListener("mouseleave", () => {
+      // console.log("@@", "leave notification. pass");
+      isMouseClickThrough = true;
+      ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
+    });
+    ele.setAttribute(listeningAttr, true);
+  }
+
+  // console.log("@@", elements);
 });
 </script>
 

@@ -18,41 +18,230 @@
             <TaskSch
               :taskEvents="taskEvents"
               :tasksStatusTable="tasksStatusTable"
+              @runTask="runTask($event)"
               @stopTask="stopTask($event)"
             />
           </n-tab-pane>
         </n-tabs>
+        <n-button
+          v-show="currentTab == 'taskPane'"
+          type="success"
+          tertiary
+          circle
+          @click="addNewApp"
+          class="floatRight"
+        >
+          <n-icon size="23">
+            <Plus />
+          </n-icon>
+        </n-button>
       </n-card>
+
+      <n-modal v-model:show="showModalRef" preset="dialog">
+        <template #header>
+          <div style="padding-left: 10px">New app</div>
+        </template>
+        <div>
+          <n-space vertical style="padding-left: 5px">
+            <n-radio
+              :checked="checkedValue === 'template'"
+              value="template"
+              @change="handleChange"
+            >
+              Quick task templates
+            </n-radio>
+
+            <n-collapse-transition :show="checkedValue == 'template'">
+              <n-space vertical>
+                <n-space justify="center">
+                  <n-input-group
+                    style="
+                      width: 250px;
+                      padding-top: 10px;
+                      padding-bottom: 10px;
+                    "
+                  >
+                    <n-button
+                      size="small"
+                      type="info"
+                      secondary
+                      style="padding-top: 10px; padding-bottom: 10px"
+                      >App
+                    </n-button>
+                    <n-select
+                      placeholder="Select app to import"
+                      :default-value="appOptions[0].value"
+                      size="small"
+                      :options="appOptions"
+                      :render-label="renderLabel"
+                      :render-tag="renderSingleSelectTag"
+                    />
+                  </n-input-group>
+                </n-space>
+
+                <n-space style="padding-left: 10px">
+                  <n-button size="small">
+                    Send an iMessage to someone
+                  </n-button>
+
+                  <n-button size="small"> Open a website with proxy </n-button>
+                </n-space>
+              </n-space>
+            </n-collapse-transition>
+
+            <n-divider dashed style="margin: 5px" />
+
+            <n-radio
+              :checked="checkedValue === 'github-import'"
+              value="github-import"
+              @change="handleChange"
+            >
+              Download
+            </n-radio>
+            <n-collapse-transition :show="checkedValue == 'github-import'">
+              <n-space vertical justify="center">
+                <n-input
+                  size="small"
+                  v-model:value="githubFolderLink"
+                  placeholder="E.g. https://github.com/danalites/apps/tree/master/macos"
+                  :disabled="checkedValue !== 'github-import'"
+                />
+
+                <n-space justify="center">
+                  <n-button text type="info" size="tiny">
+                    <template #icon>
+                      <n-icon>
+                        <Search />
+                      </n-icon>
+                    </template>
+                    more FREE apps in store!
+                  </n-button>
+                </n-space>
+              </n-space>
+            </n-collapse-transition>
+
+            <n-divider dashed style="margin: 5px" />
+            <n-radio
+              :checked="checkedValue === 'macro-record'"
+              value="macro-record"
+              @change="handleChange"
+            >
+              Macro recorder
+            </n-radio>
+            <n-collapse-transition :show="checkedValue === 'macro-record'">
+              <n-space vertical :style="'padding-left: 20px'" justify="center">
+                <n-input-group
+                  style="width: 250px; padding-top: 5px; padding-bottom: 5px"
+                >
+                  <n-button
+                    size="small"
+                    type="info"
+                    secondary
+                    style="padding-top: 10px; padding-bottom: 10px"
+                    >App
+                  </n-button>
+                  <n-select
+                    placeholder="Select app to import"
+                    :default-value="appOptions[0].value"
+                    size="small"
+                    :options="appOptions"
+                    :render-label="renderLabel"
+                    :render-tag="renderSingleSelectTag"
+                  />
+                </n-input-group>
+                <n-input-group style="width: 250px; padding-bottom: 5px">
+                  <n-button
+                    size="small"
+                    type="info"
+                    secondary
+                    style="padding-top: 10px; padding-bottom: 10px"
+                    >Task
+                  </n-button>
+                  <n-input size="small" placeholder="E.g., my-record-001" />
+                </n-input-group>
+
+                <n-checkbox-group v-model:value="macroRecordOptions">
+                  <n-space item-style="display: flex;" vertical>
+                    <n-checkbox
+                      disabled
+                      checked
+                      value="mouse-keyboard"
+                      label="mouse-click and keyboard"
+                    />
+                    <n-checkbox
+                      disabled
+                      value="mouse click by image"
+                      label="mouse-click-by-image"
+                    />
+                    <n-checkbox value="mouse-movement" label="mouse-movement" />
+                    <n-checkbox value="delay" label="time" />
+                  </n-space>
+                </n-checkbox-group>
+
+                <n-space justify="center">
+                  <n-tooltip :style="{ maxWidth: '400px' }" trigger="hover">
+                    <template #trigger>
+                      <n-button text type="info" size="tiny">
+                        <template #icon>
+                          <n-icon>
+                            <Search />
+                          </n-icon>
+                        </template>
+                        how to record macro?
+                      </n-button>
+                    </template>
+                    Start: Shift + Shift
+                    <br />
+                    Stop&nbsp;: Command + Command
+                  </n-tooltip>
+                </n-space>
+              </n-space>
+            </n-collapse-transition>
+          </n-space>
+        </div>
+        <template #action>
+          <n-space>
+            <n-button @click="closeModal">Cancel</n-button>
+            <n-button type="primary" @click="importNewApp">
+              {{ checkedValue === "macro-record" ? "Record" : "Import" }}
+            </n-button>
+          </n-space>
+        </template>
+      </n-modal>
     </div>
   </n-collapse-transition>
 </template>
 
 <script setup>
-import { h, ref, onMounted, watch } from "vue";
+import { h, ref, onMounted, watch, computed } from "vue";
 import { ipcRenderer } from "electron";
 import {
   NCard,
   NAvatar,
-  NProgress,
   NSpace,
   NTag,
+  NIcon,
   NPopover,
-  NDrawer,
-  NDrawerContent,
-  NList,
-  NListItem,
+  NRadio,
+  NSelect,
+  NDivider,
+  NInput,
+  NInputGroup,
+  NCheckbox,
+  NCheckboxGroup,
+  NTooltip,
+  NModal,
+  NText,
   NScrollbar,
   NButton,
   NCollapseTransition,
   useMessage,
-  useNotification,
   NTabs,
   NTabPane,
   NRate,
-  NIcon,
 } from "naive-ui";
 
-import { PlayerPlay } from "@vicons/tabler";
+import { PlayerPlay, Plus, Search, ChevronRight } from "@vicons/tabler";
 
 import SearchBar from "./searchBar.vue";
 import TaskPane from "./taskPane.vue";
@@ -61,6 +250,7 @@ import TaskSch from "./taskSch.vue";
 import { appConfig } from "@/utils/main/config";
 import { useStore } from "@/render/store";
 import { storeToRefs } from "pinia/dist/pinia";
+
 import eventBus from "@/utils/main/eventBus";
 
 const store = useStore();
@@ -80,18 +270,17 @@ const EventType = {
 const message = useMessage();
 const taskEvents = ref([]);
 const tasksStatusTable = ref([]);
-let tasksChecklist = [];
+const apps = ref([]);
 
-let apps = ref([]);
+const backendEventHook = (message) => {
+  const value = message.value;
+  message.time = new Date().toLocaleString();
+  taskEvents.value.push({ source: "backend", ...message });
 
-const backendEventHook = (data) => {
-  const value = data.value;
-  data.time = new Date().toLocaleString();
-  taskEvents.value.push({ source: "backend", ...data });
-
-  switch (data.event) {
+  switch (message.event) {
     case EventType.O_EVENT_TASK_STATUS:
-      const taskId = data.uuid;
+      const taskId = message.uuid;
+      // Update task status upon hook invoked
       tasksStatusTable.value = tasksStatusTable.value.map((task) => {
         if (task.id === taskId) {
           task.status = value.type;
@@ -101,21 +290,35 @@ const backendEventHook = (data) => {
       break;
 
     case EventType.O_EVENT_HOOK_REQ:
-      message.info(`IO hook request: ${data.value.type}`);
-      ipcRenderer.send("io-hook-request", data);
+      // console.log("@@", JSON.stringify(message))
+      ipcRenderer.invoke("to-console", {
+        action: "uio-event",
+        taskId: message.uuid,
+        source: message.taskName,
+        ...value,
+      });
       break;
 
     default:
+      console.log(message.event, message);
       break;
   }
 };
 
 let wsConn = null;
-const sendMessageToBackend = (msg) => {
+const sendMessageToBackend = (message) => {
   try {
-    wsConn.send(JSON.stringify(msg));
+    if (wsConn === null) {
+      console.log("wsConn is null, trying to reconnect...");
+      setupWsConn();
+    } else if (wsConn.readyState !== WebSocket.OPEN) {
+      wsConn.close();
+      console.log("wsConn is closed, trying to reconnect...");
+      setupWsConn();
+    }
+    wsConn.send(JSON.stringify(message));
   } catch (e) {
-    message.warning("Trying to reconnect to backend server...");
+    console.log(JSON.stringify(e), "Trying to reconnect to backend server...");
     setupWsConn();
   }
 };
@@ -134,29 +337,60 @@ function uuid() {
 }
 
 const stopTask = (task) => {
+  var isHotkeyTask = false;
+  var isScheduledTask = false;
   tasksStatusTable.value = tasksStatusTable.value.map((t) => {
     if (t.id === task.id) {
+      if (t.status == "listening") {
+        isHotkeyTask = true;
+      }
+      if (t.status == "scheduled") {
+        isScheduledTask = true;
+      }
       t.status = "stopped";
     }
     return t;
   });
 
-  let newEvent = {
-    event: EventType.I_EVENT_TASK_REQ,
-    uuid: task.id,
-    taskName: task.relTaskPath,
-    source: "console",
-    value: {
-      type: "cancelTask",
-    },
-    time: new Date().toLocaleString(),
-  };
+  // Scheduled task is auto discarded with timer unmounted 
+  if (isScheduledTask) {
+    return 
+  } 
 
-  taskEvents.value.push(newEvent);
-  sendMessageToBackend(newEvent);
+  if (isHotkeyTask) {
+    // Unregister hotkey bind with the task
+    ipcRenderer.invoke("to-console", {
+      action: "remove-hotkey-task",
+      taskId: task.id,
+      source: task.relTaskPath,
+    });
+
+  } else {
+    // Cancel task running in the backend
+    let newEvent = {
+      event: EventType.I_EVENT_TASK_REQ,
+      uuid: task.id,
+      taskName: task.relTaskPath,
+      source: "console",
+      value: {
+        type: "cancelTask",
+      },
+      time: new Date().toLocaleString(),
+    };
+
+    taskEvents.value.push(newEvent);
+    sendMessageToBackend(newEvent);
+  }
 };
 
-const runTask = (task) => {
+ipcRenderer.on("uio-callback", (event, message) => {
+  console.log("@@@", message);
+  // taskStartEvent.value.stamp = new Date().toLocaleString();
+  // taskEvents.value.push(taskStartEvent);
+  // sendMessageToBackend(taskStartEvent);
+});
+
+const runTask = async (task) => {
   // run task request from console/TaskSch
   const taskId = uuid();
   let tasksStatus = {
@@ -169,6 +403,7 @@ const runTask = (task) => {
     stamp: new Date().toLocaleString(),
   };
 
+  // Events tracing between console and backend
   let taskStartEvent = {
     event: EventType.I_EVENT_TASK_REQ,
     source: "console",
@@ -189,46 +424,48 @@ const runTask = (task) => {
   if (task.hotkey) {
     // 1. Stall task until hotkey is triggered.
     let isKeyRegistered = tasksStatusTable.value.find(
-      (t) => t.hotkey === task.hotkey && t.status === "queued"
+      (t) => t.hotkey === task.hotkey && t.status === "listening"
     );
     if (isKeyRegistered) {
-      message.warning(
-        `Hotkey ${task.hotkey} is already registered for task ${isKeyRegistered.name}`
-      );
+      ipcRenderer.send("to-assist-window", {
+        type: "push-notification",
+        title: `WARNING: "${task.relTaskPath}" hotkey occupied`,
+        content: `"${task.hotkey}" used by "${isKeyRegistered.taskName}"`,
+        source: "console.appMain",
+      });
       return;
     }
 
-    tasksStatus.status = "queued";
+    tasksStatus.status = "listening";
     tasksStatusTable.value.push(tasksStatus);
-    message.info(
-      `Task ${task.relTaskPath} is waiting for hotkey ${task.hotkey}`
-    );
+    message.success(`"${task.relTaskPath}"" bind with ${task.hotkey}`);
 
-    ipcRenderer.send("register-task-hotkey", {
+    // The hotkey remains registered until the task is stopped
+    await ipcRenderer.invoke("to-console", {
+      action: "uio-event",
+      type: "register-hotkey",
       hotkey: task.hotkey,
-      taskId: taskId,
+      source: "console.appMain",
     });
-
-    ipcRenderer.on("task-hotkey-invoked", (event, data) => {
-      if (data.taskId === taskId) {
-        taskStartEvent.value.stamp = new Date().toLocaleString();
-        taskEvents.value.push(taskStartEvent);
-        sendMessageToBackend(taskStartEvent);
-      }
-    });
-
   } else if (task.startTime) {
     // 2. Wait for timer counts down
-    message.info(
-      `Task ${task.relTaskPath} is scheduled to start at ${task.startTime}`
-    );
+    let callback = "parse-cron-result";
+
+    ipcRenderer.once(callback, (event, message) => {
+      tasksStatus.status = "scheduled";
+      tasksStatus.nextDates = message.nextDates;
+      tasksStatusTable.value.push(tasksStatus);
+      // message.info(
+      //   `Task ${task.relTaskPath} is scheduled to start at ${task.startTime}`
+      // );
+    });
+
     ipcRenderer.invoke("to-console", {
       action: "task-cron-parse",
       startTime: task.startTime,
-      taskId: taskId,
+      taskName: task.relTaskPath,
+      callback: callback,
     });
-
-
   } else {
     // Start task right away
     tasksStatus.status = "running";
@@ -253,6 +490,9 @@ ipcRenderer.on("to-main-win", (event, message) => {
 
 function setupWsConn() {
   try {
+    if (wsConn) {
+      wsConn.close();
+    }
     wsConn = new WebSocket("ws://127.0.0.1:5678/");
     wsConn.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -267,12 +507,12 @@ function setupWsConn() {
         },
       });
     };
-    let dim = appConfig.get("mainWindowDimension");
-    if (!dim.isCollapsed) {
-      message.success("Connected to backend server.");
-    }
+    wsConn.onerror = (e) => {
+      message.error("wsConn error", e);
+    };
+    console.log("Connected to backend server.");
   } catch (e) {
-    message.error("Failed. Backend not responding.", e);
+    console.log("Failed. Backend not responding.", e);
     setTimeout(() => {
       setupWsConn();
     }, 5000);
@@ -305,8 +545,144 @@ onMounted(async () => {
 
 const currentTab = ref("taskPane");
 watch(currentTab, (val) => {
-  eventBus.emit("switch-tab", val);
+  eventBus.emit("switch-tab", { tab: val });
 });
+
+// Add new app modal
+const checkedValue = ref("template");
+const githubFolderLink = ref("");
+const showModalRef = ref(false);
+
+const appOptions = computed(() => {
+  return apps.value.map((app) => {
+    return {
+      label: app.app,
+      value: app.author + "/" + app.app,
+      path: app.path,
+      icon: app.icon,
+      description: "© " + app.author,
+    };
+  });
+});
+
+const handleChange = (e) => {
+  checkedValue.value = e.target.value;
+};
+
+const addNewApp = () => {
+  showModalRef.value = true;
+};
+
+const downloadAppFromGithub = (link) => {
+  if (wsConn === null) {
+    message.warning("Backend disconnected. Failed downloading...");
+    return;
+  }
+  let message = {
+    event: "I_EVENT_WSS_REQUEST",
+    action: "download",
+    url: link,
+  };
+  try {
+    wsConn.send(JSON.stringify(message));
+  } catch (e) {
+    console.log(e);
+    message.warning("Failed downloading...");
+  }
+  showModalRef.value = false;
+};
+
+const macroRecordOptions = ref(["mouse-keyboard"]);
+const importNewApp = async () => {
+  if (checkedValue.value === "github-import") {
+    if (
+      githubFolderLink.value === "" ||
+      !githubFolderLink.value.startsWith("http")
+    ) {
+      message.warning("Please enter a valid link");
+      return;
+    }
+    downloadAppFromGithub(githubFolderLink.value);
+  } else {
+    // Send request to console to register Uio event
+    await ipcRenderer.invoke("to-console", {
+      action: "uio-event",
+      type: "macro-record",
+      options: [...macroRecordOptions.value],
+      source: "console.mainApp",
+    });
+    showModalRef.value = false;
+  }
+};
+
+const closeModal = () => {
+  showModalRef.value = false;
+};
+
+const renderLabel = (option) => {
+  return h(
+    "div",
+    {
+      style: {
+        display: "flex",
+        alignItems: "center",
+      },
+    },
+    [
+      h(NAvatar, {
+        src: option.icon,
+        size: 25,
+        style: {
+          borderRadius: "2px",
+          backgroundColor: "#ffffff",
+        },
+        bordered: false,
+      }),
+      h(
+        "div",
+        {
+          style: {
+            marginLeft: "12px",
+            padding: "4px 0",
+          },
+        },
+        [
+          h("div", null, [option.label]),
+          h(
+            NText,
+            { depth: 3, tag: "div" },
+            {
+              default: () => option.description,
+            }
+          ),
+        ]
+      ),
+    ]
+  );
+};
+
+const renderSingleSelectTag = ({ option }) => {
+  return h(
+    "div",
+    {
+      style: {
+        display: "flex",
+        alignItems: "center",
+      },
+    },
+    [
+      h(NAvatar, {
+        src: option.icon,
+        round: false,
+        size: 24,
+        style: {
+          marginRight: "12px",
+        },
+      }),
+      option.label,
+    ]
+  );
+};
 </script>
 
 <style scoped>
@@ -358,5 +734,13 @@ watch(currentTab, (val) => {
 .rightCorner {
   padding-top: 8px;
   margin-right: 3px;
+}
+
+.floatRight {
+  position: fixed;
+  bottom: 50px;
+  right: 40px;
+  box-shadow: 0 1px 2px -2px rgba(0, 0, 0, 0.08), 0 3px 6px 0 rgba(0, 0, 0, 0.2),
+    0 5px 12px 4px rgba(0, 0, 0, 0.04);
 }
 </style>

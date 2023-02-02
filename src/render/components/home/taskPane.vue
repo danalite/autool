@@ -64,7 +64,7 @@
               <n-list style="padding-top: 2px; padding-bottom: 0px">
                 <n-list-item
                   v-for="(task, taskIndex) in app.tasks"
-                  style="padding-top: 6px; padding-bottom: 6px"
+                  style="padding-top: 8px; padding-bottom: 8px"
                   @mouseover="handleMouseOver(index, taskIndex)"
                   @mouseleave="handleMouseLeave(index, taskIndex)"
                   @contextmenu="handleContextMenu($event, task)"
@@ -224,8 +224,8 @@
         </n-divider>
 
         <n-space v-if="quickConfigTarget == 'startTime'">
-          <n-button size="small" @click="updateConfigValue = '15 9 * * mon'"
-            >9:15am on Monday weekly</n-button
+          <n-button size="small" @click="updateConfigValue = '15 9 * * mon-fri'"
+            >9:15am on Monday to Friday</n-button
           >
           <n-button size="small" @click="updateConfigValue = '0 */6 * * *'">
             Every 6 hours
@@ -388,7 +388,17 @@ export default {
     const message = useMessage();
 
     const runTask = (task) => {
-      message.success(`Task "${task.relTaskPath}" started`);
+      if (task.startTime) {
+        message.info(`"${task.relTaskPath}" scheduled. Check scheduler for details`);
+
+        // TODO: allow scheduled hotkey
+        if (task.hotkey) {
+          message.error("task cannot have both hotkey and scheduled time");
+          return;
+        }
+      } else if (!task.hotkey) {
+        message.success(`Task "${task.relTaskPath}" started`);
+      }
       emit("runTask", task);
     };
 
@@ -501,7 +511,6 @@ export default {
 
     const onPositiveClick = async () => {
       showModalRef.value = false;
-      console.log("update", updateConfigValue.value, quickConfigTarget.value, activeSelectedTask.value.absTaskPath);
       await ipcRenderer.invoke("to-console", {
         action: "task-configs-update",
         taskPath: activeSelectedTask.value.absTaskPath,

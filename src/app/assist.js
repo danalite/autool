@@ -8,8 +8,11 @@ export const createAssistWindow = async (userHeader) => {
   const assistWin = new BrowserWindow({
     title: 'toolAssist',
     frame: false,
-    transparent:true,
+    transparent: true,
+    // closable: false,
+    fullscreenable: false,
     resizable: false,
+    movable: false,
     width: 380,
     height: currentScreen.height - 20,
     x: assistWindowPosition.x,
