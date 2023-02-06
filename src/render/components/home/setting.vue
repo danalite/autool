@@ -14,28 +14,6 @@
               />
             </n-space>
 
-            <!-- <n-space vertical justify="space-between">
-              App Home
-              <n-tag
-                :bordered="false"
-                type="success"
-                style="line-height: 28px !important"
-                @click="getGameDirectory"
-              >
-                <input
-                  type="file"
-                  id="file"
-                  hidden
-                  webkitdirectory
-                  directory
-                  multiple
-                />
-                <n-ellipsis style="max-width: 240px" :tooltip="false">
-                  {{ directory }}
-                </n-ellipsis>
-              </n-tag>
-            </n-space> -->
-
             <n-space vertical>
               OCR server
               <n-space justify="space-between">

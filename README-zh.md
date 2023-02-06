@@ -3,33 +3,14 @@
 </p>
 
 ## What is AuTool?
-- A cross-platform efficiency tool to streamline and automate your daily tasks.
+- 跨平台 效率工具, 用来 streamline / automate 繁琐的UI操作
 
 ## What can you do with it?
-### MacOS/Windows: 
-- 监听聊天群消息; 
-- [根据App自动切换输入法](https://inputsource.pro/zh-CN); 
-- [快速调整窗口布局](https://apps.apple.com/app/id441258766); 
-- [录制视频转GIF](); 
-- [监听订单邮件，自动记账](); 
-- [录制/重复桌面操作](); 
-- [给手机推送提醒](); 
-- [桌面应用启动器](); 
-- [文件自动备份到图床]()
+- 桌面端 MacOS/Windows: 监听聊天群消息; [根据App自动切换输入法](https://inputsource.pro/zh-CN); [快速调整窗口布局](https://apps.apple.com/app/id441258766); [录制视频转GIF](); [监听订单邮件，自动记账](); [录制/重复桌面操作](); [给手机推送提醒](); [桌面应用启动器](); [文件自动备份到图床]()
   
-### 网页端
-- [筛选推送RSS信息](https://huginn.cn/blog/huginn/huginn-%e8%87%aa%e5%ae%9a%e4%b9%89%e6%8a%93%e5%8f%96%e6%8e%a8%e9%80%81smzdm%e5%92%8cv2ex%e7%9a%84%e4%bc%98%e6%83%a0%e4%bf%a1%e6%81%af); 
-- [抢票抢打折单品](https://whop.com/charts/top_rentals/); 
-- [录制/重复网页操作](https://www.tango.us/pricing), 
-- [自动解决CAPTCHA](), 
-- [用代理浏览网页](); 
-- [打开洋葱链接]()
-- [自动签到](); 
+- 网页端: [筛选推送RSS信息](https://huginn.cn/blog/huginn/huginn-%e8%87%aa%e5%ae%9a%e4%b9%89%e6%8a%93%e5%8f%96%e6%8e%a8%e9%80%81smzdm%e5%92%8cv2ex%e7%9a%84%e4%bc%98%e6%83%a0%e4%bf%a1%e6%81%af); [抢票抢打折单品](https://whop.com/charts/top_rentals/); [录制/重复网页操作](https://www.tango.us/pricing), [自动解决CAPTCHA](), [用代理浏览网页](); [自动签到](); 
 
-### Mobile (iOS/Android)
-- [接受消息推送](https://github.com/Finb/Bark)
-- 调度云端任务; 
-- 转发OTP验证码到桌面端完成验证
+- 移动端 iOS/Android: [接受消息推送](https://github.com/Finb/Bark); 调度云端任务; 转发OTP验证码到桌面端完成验证
 
 ## Getting Started
 

@@ -15,6 +15,10 @@ async function readFile(path) {
   });
 }
 
+export const addTask = (appPath, taskPath, taskName) => {
+  
+}
+
 export const deleteTask = (appPath, taskPath, taskName) => {
   fs.unlink(taskPath, function (err) {
     if (err) return console.log(err);

@@ -1,71 +1,28 @@
 <template>
-  <header v-mouse-drag="handleDrag" class="headerTitle">
+  <n-space v-mouse-drag="handleDrag" class="headerTitle" justify="center">
     <n-space class="headerTitle">
       <img
         src="../../assets/icon/logo.png"
         draggable="false"
         alt=""
-        width="35"
+        width="32"
+        style="padding-top: 3px"
         @click="handleCollapse"
       />
-      <n-text>AuTool</n-text>
-      <n-space>
-        <n-input-group>
-          <n-tag
-            :bordered="false"
-            round
-            :type="serverLatency > 0 ? 'success' : 'warning'"
-            size="small"
-          >
-            {{ serverLatency > 0 ? serverLatency + "ms" : "down" }}
-          </n-tag>
-          <!-- <n-tag :bordered="false" round size="small" type="warning">80%</n-tag> -->
-        </n-input-group>
-      </n-space>
-    </n-space>
-
-    <n-space class="rightCorner" v-show="pageCount > 0">
-      <n-popover :show-arrow="false" trigger="hover" :delay="200">
-        <template #trigger>
-          <n-button text @click="toSettingPage">
-            <n-icon v-if="pageCount == 1" size="25">
-              <Settings />
-            </n-icon>
-            <n-icon v-else-if="pageCount == 2" size="25" color="#ff69b4">
-              <ArrowLeft />
-            </n-icon>
-          </n-button>
-        </template>
-        {{ pageCount == 1 ? "Settings" : "Back" }}
-      </n-popover>
-
-      <n-popover :show-arrow="false" trigger="hover" :delay="1000">
-        <template #trigger>
-          <n-button text @click="handleMin" color="black">
-            <n-icon size="25">
-              <chevrons-down-right />
-            </n-icon>
-          </n-button>
-        </template>
-        Minimize
-      </n-popover>
-
-      <n-popconfirm
-        positive-text="Yes"
-        negative-text="Cancel"
-        @positive-click="handleClose"
+        <n-text>AuTool</n-text>
+      <!-- <n-tag
+        :bordered="false"
+        round
+        style="padding-bottom: 0px"
+        :type="serverLatency > 0 ? 'success' : 'warning'"
+        size="small"
       >
-        <template #trigger>
-          <n-button text circle color="black">
-            <n-icon size="24">
-              <X />
-            </n-icon>
-          </n-button>
-        </template>
-        Sure to exit app?
-      </n-popconfirm>
+        {{ serverLatency > 0 ? serverLatency + "ms" : "down" }}
+      </n-tag> -->
+
+
     </n-space>
-  </header>
+  </n-space>
 </template>
 
 <script setup>
@@ -107,6 +64,28 @@ const message = useMessage();
 let connFailureCount = 0;
 let serverLatency = ref(0);
 
+function testLatency() {
+  var start = new Date().getTime();
+  request({
+    url: "http://173.82.48.51:8080/ping",
+    method: "GET",
+  })
+    .then((res) => {
+      var lat = new Date().getTime() - start;
+      serverLatency.value = lat;
+      connFailureCount = 0;
+    })
+    .catch((err) => {
+      serverLatency.value = 0;
+      if (connFailureCount === 0) {
+        connFailureCount++;
+        message.error(
+          "Cannot reach remote server. Please check internet connection"
+        );
+      }
+    });
+}
+
 const toSettingPage = () => {
   store.pageIncrease();
 };
@@ -134,8 +113,8 @@ const handleCollapse = () => {
   let isCollapsed = appConfig.get("mainWindowDimension.isCollapsed");
 
   let newDim = isCollapsed
-    ? { width: 390, height: 650 }
-    : { width: 580, height: 45 };
+    ? { width: 590, height: 300 }
+    : { width: 590, height: 40 };
   newDim.isCollapsed = !isCollapsed;
 
   if (newDim.isCollapsed) {
@@ -146,28 +125,6 @@ const handleCollapse = () => {
   ipcRenderer.send("main-win-resize", newDim);
   appConfig.set("mainWindowDimension", newDim);
 };
-
-function testLatency() {
-  var start = new Date().getTime();
-  request({
-    url: "http://173.82.48.51:8080/ping",
-    method: "GET",
-  })
-    .then((res) => {
-      var lat = new Date().getTime() - start;
-      serverLatency.value = lat;
-      connFailureCount = 0;
-    })
-    .catch((err) => {
-      serverLatency.value = 0;
-      if (connFailureCount === 0) {
-        connFailureCount++;
-        message.error(
-          "Cannot reach remote server. Please check internet connection"
-        );
-      }
-    });
-}
 
 onMounted(() => {
   testLatency();
@@ -183,14 +140,14 @@ onMounted(() => {
 <style scoped>
 header {
   display: flex;
-  height: 50px;
+  height: 35px;
   justify-content: space-between;
-  margin: 10px 16px 10px;
+  margin: 0px;
 }
 
 .rightCorner {
   padding-top: 8px;
-  margin-right: 3px;
+  margin-right: 8px;
 }
 
 .headerTitle {

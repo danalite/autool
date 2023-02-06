@@ -8,12 +8,22 @@ export const createMainWindow = async (userHeader) => {
 
   const win = new BrowserWindow({
     title: 'AuTool',
-    center: true,
-    transparent: true,
+    transparent: false,
     show: true,
     hasShadow: true,
-    frame: false,
-    resizable: false,
+
+    frame: true,
+    resizable: true,
+    minWidth: 590,
+    minHeight: 40,
+
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#ffffff',
+      symbolColor: '#74b1be',
+      height: 30
+    },
+    
     x: pos.x,
     y: pos.y,
     width: dim.width,

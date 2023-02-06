@@ -1,7 +1,7 @@
 import { app, ipcMain } from "electron";
 import { appConfig } from "@/utils/main/config";
-import { deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
-import { registerUioEvent, uioStop } from "@/utils/main/uioListener";
+import { deleteApp, addTask, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
+import { registerUioEvent } from "@/utils/main/uioListener";
 
 var parser = require('cron-parser');
 
@@ -48,10 +48,13 @@ export const ipcListener = (mainWindow, assistWindow) => {
       if (currentFrame < duration) setImmediate(updateSize);
     };
     setImmediate(updateSize);
+
     if (targetHeight < 100) {
       mainWindow.setAlwaysOnTop(true, 'floating', 1)
+      mainWindow.setWindowButtonVisibility(false)
     } else {
       mainWindow.setAlwaysOnTop(false)
+      mainWindow.setWindowButtonVisibility(true)
     }
   })
 
@@ -61,19 +64,6 @@ export const ipcListener = (mainWindow, assistWindow) => {
 
   ipcMain.on('main-win-min', () => {
     mainWindow.minimize()
-  })
-
-  // Close window and save collapsed status
-  ipcMain.on('main-win-close', () => {
-    const dim = mainWindow.getBounds()
-    let isCollapsed = dim.height < 100
-    appConfig.set('mainWindowDimension', {
-      width: dim.width, height: dim.height, isCollapsed: isCollapsed
-    })
-    appConfig.set('mainWindowPosition', { x: dim.x, y: dim.y })
-
-    uioStop()
-    app.quit()
   })
 
   // This handler updates our mouse event settings depending
@@ -153,19 +143,25 @@ export const ipcListener = (mainWindow, assistWindow) => {
       runShellCommand(message.cmd)
 
     } else if (action == "uio-event") {
-      const source = message.source
       // E.g., when recording is done or hotkey triggered
       // assistWindow should be hidden in some cases
-
-      // console.log("@@@", message)
       registerUioEvent(assistWindow, {
         type: message.type,
-        source: source,
+        source: message.source,
+        taskId: message.taskId,
         options: message.options,
+
         callback: (ret) => {
-          mainWindow.webContents.send("uio-callback", ret)
+          if (message.type == "macroRecord") {
+            // Save the image to disk
+            addTask()
+          } else {
+            mainWindow.webContents.send("uio-callback", ret)
+          }
         }
+
       })
     }
   })
 }
+1

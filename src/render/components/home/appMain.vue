@@ -1,14 +1,13 @@
 <template>
   <n-collapse-transition :show="pageCount > 0">
     <div class="mainCard">
-      <SearchBar @refreshApps="refreshApps" />
-
-      <!-- Second block under user information -->
+      <!-- <SearchBar @refreshApps="refreshApps" /> -->
       <n-card class="boxShadow appCard" size="small">
         <n-tabs type="segment" :animated="true" v-model:value="currentTab">
           <n-tab-pane style="padding-top: 3px" name="taskPane" tab="Tasks">
             <TaskPane
               :apps="apps"
+              @addNewTask="addNewTask"
               @runTask="runTask($event)"
               @refreshApps="refreshApps"
             />
@@ -39,10 +38,43 @@
 
       <n-modal v-model:show="showModalRef" preset="dialog">
         <template #header>
-          <div style="padding-left: 10px">New app</div>
+          <div style="padding-left: 10px">
+            {{ isAddingApp ? "New app" : "New task to app" }}
+          </div>
         </template>
         <div>
-          <n-space vertical style="padding-left: 5px">
+          <n-space vertical style="padding-left: 5px" v-if="!isAddingApp">
+            <n-space justify="center">
+              <n-input-group
+                style="width: 250px; padding-top: 10px; padding-bottom: 10px"
+              >
+                <n-button
+                  size="small"
+                  type="info"
+                  secondary
+                  style="padding-top: 10px; padding-bottom: 10px"
+                  >App
+                </n-button>
+                <n-select
+                  placeholder="Select app to import"
+                  :default-value="appOptions[0].value"
+                  size="small"
+                  :options="appOptions"
+                  :render-label="renderLabel"
+                  :render-tag="renderSingleSelectTag"
+                />
+              </n-input-group>
+              <n-input-group style="width: 250px; padding-bottom: 5px">
+                <n-button
+                  size="small"
+                  type="info"
+                  secondary
+                  style="padding-top: 10px; padding-bottom: 10px"
+                  >Task
+                </n-button>
+                <n-input size="small" placeholder="E.g., new-task-name" />
+              </n-input-group>
+            </n-space>
             <n-radio
               :checked="checkedValue === 'template'"
               value="template"
@@ -53,69 +85,12 @@
 
             <n-collapse-transition :show="checkedValue == 'template'">
               <n-space vertical>
-                <n-space justify="center">
-                  <n-input-group
-                    style="
-                      width: 250px;
-                      padding-top: 10px;
-                      padding-bottom: 10px;
-                    "
-                  >
-                    <n-button
-                      size="small"
-                      type="info"
-                      secondary
-                      style="padding-top: 10px; padding-bottom: 10px"
-                      >App
-                    </n-button>
-                    <n-select
-                      placeholder="Select app to import"
-                      :default-value="appOptions[0].value"
-                      size="small"
-                      :options="appOptions"
-                      :render-label="renderLabel"
-                      :render-tag="renderSingleSelectTag"
-                    />
-                  </n-input-group>
-                </n-space>
-
                 <n-space style="padding-left: 10px">
                   <n-button size="small">
                     Send an iMessage to someone
                   </n-button>
 
                   <n-button size="small"> Open a website with proxy </n-button>
-                </n-space>
-              </n-space>
-            </n-collapse-transition>
-
-            <n-divider dashed style="margin: 5px" />
-
-            <n-radio
-              :checked="checkedValue === 'github-import'"
-              value="github-import"
-              @change="handleChange"
-            >
-              Download
-            </n-radio>
-            <n-collapse-transition :show="checkedValue == 'github-import'">
-              <n-space vertical justify="center">
-                <n-input
-                  size="small"
-                  v-model:value="githubFolderLink"
-                  placeholder="E.g. https://github.com/danalites/apps/tree/master/macos"
-                  :disabled="checkedValue !== 'github-import'"
-                />
-
-                <n-space justify="center">
-                  <n-button text type="info" size="tiny">
-                    <template #icon>
-                      <n-icon>
-                        <Search />
-                      </n-icon>
-                    </template>
-                    more FREE apps in store!
-                  </n-button>
                 </n-space>
               </n-space>
             </n-collapse-transition>
@@ -130,36 +105,6 @@
             </n-radio>
             <n-collapse-transition :show="checkedValue === 'macro-record'">
               <n-space vertical :style="'padding-left: 20px'" justify="center">
-                <n-input-group
-                  style="width: 250px; padding-top: 5px; padding-bottom: 5px"
-                >
-                  <n-button
-                    size="small"
-                    type="info"
-                    secondary
-                    style="padding-top: 10px; padding-bottom: 10px"
-                    >App
-                  </n-button>
-                  <n-select
-                    placeholder="Select app to import"
-                    :default-value="appOptions[0].value"
-                    size="small"
-                    :options="appOptions"
-                    :render-label="renderLabel"
-                    :render-tag="renderSingleSelectTag"
-                  />
-                </n-input-group>
-                <n-input-group style="width: 250px; padding-bottom: 5px">
-                  <n-button
-                    size="small"
-                    type="info"
-                    secondary
-                    style="padding-top: 10px; padding-bottom: 10px"
-                    >Task
-                  </n-button>
-                  <n-input size="small" placeholder="E.g., my-record-001" />
-                </n-input-group>
-
                 <n-checkbox-group v-model:value="macroRecordOptions">
                   <n-space item-style="display: flex;" vertical>
                     <n-checkbox
@@ -194,6 +139,37 @@
                     <br />
                     Stop&nbsp;: Command + Command
                   </n-tooltip>
+                </n-space>
+              </n-space>
+            </n-collapse-transition>
+          </n-space>
+
+          <n-space vertical v-else>
+            <n-radio
+              :checked="checkedValue === 'github-import'"
+              value="github-import"
+              @change="handleChange"
+            >
+              Download
+            </n-radio>
+            <n-collapse-transition :show="checkedValue == 'github-import'">
+              <n-space vertical justify="center">
+                <n-input
+                  size="small"
+                  v-model:value="githubFolderLink"
+                  placeholder="E.g. https://github.com/danalites/apps/tree/master/macos"
+                  :disabled="checkedValue !== 'github-import'"
+                />
+
+                <n-space justify="center">
+                  <n-button text type="info" size="tiny">
+                    <template #icon>
+                      <n-icon>
+                        <Search />
+                      </n-icon>
+                    </template>
+                    more FREE apps in store!
+                  </n-button>
                 </n-space>
               </n-space>
             </n-collapse-transition>
@@ -251,7 +227,7 @@ import { appConfig } from "@/utils/main/config";
 import { useStore } from "@/render/store";
 import { storeToRefs } from "pinia/dist/pinia";
 
-import eventBus from "@/utils/main/eventBus";
+import eventBus from "@/utils/render/eventBus";
 
 const store = useStore();
 let { pageCount } = storeToRefs(store);
@@ -293,9 +269,10 @@ const backendEventHook = (message) => {
       // console.log("@@", JSON.stringify(message))
       ipcRenderer.invoke("to-console", {
         action: "uio-event",
-        taskId: message.uuid,
+        type: value.type,
         source: message.taskName,
-        ...value,
+        taskId: message.uuid,
+        options: [value.key],
       });
       break;
 
@@ -308,15 +285,16 @@ const backendEventHook = (message) => {
 let wsConn = null;
 const sendMessageToBackend = (message) => {
   try {
-    if (wsConn === null) {
-      console.log("wsConn is null, trying to reconnect...");
-      setupWsConn();
-    } else if (wsConn.readyState !== WebSocket.OPEN) {
+    if (wsConn.readyState !== WebSocket.OPEN) {
       wsConn.close();
       console.log("wsConn is closed, trying to reconnect...");
-      setupWsConn();
+      ipcRenderer.send("restart-wss-server");
+      setTimeout(() => {
+        wsConn.send(JSON.stringify(message));
+      }, 1000);
+    } else {
+      wsConn.send(JSON.stringify(message));
     }
-    wsConn.send(JSON.stringify(message));
   } catch (e) {
     console.log(JSON.stringify(e), "Trying to reconnect to backend server...");
     setupWsConn();
@@ -352,10 +330,10 @@ const stopTask = (task) => {
     return t;
   });
 
-  // Scheduled task is auto discarded with timer unmounted 
+  // Scheduled task is auto discarded with timer unmounted
   if (isScheduledTask) {
-    return 
-  } 
+    return;
+  }
 
   if (isHotkeyTask) {
     // Unregister hotkey bind with the task
@@ -364,7 +342,6 @@ const stopTask = (task) => {
       taskId: task.id,
       source: task.relTaskPath,
     });
-
   } else {
     // Cancel task running in the backend
     let newEvent = {
@@ -384,10 +361,26 @@ const stopTask = (task) => {
 };
 
 ipcRenderer.on("uio-callback", (event, message) => {
-  console.log("@@@", message);
-  // taskStartEvent.value.stamp = new Date().toLocaleString();
-  // taskEvents.value.push(taskStartEvent);
-  // sendMessageToBackend(taskStartEvent);
+  // console.log("@@@", message);
+  if (message.type === "keyWait") {
+    let newEvent = {
+      event: EventType.I_EVENT_TASK_REQ,
+      uuid: message.taskId,
+      taskName: message.source,
+      source: "console.uio-hook",
+      value: {
+        type: "resumeTask",
+        return: message.return,
+      },
+      time: new Date().toLocaleString(),
+    };
+    taskEvents.value.push(newEvent);
+    sendMessageToBackend(newEvent);
+    return;
+  } else if (message.type === "hotkey") {
+    // Run a new task with hotkey attribute disabled
+    console.message("hotkey", message);
+  }
 });
 
 const runTask = async (task) => {
@@ -437,15 +430,17 @@ const runTask = async (task) => {
     }
 
     tasksStatus.status = "listening";
+    // Dummy task: it has UID but not registered in backend
     tasksStatusTable.value.push(tasksStatus);
     message.success(`"${task.relTaskPath}"" bind with ${task.hotkey}`);
 
     // The hotkey remains registered until the task is stopped
     await ipcRenderer.invoke("to-console", {
       action: "uio-event",
-      type: "register-hotkey",
+      type: "registerHotkey",
       hotkey: task.hotkey,
       source: "console.appMain",
+      taskId: taskId,
     });
   } else if (task.startTime) {
     // 2. Wait for timer counts down
@@ -490,9 +485,6 @@ ipcRenderer.on("to-main-win", (event, message) => {
 
 function setupWsConn() {
   try {
-    if (wsConn) {
-      wsConn.close();
-    }
     wsConn = new WebSocket("ws://127.0.0.1:5678/");
     wsConn.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -506,13 +498,15 @@ function setupWsConn() {
           worker: "Main",
         },
       });
+      console.log("Connected to backend server.");
     };
+
     wsConn.onerror = (e) => {
       message.error("wsConn error", e);
     };
-    console.log("Connected to backend server.");
   } catch (e) {
     console.log("Failed. Backend not responding.", e);
+    ipcRenderer.send("restart-wss-server", {});
     setTimeout(() => {
       setupWsConn();
     }, 5000);
@@ -529,6 +523,7 @@ onMounted(async () => {
   if (appsLocal) {
     apps.value = appsLocal;
   }
+
   ipcRenderer.once("start-wss-backend", () => {
     setTimeout(() => {
       if (wsConn === null) {
@@ -569,7 +564,15 @@ const handleChange = (e) => {
   checkedValue.value = e.target.value;
 };
 
+const isAddingApp = ref(false);
+const addNewTask = (event) => {
+  console.log("@@@", event);
+  isAddingApp.value = false;
+  showModalRef.value = true;
+};
+
 const addNewApp = () => {
+  isAddingApp.value = true;
   showModalRef.value = true;
 };
 
@@ -607,7 +610,7 @@ const importNewApp = async () => {
     // Send request to console to register Uio event
     await ipcRenderer.invoke("to-console", {
       action: "uio-event",
-      type: "macro-record",
+      type: "macroRecord",
       options: [...macroRecordOptions.value],
       source: "console.mainApp",
     });

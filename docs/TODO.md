@@ -2,11 +2,19 @@
 - [ ] Update logging and debugging interface
 - [ ] Add and example to test event bus
 - [ ] Click app icon to show documents
-- [ ] Make window resizable
-- [ ] Separate add new apps and tasks
+- [ ] Toggle the position of msg panel
+- [ ] Check legality of the task hotkey
 
 ## 2023-02
-- [ ] Add tooltip for icons
+- [ ] Removed the layout footer (status bar)
+- [ ] Update the new task scheduler panel
+- [ ] Add back modals for time schedule and hotkey
+- [x] Restart backend executor when wsConn failed too many times
+- [x] Adjust window layout (refer to slack and VSCode)
+- [x] Make main window resizable
+- [x] Add tooltip for icons
+- [x] Fix background flushing when collapsing window
+- [x] Separate "add new apps" and "add new task"
 - [x] Update taskSch switch button 
 - [ ] Show red tags for tasks stopped with errors (and error message)
 - [x] Update the hotkey trigger section

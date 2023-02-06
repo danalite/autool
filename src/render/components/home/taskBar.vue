@@ -1,22 +1,26 @@
 <template>
   <header v-mouse-drag="handleDrag" class="headerTitle">
-    <n-space class="banner">
+    <n-space class="banner" :size="[4,12]">
       <img
         src="../../assets/icon/logo.png"
         draggable="false"
-        width="35"
+        width="32"
+        style="padding-top: 2px"
         @click="handleCollapse"
-      />
-      <n-text>AuTool</n-text>
-      <n-space style="padding-bottom: 2px; width: 340px">
-        <!-- reminder if there is no selected tasks -->
+      /> 
+      <n-space style="padding-left:5px; padding-bottom: 2px; width: 100%" :size="[4,2]" class="banner">
+        <n-button secondary size="tiny" color="black" @click="decreasePage">
+          <n-icon size="10">
+            <ChevronLeft />
+          </n-icon>
+        </n-button>
         <n-button
           v-if="displayTasks.length == 0 && false"
           :bordered="false"
           secondary
           type="warning"
           size="tiny"
-          style="margin-top: 3px;"
+          style="margin-top: 3px"
         >
           <template #icon>
             <n-icon>
@@ -34,16 +38,31 @@
           type="success"
           secondary
           size="tiny"
-          style="margin-right: 0px; width: 164px"
+          style="margin-right: 0px; width: 155px"
           @click="runTargetTask($event, taskName)"
         >
-        <n-ellipsis style="max-width: 164px" :tooltip="false">
-          {{ taskName }}
-        </n-ellipsis>
+          <n-ellipsis style="max-width: 160px" :tooltip="false">
+            {{ taskName }}
+          </n-ellipsis>
+        </n-button>
+
+        <n-button
+          secondary
+          size="tiny"
+          color="black"
+          style="margin-right: 0px"
+          @click="increasePage"
+        >
+          <n-icon size="10">
+            <ChevronRight />
+          </n-icon>
         </n-button>
       </n-space>
 
-      <n-input-group style="text-align: center" v-show="displayTasks.length > 0">
+      <!-- <n-input-group
+        style="text-align: center"
+        v-show="displayTasks.length > 0"
+      >
         <n-button secondary size="tiny" color="black" @click="decreasePage">
           <n-icon size="15">
             <ChevronLeft />
@@ -68,7 +87,7 @@
             <ChevronRight />
           </n-icon>
         </n-button>
-      </n-input-group>
+      </n-input-group> -->
     </n-space>
   </header>
 </template>
@@ -103,10 +122,10 @@ import {
 } from "@vicons/tabler";
 
 import { ipcRenderer } from "electron";
-import { ref, computed, onBeforeUpdate } from "vue";
+import { ref, computed, onMounted } from "vue";
 
 import { appConfig } from "@/utils/main/config";
-import eventBus from "@/utils/main/eventBus";
+import eventBus from "@/utils/render/eventBus";
 
 import { useStore } from "@/render/store";
 const store = useStore();
@@ -134,8 +153,8 @@ const handleCollapse = () => {
   let isCollapsed = appConfig.get("mainWindowDimension.isCollapsed");
 
   let newDim = isCollapsed
-    ? { width: 390, height: 650 }
-    : { width: 580, height: 45 };
+    ? { width: 590, height: 300 }
+    : { width: 590, height:40 };
   newDim.isCollapsed = !isCollapsed;
 
   if (newDim.isCollapsed) {
@@ -175,12 +194,9 @@ const selectedTaskNames = computed(() => {
   return selectedTasks.value.map((task) => task.relTaskPath);
 });
 
-onBeforeUpdate(async () => {
+onMounted(async () => {
   let isCollapsed = appConfig.get("mainWindowDimension.isCollapsed");
   if (isCollapsed) {
-    await ipcRenderer.invoke("to-console", {
-      action: "app-reload",
-    });
     let apps = appConfig.get("apps");
     selectedTasks.value = [];
 
@@ -217,19 +233,19 @@ const displayTasks = computed(() => {
 
   let page = Number(taskPage.value);
   let upper =
-    page * 2 > selectedTaskNames.value.length
+    page * 3 > selectedTaskNames.value.length
       ? selectedTaskNames.value.length
-      : page * 2;
-  return selectedTaskNames.value.slice((page - 1) * 2, upper);
+      : page * 3;
+  return selectedTaskNames.value.slice((page - 1) * 3, upper);
 });
 </script>
 
 <style scoped>
 header {
   display: flex;
-  height: 35px;
-  padding-right: 0px;
-  margin: 7px 8px 3px;
+  height: 30px;
+  padding-top: 6px;
+  margin: 0px 8px 0px;
 }
 
 .rightCorner {
@@ -249,6 +265,8 @@ header {
 }
 
 .banner {
+  /* position: fixed;
+  left: 75px; */
   align-items: center;
   width: 100%;
   flex-wrap: nowrap !important;

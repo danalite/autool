@@ -1,43 +1,34 @@
 <template>
-  <div>
-    <n-space justify="center" style="padding-bottom: 5px">
-      <n-button :bordered="false" @click="switchTaskSchTab(-1)">
-        <n-icon size="25">
-          <ChevronLeft />
-        </n-icon>
-      </n-button>
-      <n-button style="width:120px" :bordered="false">
-        <n-icon v-show="showType == 'running'" size="18">
-          <Run/>
-        </n-icon>
-        <n-icon v-show="showType == 'scheduled'" size="18">
-          <Clock/>
-        </n-icon>
-        <n-icon v-show="showType == 'hotkey'" size="18">
-          <Keyboard/>
-        </n-icon>
-        <n-icon v-show="showType == 'stopped'" size="18">
-          <DropletOff/>
-        </n-icon>
-        <n-icon v-show="showType == 'events'" size="18">
-          <TransferIn/>
-        </n-icon>
-        <n-text  style="padding-left: 5px">
-          {{ showType.charAt(0).toUpperCase() + showType.slice(1)}}
-        </n-text>
-        
-      </n-button>
-      <n-button :bordered="false" @click="switchTaskSchTab(1)">
-        <n-icon size="25">
-          <ChevronRight />
-        </n-icon>
-      </n-button>
-    </n-space>
+  <n-layout-content
+    position="absolute"
+    content-style="padding: 0px;"
+    style="top: 40px; bottom: 0px"
+    :native-scrollbar="false"
+  >
+    <n-layout has-sider position="absolute">
+      <n-layout-sider
+        bordered
+        collapse-mode="width"
+        :collapsed-width="55"
+        :width="160"
+        :collapsed="collapsed"
+        @collapse="collapsed = true"
+        @expand="collapsed = false"
+        :native-scrollbar="false"
+        style="background-color: #f5f5f5; color: #409eff"
+      >
+        <n-menu
+          :indent="22"
+          v-model:value="taskSchTab"
+          :collapsed="collapsed"
+          :collapsed-width="55"
+          :collapsed-icon-size="22"
+          :options="menuOptions"
+        />
+      </n-layout-sider>
 
-    <n-space vertical>
-      <n-scrollbar style="max-height: 370px">
-        <!-- Event in and outs -->
-        <n-space v-if="showType == 'events'" justify="center">
+      <n-layout content-style="padding: 15px 25px 5px;">
+        <n-space v-if="taskSchTab == 'events'" justify="center">
           <n-timeline size="large">
             <n-timeline-item
               v-for="e in eventItems.slice().reverse()"
@@ -50,7 +41,7 @@
           </n-timeline>
         </n-space>
 
-        <n-space v-if="showType == 'running'" justify="center">
+        <n-space v-if="taskSchTab == 'running'">
           <n-card
             v-for="(task, taskIndex) in runningTasks"
             size="small"
@@ -98,7 +89,7 @@
           </n-card>
         </n-space>
 
-        <n-space v-if="showType == 'scheduled'" justify="center">
+        <n-space v-if="taskSchTab == 'scheduled'">
           <n-card
             v-for="(task, taskIndex) in scheduledTasks"
             size="small"
@@ -147,7 +138,7 @@
           </n-card>
         </n-space>
 
-        <n-space v-if="showType == 'hotkey'" justify="center">
+        <n-space v-if="taskSchTab == 'hotkeys'">
           <n-card
             v-for="(task, taskIndex) in hotkeyTasks"
             size="small"
@@ -196,7 +187,7 @@
           </n-card>
         </n-space>
 
-        <n-space v-if="showType == 'stopped'" justify="center">
+        <n-space v-if="taskSchTab == 'stopped'">
           <n-card
             v-for="(task, taskIndex) in stoppedTasks"
             size="small"
@@ -242,254 +233,208 @@
             </n-space>
           </n-card>
         </n-space>
-      </n-scrollbar>
-    </n-space>
-    <n-empty
-      description="Empty"
-      style="padding-top: 50px"
-      v-show="isTargetEmpty"
-    >
-      <template #icon>
-        <n-icon>
-          <PlaneInflight />
-        </n-icon>
-      </template>
-    </n-empty>
-  </div>
+      </n-layout>
+    </n-layout>
+  </n-layout-content>
 </template>
-
-<script>
+  
+  <script setup>
 import {
-  PlayerStop,
-  PlayerPlay,
-  Cloud,
-  DevicesPc,
-  BrandAndroid,
-  DropletOff,
-  TransferIn,
-  Clock,
-  Keyboard,
-  PlaneInflight,
-  ChevronRight,
-  ChevronLeft,
-  Run,
-} from "@vicons/tabler";
-
-import {
-  NSpace,
-  NList,
-  NIcon,
   NCard,
-  NCountdown,
-  NListItem,
-  NDataTable,
-  NScrollbar,
-  NAvatar,
-  NEmpty,
+  NInputGroup,
+  NLayout,
+  NLayoutFooter,
+  NLayoutHeader,
+  NLayoutSider,
+  NLayoutContent,
+  NDropdown,
+  NCheckbox,
   NEllipsis,
-  NSelect,
-  NButton,
-  NTag,
-  NText,
-  NTabs,
+  NSpace,
+  NIcon,
+  NCountdown,
   NTimeline,
   NTimelineItem,
+  NInput,
+  NButton,
+  NMenu,
+  NTag,
+  NBadge,
+  NAvatar,
+  NText,
+  NList,
+  NListItem,
   NTooltip,
-  NTabPane,
-  NSwitch,
-  NCollapseTransition,
+  NCheckboxGroup,
   useMessage,
+  NModal,
+  NRadio,
 } from "naive-ui";
 
-import { h, ref, computed, onUnmounted } from "vue";
-import eventBus from "@/utils/render/eventBus";
-import { appConfig } from "@/utils/main/config";
+import { ref, nextTick, h, computed, onMounted } from "vue";
+import {
+  Copyright,
+  BrandAndroid,
+  Keyboard,
+  Clock,
+  Cloud,
+  Pencil,
+  CloudDownload,
+  DevicesPc,
+  Plus,
+  Trash,
+  FileReport,
+  Search,
+  Box,
+  Run,
+  Alarm,
+  PlayerPlay,
+  PlayerStop,
+  MailForward
+} from "@vicons/tabler";
 
-export default {
-  name: "taskSch",
-  components: {
-    NSpace,
-    NList,
-    NCard,
-    NListItem,
-    NScrollbar,
-    NDataTable,
-    NSelect,
-    NButton,
-    NCountdown,
-    NAvatar,
-    NEmpty,
-    NEllipsis,
-    NTag,
-    NIcon,
-    NText,
-    NSwitch,
-    NTabs,
-    NTabPane,
-    NTimeline,
-    NTimelineItem,
-    NTooltip,
-    NCollapseTransition,
-    useMessage,
-    PlayerStop,
-    PlayerPlay,
-    Run,
-    DropletOff,
-    Clock,
-    Keyboard,
-    TransferIn,
-    Cloud,
-    DevicesPc,
-    BrandAndroid,
-    PlaneInflight,
-    ChevronLeft,
-    ChevronRight,
+import { ipcRenderer, shell } from "electron";
+
+const props = defineProps({
+  taskEvents: {
+    type: Array,
   },
-
-  // Tasks and instances
-  props: {
-    taskEvents: {
-      type: Array,
-    },
-    tasksStatusTable: {
-      type: Array,
-    },
+  tasksStatusTable: {
+    type: Array,
   },
+});
 
-  emits: ["stopTask", "runTask"],
-  setup(props, { emit }) {
-    // const message = useMessage();
-    const showType = ref(appConfig.get("taskSch.showType"));
+const emits = defineEmits(["runTask", "stopTask"]);
+const message = useMessage();
 
-    const stopTask = (task) => {
-      // message.warning(`Stopping task ${task.taskName}...`);
-      emit("stopTask", task);
-    };
+const activeAppIndex = ref(-1);
 
-    // When a scheduled task is ready to run
-    const runTask = (task) => {
-      let newTask = { ...task, startTime: null };
-      emit("runTask", newTask);
-    };
+const genEventType = (item, source) => {
+  if (item.type === "taskError") {
+    return "error";
+  } else {
+    if (source === "console") {
+      return "success";
+    } else {
+      return "info";
+    }
+  }
+};
 
-    const openLog = (task) => {
-      // console.log("open log", task);
-    };
+const genEventContent = (item, taskName) => {
+  switch (item.type) {
+    case "taskFinish":
+      return item.message;
 
-    // Save the previously checked task type
-    onUnmounted(() => {
-      appConfig.set("taskSch.showType", showType.value);
-    });
+    case "taskError":
+      return item.message;
 
-    const genType = (item, source) => {
-      if (item.type === "taskError") {
-        return "error";
-      } else {
-        if (source === "console") {
-          return "success";
-        } else {
-          return "info";
-        }
-      }
-    };
+    // Inward events
+    case "runTask":
+      return `enqueue "${taskName}"`;
 
-    const genContent = (item, taskName) => {
-      switch (item.type) {
-        case "taskFinish":
-          return item.message;
+    default:
+      return item.type;
+  }
+};
 
-        case "taskError":
-          return item.message;
-
-        // Inward events
-        case "runTask":
-          return `enqueue "${taskName}"`;
-
-        default:
-          return item.type;
-      }
-    };
-
-    const eventItems = computed(() => {
-      let index = 0;
-      return props.taskEvents.map((e) => {
-        return {
-          title: `${e.event} (${e.uuid.slice(0, 8)})`,
-          content: genContent(e.value, e.taskName),
-          key: index++,
-          type: genType(e.value, e.source),
-          time: e.stamp,
-        };
-      });
-    });
-
-    const runningTasks = computed(() => {
-      return props.tasksStatusTable.filter((t) => t.status === "running");
-    });
-
-    // (active) tasks listening for hotkey
-    const hotkeyTasks = computed(() => {
-      return props.tasksStatusTable.filter((t) => t.status === "listening");
-    });
-
-    // (active) tasks scheduled ahead of time
-    const scheduledTasks = computed(() => {
-      return props.tasksStatusTable.filter((t) => t.status === "scheduled");
-    });
-
-    const stoppedTasks = computed(() => {
-      return props.tasksStatusTable.filter(
-        (t) =>
-          t.status === "taskError" ||
-          t.status === "taskFinish" ||
-          t.status === "stopped"
-      );
-    });
-
-    const tabs = ["running", "scheduled", "stopped", "hotkey", "events"];
-    const isTargetEmpty = computed(() => {
-      if (showType.value === "events") {
-        return eventItems.value.length === 0;
-      } else if (showType.value === "running") {
-        return runningTasks.value.length === 0;
-      } else if (showType.value === "scheduled") {
-        return scheduledTasks.value.length === 0;
-      } else if (showType.value === "stopped") {
-        return stoppedTasks.value.length === 0;
-      } else if (showType.value === "hotkey") {
-        return hotkeyTasks.value.length === 0;
-      } else {
-        return true;
-      }
-    });
-
-    const switchTaskSchTab = (offset) => {
-      let shift = tabs.indexOf(showType.value) + offset;
-      let index = shift < 0 ? tabs.length - 1 : shift % tabs.length;
-      showType.value = tabs[index]
-    };
-
+const eventItems = computed(() => {
+  let index = 0;
+  return props.taskEvents.map((e) => {
     return {
-      showType,
-      isTargetEmpty,
-      switchTaskSchTab,
-      runTask,
-      stopTask,
-      openLog,
-
-      eventItems,
-      runningTasks,
-      stoppedTasks,
-      scheduledTasks,
-      hotkeyTasks,
+      title: `${e.event} (${e.uuid.slice(0, 8)})`,
+      content: genEventContent(e.value, e.taskName),
+      key: index++,
+      type: genEventType(e.value, e.source),
+      time: e.stamp,
     };
+  });
+});
+
+const collapsed = ref(false);
+const taskSchTab = ref("running");
+
+function renderIcon(icon) {
+  return () => h(NIcon, { depth: 4 }, { default: () => h(icon) });
+}
+
+const menuOptions = [
+  {
+    label: "Running",
+    key: "running",
+    icon: renderIcon(PlayerPlay),
   },
+  {
+    label: "Scheduled",
+    key: "scheduled",
+    icon: renderIcon(Alarm),
+  },
+  {
+    label: "Hotkeys",
+    key: "hotkeys",
+    icon: renderIcon(Keyboard),
+  },
+  {
+    label: "Stopped",
+    key: "stopped",
+    icon: renderIcon(PlayerStop),
+  },
+  {
+    label: "Events",
+    key: "events",
+    icon: renderIcon(MailForward),
+  },
+];
+
+const runningTasks = computed(() => {
+  return props.tasksStatusTable.filter((t) => t.status === "running");
+});
+
+// (active) tasks listening for hotkey
+const hotkeyTasks = computed(() => {
+  return props.tasksStatusTable.filter((t) => t.status === "listening");
+});
+
+// (active) tasks scheduled ahead of time
+const scheduledTasks = computed(() => {
+  return props.tasksStatusTable.filter((t) => t.status === "scheduled");
+});
+
+const stoppedTasks = computed(() => {
+  return props.tasksStatusTable.filter(
+    (t) =>
+      t.status === "taskError" ||
+      t.status === "taskFinish" ||
+      t.status === "stopped"
+  );
+});
+
+const stopTask = (task) => {
+  // message.warning(`Stopping task ${task.taskName}...`);
+  emits("stopTask", task);
+};
+
+// When a scheduled task is ready to run
+const runTask = (task) => {
+  let newTask = { ...task, startTime: null, hotkey: null };
+  emits("runTask", newTask);
 };
 </script>
-
+  
 <style scoped>
-.n-card {
-  border-radius: 5px;
-  padding: 5px;
+.active {
+  background-color: #e3f5f1 !important;
+  /* color: #f5f5f5; */
+}
+
+.hover {
+  background-color: #f5f5f5;
+  /* color: rgb(200, 92, 92); */
+}
+
+.invisible {
+  visibility: hidden;
 }
 </style>
+  
+  

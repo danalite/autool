@@ -6,16 +6,11 @@ import {
   shell
 } from 'electron'
 
-import { optimizeMacroSeq } from '@/utils/main/macroOpt';
+import { getKeyByValue, parseSequence, uioEventEnum } from '@/utils/main/macroOpt';
 import { uIOhook, UiohookKey } from 'uiohook-napi'
 import { appConfig } from '@/utils/main/config'
 
 const activeWindow = require('active-win');
-
-const uioEventEnum = {
-  4: "keydown",
-  5: "keyup"
-}
 
 // queue the incoming IO hook requests
 let ioEventQueue = []
@@ -51,13 +46,13 @@ var isMacroRecording = false
 var macroRecordedSequence = []
 
 // A history window to record the last 10 key strokes
-const keyStrokesWindow = []
-const keyboardActionTable = []
+var keyStrokesWindow = []
+var keyboardActionTable = []
 
 var isTrackingTime = false
 var lastActionTimeStamp = 0
 
-const mouseActionTables = []
+var mouseActionTables = []
 var isOverAssist = false
 
 const assistWindowMouseWatch = (assistWindow) => {
@@ -67,6 +62,7 @@ const assistWindowMouseWatch = (assistWindow) => {
   mouseActionTables.push(
     {
       name: "move-assist-window-enter",
+      source: "console",
       rule: (e) => {
         const assistBounds = assistWindow.getBounds()
         return !isOverAssist && e.x > assistBounds.x && e.x < assistBounds.x + assistBounds.width
@@ -83,6 +79,7 @@ const assistWindowMouseWatch = (assistWindow) => {
     // Leave assist window area
     {
       name: "move-assist-window-leave",
+      source: "console",
       rule: (e) => {
         const assistBounds = assistWindow.getBounds()
         return isOverAssist && !(e.x > assistBounds.x && e.x < assistBounds.x + assistBounds.width
@@ -181,13 +178,39 @@ const detectIcon = (e, reception = { width: 600, height: 120 }) => {
   })
 }
 
+const hotkeyRegisterUpdateMAT = (event) => {
+
+}
+
+const keyWaitUpdateMAT = (event) => {
+  // console.log(event, "@@@")
+  keyboardActionTable.push({
+    name: "key-wait",
+    // From a specific task source
+    source: event.source,
+    rule: (e) => {
+      // console.log(getKeyByValue(e.keycode), event.options, e.keycode)
+      return event.options.includes(getKeyByValue(e.keycode))
+    },
+    action: (e) => {
+      keyboardActionTable = keyboardActionTable.filter((a) => a.source != event.source)
+      const keycode = getKeyByValue(e.keycode)
+      event.callback({
+        type: "keyWait",
+        taskId: event.taskId,
+        source: event.source,
+        return: keycode
+      })
+    }
+  })
+}
 
 const macroRecordUpdateMAT = (options) => {
-  // key-shift-shift: restart and clear the seq
-  // key-meta-meta: stop and return the seq
-
-  // key-all: record 
-  // click-all: record mouse clicks (no drag)
+  // Existing MAT items:
+  //    key-shift-shift: restart and clear the seq
+  //    key-meta-meta: stop and return the seq
+  //    key-all: record 
+  //    click-all: record mouse clicks (no drag)
 
   keyboardActionTable.push({
     name: "key-all",
@@ -201,7 +224,7 @@ const macroRecordUpdateMAT = (options) => {
           if (delta > 0.1 * 1e8) {
             macroRecordedSequence.push({
               type: "delay",
-              time: delta
+              value: delta / 1e8
             })
           }
           lastActionTimeStamp = e.time
@@ -220,7 +243,7 @@ const macroRecordUpdateMAT = (options) => {
       if (isMacroRecording) {
         if (isTrackingTime) {
           let delta = e.time - lastActionTimeStamp
-          if (delta > 0.1 * 1e8) {
+          if (delta > 0.05 * 1e8) {
             macroRecordedSequence.push({
               type: "delay",
               time: delta
@@ -252,7 +275,7 @@ export const registerUioEvent = (assistWindow, event) => {
   //    - Command + Command: stop recording
   //    - all user-defined hotkeys are NOT disabled 
 
-  if (event.type == "macro-record") {
+  if (event.type == "macroRecord") {
     if (isMacroRecording) {
       assistWindow.webContents.send('assist-win-push', {
         type: "push-notification",
@@ -267,13 +290,14 @@ export const registerUioEvent = (assistWindow, event) => {
       assistWindow.webContents.send('assist-win-push', {
         type: "push-notification",
         title: "Macro recorder ready!",
-        content: "Press \"Shift+Shift\" to start\n \"Command+Command\" to stop\nThe notification will disappear when you start.",
+        content: "Press \"Shift+Shift\" to start\n \"Command+Command\" to stop\n\nThis window will disappear when you start.",
         source: event.source,
       })
 
       // Wait for start key (Shift + Shift)
       keyboardActionTable.push({
         name: "key-shift-shift",
+        source: "console.appMain",
         rule: (e) => {
           return isConsecutiveKeys(UiohookKey.Shift)
         },
@@ -287,7 +311,7 @@ export const registerUioEvent = (assistWindow, event) => {
           } else {
             mouseActionTables.splice(0, mouseActionTables.length)
             assistWindow.minimize()
-            
+
             // load MAT and start recording
             macroRecordUpdateMAT(event.options)
             isMacroRecording = true
@@ -298,13 +322,22 @@ export const registerUioEvent = (assistWindow, event) => {
       // Wait for stop key (Command + Command)
       keyboardActionTable.push({
         name: "key-command-command",
+        source: "console.appMain",
         rule: (e) => {
           return isConsecutiveKeys(UiohookKey.Meta)
         }
         ,
         action: (e) => {
-          // console.log("@@", "stop recording macro")
+          console.log("@@", "stop recording macro")
           isMacroRecording = false
+
+          assistWindow.webContents.send('assist-win-push', {
+            type: "push-notification",
+            title: 'Macro recording finished',
+            content: 'Check it in mainWin!',
+            source: 'console.uiohook',
+            timeout: 15
+          })
 
           // clear and reset MAT
           keyboardActionTable.splice(0, keyboardActionTable.length)
@@ -312,16 +345,30 @@ export const registerUioEvent = (assistWindow, event) => {
           assistWindowMouseWatch(assistWindow)
 
           // send recorded sequence back to requestor
-          let seq = optimizeMacroSeq(macroRecordedSequence)
+          let seq = parseSequence(macroRecordedSequence)
           // console.log("@@@", macroRecordedSequence)
           event.callback(seq)
         }
       })
     }
 
+  } else if (event.type == "keyWait") {
+    // When macro recording is on, queue the event
+    if (isMacroRecording) {
+      ioEventQueue.push(event)
 
-  } else if (event.type == "key-wait") {
-    isMacroRecording = false
+    } else {
+      keyWaitUpdateMAT(event)
+    } 
+  
+  } else if (event.type == "registerHotkey") {
+    // When macro recording is on, queue the event
+    if (isMacroRecording) {
+      ioEventQueue.push(event)
+
+    } else {
+      hotkeyRegisterUpdateMAT(event)
+    }
   }
 }
 

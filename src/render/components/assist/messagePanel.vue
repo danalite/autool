@@ -123,6 +123,7 @@ const renderTextContent = (content) => {
     {
       style: {
         "font-size": "14px",
+        "line-height": "0px",
         color: "#3a4dbf",
         "font-family": '"Lucida Console", "Courier New", monospace',
       },
@@ -143,7 +144,7 @@ const createNotification = (command) => {
     avatar: () =>
       h(
         NIcon,
-        { color: "#2685c2" },
+        { size: 22, color: "#2685c2" },
         {
           default: () => h(Mail),
         }
@@ -349,7 +350,7 @@ onMounted(() => {
     createNotification({
       title: "AuTool started",
       content: "Aren't you excited to learn more about computer architectures?",
-      source: "console",
+      source: "console.MsgPanel",
     });
     // createFileInput({
     //   title: "File Input",

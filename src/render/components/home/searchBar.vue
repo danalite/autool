@@ -26,7 +26,7 @@
 import { appConfig } from "@/utils/main/config";
 import { ipcRenderer } from "electron";
 import { h, ref, watch } from "vue";
-import eventBus from "@/utils/main/eventBus";
+import eventBus from "@/utils/render/eventBus";
 import {
   Plus,
   Search,

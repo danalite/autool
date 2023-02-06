@@ -5,6 +5,8 @@ import {
 } from 'electron'
 
 const axios = require('axios')
+
+import { uioStop } from './utils/main/uioListener'
 import { appConfig, userAgentList } from './utils/main/config'
 
 import {
@@ -83,6 +85,12 @@ const startPythonSubprocess = () => {
   subPy.stderr.pipe(process.stdout)
 };
 
+ipcMain.on('restart-wss-server', (event, arg) => {
+  console.log("[ NodeJS ] restarting wss server...")
+  subPy.kill('SIGTERM')
+  startPythonSubprocess()
+})
+
 const init = async () => {
   startPythonSubprocess()
 
@@ -120,6 +128,23 @@ app.whenReady().then(async () => {
     }
   })
 
+  mainWindow.on('resize', function () {
+    var size   = mainWindow.getSize();
+    var width  = size[0];
+    var height = size[1];
+
+    // let isCollapsed = dim.height < 100
+    // appConfig.set('mainWindowDimension', {
+    //   width: dim.width, height: dim.height, isCollapsed: isCollapsed
+    // })
+    // appConfig.set('mainWindowPosition', { x: dim.x, y: dim.y })
+});
+
+  mainWindow.on('closed', () => {
+    uioStop()
+    app.quit()
+  })
+
   app.on("window-all-closed", () => {
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
@@ -134,6 +159,7 @@ app.whenReady().then(async () => {
     //   event: 'I_EVENT_WSS_REQUEST',
     //   action: 'stop'
     // })
+    console.log("[ NodeJS ] before-quit!")
     if (!subPyExited) {
       console.log("[ NodeJS ] subPy not exited. Killing...")
       subPy.kill('SIGTERM')
@@ -182,7 +208,7 @@ const appSetup = async () => {
   appConfig.set('apps', apps.apps)
 
   // Gather and confirm whether to autostart tasks
-  let taskNames = apps.autostart.map((e) => e.relTaskPath)
+  let taskNames = apps.autostart.map((e) => e.relTaskPath.split(path.sep).slice(-1))
 
   if (taskNames.length > 0) {
     console.log(`[ NodeJS ] autostart ${taskNames}`)

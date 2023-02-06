@@ -1,78 +1,66 @@
-const charEncodingTable = {
-    11: '0',
-    2: '1',
-    3: '2',
-    4: '3',
-    5: '4',
-    6: '5',
-    7: '6',
-    8: '7',
-    9: '8',
-    10: '9',
-    30: 'a',
-    48: 'b',
-    46: 'c',
-    32: 'd',
-    18: 'e',
-    33: 'f',
-    34: 'g',
-    35: 'h',
-    23: 'i',
-    36: 'j',
-    37: 'k',
-    38: 'l',
-    50: 'm',
-    49: 'n',
-    24: 'o',
-    25: 'p',
-    16: 'q',
-    19: 'r',
-    31: 's',
-    20: 't',
-    22: 'u',
-    47: 'v',
-    17: 'w',
-    45: 'x',
-    21: 'y',
-    44: 'z',
+
+import { UiohookKey } from "uiohook-napi"
+
+export const uioEventEnum = {
+    4: "keydown",
+    5: "keyup",
+    6: "click",
+    7: "mousedown",
+    8: "mouseup",
+    9: "mousemove",
+    11: "mousewheel"
 }
 
-export const postProcSeq = (eq) => {
-    
+export const getKeyByValue = (value) => {
+    return Object.keys(UiohookKey).find(key => UiohookKey[key] === value);
 }
 
-export const optimizeMacroSeq = (config, seq) => {
-    let keyNum = config['start'].split('+').length
-    if (config['track'].includes('delay')) {
-        keyNum *= 2
-        // Only when "delay" is not tracked, we can merge keydown/ups into a string
-        return seq.slice(keyNum, -1 * keyNum)
-    } else {
-        let optSeq = []
-        let r = keyNum
-        let inputSeq = ''
-        while (r < seq.length - keyNum - 1) {
-            if (seq[r].type === 'keydown'
-                && seq[r + 1].type === 'keyup' && seq[r + 1].key === seq[r].key) {
-                    if (seq[r].key in charEncodingTable) {
-                        inputSeq += charEncodingTable[seq[r].key]
-                        r += 2
-                    } else {
-                        optSeq.push(seq[r])
-                        r += 1
-                    }
+export const parseSequence = (seq) => {
+    let optSeq = []
+
+    let r = 0
+    let inputSeq = ''
+    while (r < seq.length - 1) {
+
+        if (uioEventEnum[seq[r].type] === 'keydown'
+            && uioEventEnum[seq[r + 1].type] === 'keyup' && seq[r + 1].keycode === seq[r].keycode) {
+
+            const parseKey = getKeyByValue(seq[r].keycode)
+            if (String(parseKey).length === 1) {
+                inputSeq += String(parseKey)
+                r += 2
             } else {
-                if (inputSeq !== '') {
-                    optSeq.push({ type: 'input', value: inputSeq })
-                    inputSeq = ''
-                }
-                optSeq.push(seq[r])
-                r++
+                optSeq.push({ type: uioEventEnum[seq[r].type], value: parseKey })
+                r += 1
             }
+
+        } else {
+            if (inputSeq !== '') {
+                optSeq.push({ type: 'input', value: inputSeq })
+                inputSeq = ''
+            }
+            
+            if (seq[r].type === "delay") {
+                optSeq.push({ type: "delay", value: seq[r].value })
+                r++
+                continue
+            }
+
+            const key = uioEventEnum[seq[r].type]
+            if (key === 'click' || key.startsWith('mouse')) {
+                let value = { x: seq[r].x, y: seq[r].y, button: seq[r].button, clicks: seq[r].clicks }
+                optSeq.push({ type: key, ...value })
+            
+            } else {
+                let value = getKeyByValue(seq[r].keycode)
+                optSeq.push({ type: key, value: value })
+            }
+            r++
         }
-        if (inputSeq !== '') {
-            optSeq.push({ type: 'input', value: inputSeq })
-        }
-        return optSeq
     }
+    if (inputSeq !== '') {
+        optSeq.push({ type: 'input', value: inputSeq })
+    }
+    console.log("@@@", optSeq)
+    return optSeq
 }

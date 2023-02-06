@@ -4,8 +4,8 @@ export const appConfig = new Store({
   defaults: {
     'mainWindowDimension': {
       isCollapsed: false,
-      width: 390,
-      height: 650
+      width: 590,
+      height: 300
     },
     'mainWindowPosition': {
       x: 0,

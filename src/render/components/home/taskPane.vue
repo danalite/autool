@@ -1,6 +1,5 @@
 <template>
-  <n-list :show-divider="false">
-    <n-scrollbar style="max-height: 430px">
+  <n-list :show-divider="false" style="margin:10px 15px 35px">
       <n-list-item
         v-for="(app, index) in apps"
         style="padding-top: 8px; padding-bottom: 1px"
@@ -190,7 +189,6 @@
           </n-space>
         </n-card>
       </n-list-item>
-    </n-scrollbar>
   </n-list>
 
   <!-- Model to do quick config on startTime and Hotkey -->
@@ -327,6 +325,7 @@ import {
   FileReport,
   WorldDownload,
   Keyboard,
+  Plus
 } from "@vicons/tabler";
 
 import { ipcRenderer, shell } from "electron";
@@ -370,6 +369,7 @@ export default {
     PlaylistAdd,
     FileSearch,
     Box,
+    Plus,
     Copy,
     Cloud,
     CloudDownload,
@@ -383,7 +383,7 @@ export default {
       type: Array,
     },
   },
-  emits: ["runTask", "refreshApps"],
+  emits: ["runTask", "refreshApps", "addNewTask"],
   setup(props, { emit }) {
     const message = useMessage();
 
@@ -438,19 +438,25 @@ export default {
         icon: renderIcon(Pencil, { color: "#2685c2" }),
       },
       {
-        label: "Delete",
-        key: "delete",
-        icon: renderIcon(Trash, { color: "#db2544" }),
+        label: "Update",
+        key: "update",
+        icon: renderIcon(CloudDownload, { color: "green" }),
+      },
+      {
+        label: "New task",
+        key: "new",
+        icon: renderIcon(Plus, { color: "green" }),
       },
       {
         type: "divider",
         key: "d1",
       },
       {
-        label: "Update",
-        key: "update",
-        icon: renderIcon(CloudDownload, { color: "green" }),
+        label: "Delete",
+        key: "delete",
+        icon: renderIcon(Trash, { color: "#db2544" }),
       },
+
     ];
 
     const handleAppAction = async (key, app) => {
@@ -461,8 +467,12 @@ export default {
         });
         emit("refreshApps", {});
         message.warning(`deleted app ${app.author}/${app.app}`);
+
       } else if (key === "edit") {
         shell.openExternal(`vscode://file/${app.path}`);
+
+      } else if (key === "new") {
+        emit("addNewTask", {appPath: app.path, appIcon: app.icon});
       }
     };
 
