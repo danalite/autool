@@ -60,6 +60,7 @@ const renderOptions = (optionNames) => {
 };
 
 const createSelectOptions = (command) => {
+  isInputAcquired = true;
   let count = command.timeout;
   const nRef = notification.create({
     title: command.title,
@@ -158,6 +159,7 @@ const createNotification = (command) => {
             h(
               NButton,
               {
+                secondary: true,
                 size: "small",
                 type: "info",
                 onClick: () => {
@@ -171,14 +173,15 @@ const createNotification = (command) => {
             h(
               NButton,
               {
+                secondary: true,
                 size: "small",
-                type: "error",
+                type: "success",
                 onClick: () => {
                   nRef.destroy();
                 },
               },
               {
-                default: () => h("span", { style: {} }, "Exit"),
+                default: () => h("span", { style: {} }, "Okay"),
               }
             ),
           ],
@@ -349,7 +352,8 @@ onMounted(() => {
   setTimeout(() => {
     createNotification({
       title: "AuTool started",
-      content: "Aren't you excited to learn more about computer architectures?",
+      content: "Aren't you excited?",
+      timeout: 20,
       source: "console.MsgPanel",
     });
     // createFileInput({

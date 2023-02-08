@@ -1,9 +1,7 @@
-import { app, ipcMain } from "electron";
+import { screen, ipcMain } from "electron";
 import { appConfig } from "@/utils/main/config";
 import { deleteApp, addTask, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
 import { registerUioEvent } from "@/utils/main/uioListener";
-
-var parser = require('cron-parser');
 
 async function runShellCommand(cmd) {
   const { exec } = require("child_process");
@@ -27,8 +25,7 @@ export const ipcListener = (mainWindow, assistWindow) => {
   })
 
   // Collapse main console to floating bar
-  ipcMain.on('main-win-resize', (event, dim) => {
-
+  ipcMain.on('main-win-collapse', (event, dim) => {
     // https://gist.github.com/my-lalex/f81352ad69fba206b84e59341fc469ed
     const startWidth = mainWindow.getBounds().width;
     const startHeight = mainWindow.getBounds().height;
@@ -58,12 +55,16 @@ export const ipcListener = (mainWindow, assistWindow) => {
     }
   })
 
-  ipcMain.on('main-win-minimize', () => {
-    mainWindow.hide()
-  })
+  ipcMain.on('assist-position-toggle', (event, onRight) => {
+    let pos = assistWindow.getBounds()
+    const currentScreen = screen.getPrimaryDisplay()['size']
 
-  ipcMain.on('main-win-min', () => {
-    mainWindow.minimize()
+    if (onRight && pos.x == 0) {
+      assistWindow.setBounds({ x: currentScreen.width - 380, y: 15, width: 380, height: currentScreen.height - 20 })
+
+    } else if (!onRight && pos.x > 0) {
+      assistWindow.setBounds({ x: 0, y: 15, width: 380, height: currentScreen.height - 20 })
+    }
   })
 
   // This handler updates our mouse event settings depending
@@ -94,43 +95,6 @@ export const ipcListener = (mainWindow, assistWindow) => {
     } else if (action === "app-delete") {
       let appPath = message.appPath
       deleteApp(appPath)
-
-    } else if (action === "task-cron-parse") {
-      let taskName = message.taskName
-      try {
-        let cron = message.startTime
-        // var options = {iterator: true, currentDate: new Date()};
-        var interval = parser.parseExpression(cron)
-
-        var count = 0
-        var nextDates = []
-        var hasNext = true
-        while (hasNext && count < 25) {
-          try {
-            var obj = interval.next();
-            const nextStamp = obj.getTime()
-            nextDates.push({ stamp: nextStamp, diff: nextStamp - Date.now() })
-            count++
-          } catch (e) {
-            hasNext = false
-            break;
-          }
-        }
-
-        // console.log("@@", nextDates)
-        mainWindow.webContents.send(message.callback, {
-          nextDates: nextDates,
-        })
-
-      } catch (e) {
-        assistWindow.webContents.send('assist-win-push', {
-          type: "push-notification",
-          title: "Cron parse error",
-          content: e.message,
-          timeout: 15,
-          source: taskName,
-        })
-      }
 
     } else if (action === "task-configs-update") {
       updateTaskYaml(message.taskPath, message.key, message.update)
@@ -164,4 +128,3 @@ export const ipcListener = (mainWindow, assistWindow) => {
     }
   })
 }
-1

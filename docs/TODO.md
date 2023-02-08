@@ -2,13 +2,23 @@
 - [ ] Update logging and debugging interface
 - [ ] Add and example to test event bus
 - [ ] Click app icon to show documents
-- [ ] Toggle the position of msg panel
 - [ ] Check legality of the task hotkey
 
 ## 2023-02
-- [ ] Removed the layout footer (status bar)
-- [ ] Update the new task scheduler panel
-- [ ] Add back modals for time schedule and hotkey
+- [x] Add empty state for task panel
+- [ ] NodeJS function to create new task or app
+- [ ] Refresh tasks cache in computed function
+- [x] Fix reloaded scheduled apps bug (countdown based on current time - start time ? positive)
+- [x] Toggle the position of msg panel
+- [x] Fix missing stamp in event timeline
+- [x] Prompt for accessibility access for darwin
+- [x] Show red tags for tasks stopped with errors (and error message)
+- [x] Prompt when closing main window
+- [x] Cache app options (collapsed, stopped scheduled and hotkeyed tasks)
+- [x] Add app options (edit, delete, upgrade)
+- [x] Removed the layout footer (status bar)
+- [x] Update the new task scheduler panel
+- [x] Add back modals for time schedule and hotkey
 - [x] Restart backend executor when wsConn failed too many times
 - [x] Adjust window layout (refer to slack and VSCode)
 - [x] Make main window resizable
@@ -16,7 +26,6 @@
 - [x] Fix background flushing when collapsing window
 - [x] Separate "add new apps" and "add new task"
 - [x] Update taskSch switch button 
-- [ ] Show red tags for tasks stopped with errors (and error message)
 - [x] Update the hotkey trigger section
 - [x] Clean up the search bar
 - [x] Add templates for new tasks in tutorials app

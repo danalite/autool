@@ -36,7 +36,7 @@
           ></AppLists>
 
           <TaskScheduler
-            v-if="activeMenuItem == 'scheduler'"
+            v-show="activeMenuItem == 'scheduler'"
             @runTask="runTask($event)"
             @stopTask="stopTask($event)"
             :tasksStatusTable="tasksStatusTable"
@@ -44,7 +44,7 @@
           ></TaskScheduler>
 
           <SettingsPage
-            v-if="activeMenuItem == 'settings'"
+            v-show="activeMenuItem == 'settings'"
           />
 
           <!-- <n-layout-footer
@@ -93,6 +93,8 @@ import { appConfig } from "@/utils/main/config";
 import { EventType } from "@/utils/render/eventTypes";
 import { ipcRenderer } from "electron";
 import { genUUID } from "@/utils/render/taskUtils";
+import { parseCron } from "@/utils/render/parseCron";
+
 import eventBus from "@/utils/render/eventBus";
 
 document.title = "AuTool";
@@ -167,14 +169,14 @@ const sendMessageToBackend = (message) => {
 
       ipcRenderer.send("restart-wss-server");
       setTimeout(() => {
+        setupWsConn();
         wsConn.send(JSON.stringify(message));
       }, 1000);
     } else {
       wsConn.send(JSON.stringify(message));
     }
   } catch (e) {
-    console.log(JSON.stringify(e), "Trying to reconnect to backend server...");
-    setupWsConn();
+    console.log(JSON.stringify(e), "Backend not responding...");
   }
 };
 
@@ -272,25 +274,13 @@ const runTask = async (task) => {
       source: "console.appMain",
       taskId: taskId,
     });
+
   } else if (task.startTime) {
-    // 2. Wait for timer counts down
-    let callback = "parse-cron-result";
 
-    ipcRenderer.once(callback, (event, message) => {
-      tasksStatus.status = "scheduled";
-      tasksStatus.nextDates = message.nextDates;
-      tasksStatusTable.value.push(tasksStatus);
-      // message.info(
-      //   `Task ${task.relTaskPath} is scheduled to start at ${task.startTime}`
-      // );
-    });
+    tasksStatus.status = "scheduled";
+    tasksStatus.nextDates = parseCron(task.startTime);
+    tasksStatusTable.value.push(tasksStatus);
 
-    ipcRenderer.invoke("to-console", {
-      action: "task-cron-parse",
-      startTime: task.startTime,
-      taskName: task.relTaskPath,
-      callback: callback,
-    });
   } else {
     tasksStatus.status = "running";
     tasksStatusTable.value.push(tasksStatus);
@@ -337,7 +327,7 @@ const stopTask = (task) => {
       value: {
         type: "cancelTask",
       },
-      time: new Date().toLocaleString(),
+      stamp: new Date().toLocaleString(),
     };
 
     taskEvents.value.push(newEvent);
@@ -369,7 +359,7 @@ ipcRenderer.on("uio-callback", (event, message) => {
         type: "resumeTask",
         return: message.return,
       },
-      time: new Date().toLocaleString(),
+      stamp: new Date().toLocaleString(),
     };
     taskEvents.value.push(newEvent);
     sendMessageToBackend(newEvent);
@@ -402,10 +392,6 @@ const menuOptions = [
     icon: renderIcon(Settings),
   },
 ];
-
-const addNewTask = (event) => {
-  console.log("@@@", event);
-};
 
 const refreshApps = async () => {
   await ipcRenderer.invoke("to-console", { action: "app-reload" });

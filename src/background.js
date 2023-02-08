@@ -1,5 +1,7 @@
 import {
   app,
+  dialog,
+  systemPreferences,
   BrowserWindow,
   ipcMain,
 } from 'electron'
@@ -102,6 +104,10 @@ const init = async () => {
   //     assistWindow.hide()
   //   }
   // })
+  if (process.platform === "darwin") {
+    let enabled = systemPreferences.isTrustedAccessibilityClient(true)
+    console.log("[ NodeJS ] OSX accessibility status: ", enabled)
+  }
 
   uioStartup(assistWindow)
   makeTray(iconPath, mainWindow, assistWindow)
@@ -129,8 +135,8 @@ app.whenReady().then(async () => {
   })
 
   mainWindow.on('resize', function () {
-    var size   = mainWindow.getSize();
-    var width  = size[0];
+    var size = mainWindow.getSize();
+    var width = size[0];
     var height = size[1];
 
     // let isCollapsed = dim.height < 100
@@ -138,11 +144,27 @@ app.whenReady().then(async () => {
     //   width: dim.width, height: dim.height, isCollapsed: isCollapsed
     // })
     // appConfig.set('mainWindowPosition', { x: dim.x, y: dim.y })
-});
+  });
 
-  mainWindow.on('closed', () => {
-    uioStop()
-    app.quit()
+  mainWindow.on('close', (e) => {
+   var choice = dialog.showMessageBoxSync(
+      mainWindow,
+      {
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Confirm',
+        message: 'Are you sure you want to quit?'
+      });
+
+    e.preventDefault();
+    if (choice == 0) {
+      console.log("[ NodeJS ] backing up waiting tasks...")
+      mainWindow.webContents.send('scheduler-close')
+      ipcMain.once('scheduler-closed', (event, arg) => {
+        uioStop()
+        app.quit()
+      })
+    }
   })
 
   app.on("window-all-closed", () => {
@@ -208,10 +230,10 @@ const appSetup = async () => {
   appConfig.set('apps', apps.apps)
 
   // Gather and confirm whether to autostart tasks
-  let taskNames = apps.autostart.map((e) => e.relTaskPath.split(path.sep).slice(-1))
+  let taskNames = apps.autostart.map((e) => e.relTaskPath.split(path.sep).slice(-1)[0])
 
   if (taskNames.length > 0) {
-    console.log(`[ NodeJS ] autostart ${taskNames}`)
+    // console.log(`[ NodeJS ] autostart ${taskNames}`)
     setTimeout(async () => {
       // Once approved, options are forwarded to main window & backend
       assistWindow.webContents.send('assist-win-push', {
@@ -227,6 +249,7 @@ const appSetup = async () => {
       ipcMain.once("auto-start-approve", (event, message) => {
         let tasks = JSON.parse(message)
         let approvedTasks = apps.autostart.filter(t => tasks.includes(t.relTaskPath))
+        // console.log("[NodeJS] autostart ", approvedTasks)
         mainWindow.webContents.send('to-main-win',
           { action: "run-task", tasks: approvedTasks })
       })

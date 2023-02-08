@@ -12,6 +12,14 @@
         :native-scrollbar="false"
         style="background-color: #f5f5f5"
       >
+        <n-space justify="end">
+          <n-button quaternary size="small" @click="showAddAppModal = true">
+            <template #icon>
+              <n-icon size="18"><Plus /></n-icon>
+            </template>
+          </n-button>
+        </n-space>
+
         <n-list>
           <n-list-item
             v-for="(app, index) in props.apps"
@@ -39,6 +47,8 @@
                 :style="{
                   marginLeft: '12px',
                   padding: '0px',
+                  width: '130px',
+                  maxWidth: '130px',
                 }"
               >
                 <n-space justify="space-between">
@@ -51,12 +61,23 @@
                   {{ app.author }}
                 </n-space>
               </n-space>
+
+              <n-dropdown
+                v-if="activeAppIndex === index"
+                trigger="hover"
+                :options="appOptions"
+                @select="handleAppAction($event, app)"
+              >
+                <n-icon size="25" depth="3">
+                  <PlaylistAdd />
+                </n-icon>
+              </n-dropdown>
             </div>
           </n-list-item>
         </n-list>
       </n-layout-sider>
 
-      <n-layout content-style="padding: 5px 8px 5px;">
+      <n-layout content-style="padding: 8px 8px 5px;">
         <div>
           <n-list
             style="padding-top: 2px; padding-bottom: 0px"
@@ -187,14 +208,6 @@
             style="padding-top: 10px"
             justify="center"
           >
-            <n-button @click="showAddTaskModal = true">
-              <template #icon>
-                <n-icon>
-                  <Plus />
-                </n-icon>
-              </template>
-              New Task
-            </n-button>
           </n-space>
         </div>
       </n-layout>
@@ -262,12 +275,16 @@
             Clear
           </n-button>
         </n-input-group>
-
       </n-space>
     </n-space>
     <template #action>
       <n-space style="margin: 0px">
-        <n-button text type="info" size="tiny" v-if="quickSetupTarget == 'startTime'">
+        <n-button
+          text
+          type="info"
+          size="tiny"
+          v-if="quickSetupTarget == 'startTime'"
+        >
           <template #icon>
             <n-icon>
               <Alarm />
@@ -276,14 +293,18 @@
           More cron samples
         </n-button>
         <n-button size="small" @click="showSetupModal = false">Cancel</n-button>
-        <n-button size="small" type="primary" @click="saveSetupsToFile"> Save </n-button>
+        <n-button size="small" type="primary" @click="saveSetupsToFile">
+          Save
+        </n-button>
       </n-space>
     </template>
   </n-modal>
 
   <n-modal v-model:show="showAddTaskModal" preset="dialog">
     <template #header>
-      <div style="padding-left: 10px">New task to app</div>
+      <div style="padding-left: 10px">
+        New task to "{{ props.apps[activeAppIndex].app }}"
+      </div>
     </template>
     <div>
       <n-space vertical style="padding-left: 5px">
@@ -292,16 +313,14 @@
             style="width: 250px; padding-bottom: 10px"
             size="small"
           >
-            <n-button
-              size="small"
-              type="info"
-              secondary
-              style="padding: 10px 5px 10px"
+            <n-button size="small" secondary style="padding: 10px 5px 10px"
               >Name
             </n-button>
-            <n-input 
+            <n-input
               v-model:value="newTaskName"
-            size="small" placeholder="E.g., new-task-name" />
+              size="small"
+              placeholder="E.g., new-task-name"
+            />
           </n-input-group>
         </n-space>
       </n-space>
@@ -391,6 +410,35 @@
       </n-space>
     </template>
   </n-modal>
+
+  <n-modal v-model:show="showAddAppModal" preset="dialog">
+    <template #header>
+      <div style="padding-left: 10px">New app</div>
+    </template>
+    <div>
+      <n-input-group>
+        <n-button size="small" secondary style="padding: 10px 5px 10px">
+          App Name
+        </n-button>
+        <n-input
+          v-model:value="newAppName"
+          size="small"
+          style="width: 260px"
+          placeholder="E.g., new-app-name"
+        />
+      </n-input-group>
+    </div>
+    <template #action>
+      <n-space style="margin: 0px">
+        <n-button size="small" @click="showAddAppModal = false"
+          >Cancel</n-button
+        >
+        <n-button size="small" type="primary" @click="addNewApp">
+          Add
+        </n-button>
+      </n-space>
+    </template>
+  </n-modal>
 </template>
 
 <script setup>
@@ -438,6 +486,7 @@ import {
   FileReport,
   Search,
   Box,
+  PlaylistAdd,
 } from "@vicons/tabler";
 
 import { ipcRenderer, shell } from "electron";
@@ -479,6 +528,12 @@ const displayTasks = computed(() => {
   return props.apps[activeAppIndex.value].tasks;
 });
 
+onMounted(() => {
+  setTimeout(() => {
+    emits("refreshApps", {});
+  }, 1200);
+});
+
 const activateApp = (index) => {
   activeAppIndex.value = index;
   emits("refreshApps", {});
@@ -494,6 +549,48 @@ const renderIcon = (icon, attrs) => {
       default: () => h(icon),
     });
   };
+};
+
+const appOptions = [
+  {
+    label: "Edit",
+    key: "edit",
+    icon: renderIcon(Pencil, { color: "#2685c2" }),
+  },
+  {
+    label: "New task",
+    key: "new",
+    icon: renderIcon(Plus, { color: "#2685c2" }),
+  },
+  {
+    label: "Update",
+    key: "update",
+    icon: renderIcon(CloudDownload, { color: "green" }),
+  },
+  {
+    type: "divider",
+    key: "d1",
+  },
+  {
+    label: "Delete",
+    key: "delete",
+    icon: renderIcon(Trash, { color: "#db2544" }),
+  },
+];
+
+const handleAppAction = async (key, app) => {
+  if (key === "delete") {
+    await ipcRenderer.invoke("to-console", {
+      action: "app-delete",
+      appPath: app.path,
+    });
+    emits("refreshApps", {});
+    message.warning(`deleted app ${app.author}/${app.app}`);
+  } else if (key === "edit") {
+    shell.openExternal(`vscode://file/${app.path}`);
+  } else if (key == "new") {
+    showAddTaskModal.value = true;
+  }
 };
 
 const taskItemOptions = [
@@ -608,15 +705,19 @@ const macroRecordOptions = ref(["mouse-keys"]);
 const newTaskName = ref("");
 
 const addNewTask = async () => {
-  if (newTaskName.value === "" || newTaskName.value.includes("/") || newTaskName.value.includes("\\") || newTaskName.value.includes(".")) {
-    message.error("Invalid task name");
+  if (
+    newTaskName.value === "" ||
+    newTaskName.value.includes("/") ||
+    newTaskName.value.includes("\\") ||
+    newTaskName.value.includes(".")
+  ) {
+    message.error(`Invalid task name \"${newTaskName.value}\"`);
     return;
   }
 
   // TODO: save template to disk and open
   // TODO: start macro recording
   if (addTaskType.value === "template") {
-
   } else if (addTaskType.value === "macro-record") {
     await ipcRenderer.invoke("to-console", {
       action: "uio-event",
@@ -633,7 +734,17 @@ const addNewTask = async () => {
     showAddTaskModal.value = false;
     emits("refreshApps", {});
   }, 200);
+};
 
+// Add new app
+const showAddAppModal = ref(false);
+const newAppName = ref("");
+const addNewApp = () => {
+  showAddAppModal.value = false;
+};
+
+const getImageUrl = () => {
+  return require(`../../assets/icon/app-icon.png`);
 };
 </script>
 

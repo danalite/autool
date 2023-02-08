@@ -1,9 +1,12 @@
 import { BrowserWindow, screen } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { appConfig } from "../utils/main/config";
 
 export const createAssistWindow = async (userHeader) => {
   const currentScreen = screen.getPrimaryDisplay()['size']
-  const assistWindowPosition = { x: currentScreen.width - 380, y: 15 }
+
+  const notificationPanelOnRight = appConfig.get('notificationPanelOnRight')
+  const assistWindowPosition = notificationPanelOnRight ? { x: currentScreen.width - 380, y: 15 } : { x: 0, y: 15}
 
   const assistWin = new BrowserWindow({
     title: 'toolAssist',

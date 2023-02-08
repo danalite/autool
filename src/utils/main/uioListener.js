@@ -189,7 +189,7 @@ const keyWaitUpdateMAT = (event) => {
     // From a specific task source
     source: event.source,
     rule: (e) => {
-      // console.log(getKeyByValue(e.keycode), event.options, e.keycode)
+      console.log(getKeyByValue(e.keycode), event.options, e.keycode)
       return event.options.includes(getKeyByValue(e.keycode))
     },
     action: (e) => {

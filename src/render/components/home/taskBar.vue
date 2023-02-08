@@ -137,18 +137,6 @@ const handleDrag = (pos) => {
   });
 };
 
-const handleMinimize = () => {
-  ipcRenderer.send("main-win-minimize");
-};
-
-const handleMin = () => {
-  ipcRenderer.send("main-win-min");
-};
-
-const handleClose = () => {
-  ipcRenderer.send("main-win-close");
-};
-
 const handleCollapse = () => {
   let isCollapsed = appConfig.get("mainWindowDimension.isCollapsed");
 
@@ -163,7 +151,7 @@ const handleCollapse = () => {
     store.pageReset(1);
     document.getElementsByTagName("html")[0].className = "container";
   }
-  ipcRenderer.send("main-win-resize", newDim);
+  ipcRenderer.send("main-win-collapse", newDim);
   appConfig.set("mainWindowDimension", newDim);
 };
 

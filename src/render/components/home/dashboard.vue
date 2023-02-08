@@ -1,15 +1,19 @@
 <template>
-  <n-space v-mouse-drag="handleDrag" class="headerTitle" justify="center">
+  <n-space
+    v-mouse-drag="handleDrag"
+    class="headerTitle"
+    justify="center"
+  >
     <n-space class="headerTitle">
       <img
         src="../../assets/icon/logo.png"
         draggable="false"
         alt=""
-        width="32"
+        width="28"
         style="padding-top: 3px"
         @click="handleCollapse"
       />
-        <n-text>AuTool</n-text>
+      <n-text>AuTool</n-text>
       <!-- <n-tag
         :bordered="false"
         round
@@ -19,8 +23,6 @@
       >
         {{ serverLatency > 0 ? serverLatency + "ms" : "down" }}
       </n-tag> -->
-
-
     </n-space>
   </n-space>
 </template>
@@ -97,17 +99,6 @@ const handleDrag = (pos) => {
   });
 };
 
-const handleMinimize = () => {
-  ipcRenderer.send("main-win-minimize");
-};
-
-const handleMin = () => {
-  ipcRenderer.send("main-win-min");
-};
-
-const handleClose = () => {
-  ipcRenderer.send("main-win-close");
-};
 
 const handleCollapse = () => {
   let isCollapsed = appConfig.get("mainWindowDimension.isCollapsed");
@@ -122,7 +113,7 @@ const handleCollapse = () => {
   } else {
     store.pageReset(1);
   }
-  ipcRenderer.send("main-win-resize", newDim);
+  ipcRenderer.send("main-win-collapse", newDim);
   appConfig.set("mainWindowDimension", newDim);
 };
 
@@ -151,6 +142,7 @@ header {
 }
 
 .headerTitle {
+  padding-top: 2px;
   align-items: center;
 }
 

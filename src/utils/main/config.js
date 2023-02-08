@@ -11,6 +11,11 @@ export const appConfig = new Store({
       x: 0,
       y: 0
     },
+    'hotkeyTasksCache': [],
+    'stoppedTasksCache': [],
+    'scheduledTasksCache': [],
+    'eventsCache': [],
+    'notificationPanelOnRight': true,
     'autoPickChampion': {
       championId: "157",
       isAuto: false
@@ -28,6 +33,8 @@ export const appConfig = new Store({
       'plan': '',
       'renew': ''
     },
+    'isTaskSchMenuCollapsed': true,
+    'isSettingsMenuCollapsed': true,
     'autoAccept': 50,
     'topHorse': '#7BD9A5',
     'midHorse': '#F9C97D',

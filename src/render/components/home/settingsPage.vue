@@ -13,8 +13,8 @@
         :width="160"
         :collapsed="collapsed"
         show-trigger
-        @collapse="collapsed = true"
-        @expand="collapsed = false"
+        @collapse="onMenuCollapse"
+        @expand="onMenuCollapse"
         :native-scrollbar="false"
         style="background-color: #f5f5f5"
       >
@@ -55,6 +55,28 @@
               </n-icon>
             </n-button>
           </n-input-group>
+
+          <n-button @click="toReset"> Reset </n-button>
+        </n-space>
+
+        <n-space v-if="subTab == 'styles'" vertical>
+          <n-space justify="space-between">
+            <n-button secondary :bordered="false" size="small">
+              Notification position
+            </n-button>
+            <n-switch
+              size="medium"
+              :round="false"
+              :rubber-band="false"
+              :value="notificationPanelOnRight"
+              :loading="false"
+              @update:value="toggleNotificationPanelPosition($event)"
+              style="margin-left: 3px; margin-top: 5px"
+            >
+              <template #checked> Right </template>
+              <template #unchecked> Left </template>
+            </n-switch>
+          </n-space>
         </n-space>
 
         <n-space v-if="subTab == 'servers'">
@@ -156,7 +178,6 @@
               </n-icon>
             </n-button>
           </n-input-group>
-
         </n-space>
       </n-layout>
     </n-layout>
@@ -214,10 +235,11 @@ import {
   Box,
   Run,
   Alarm,
-  PlayerPlay,
+  UserCircle,
   PlayerStop,
   Refresh,
   Check,
+  PictureInPictureOff,
 } from "@vicons/tabler";
 
 import { ipcRenderer, shell } from "electron";
@@ -228,8 +250,12 @@ const message = useMessage();
 const license = ref(appConfig.get("license"));
 const remoteServer = reactive(appConfig.get("remoteServer"));
 
-const collapsed = ref(false);
+const collapsed = ref(appConfig.get("isSettingsMenuCollapsed"));
 const subTab = ref("accounts");
+const onMenuCollapse = () => {
+  collapsed.value = !collapsed.value;
+  appConfig.set("isSettingsMenuCollapsed", collapsed.value);
+};
 
 function renderIcon(icon) {
   return () => h(NIcon, { depth: 4 }, { default: () => h(icon) });
@@ -239,7 +265,12 @@ const menuOptions = [
   {
     label: "Accounts",
     key: "accounts",
-    icon: renderIcon(PlayerPlay),
+    icon: renderIcon(UserCircle),
+  },
+  {
+    label: "Styles",
+    key: "styles",
+    icon: renderIcon(PictureInPictureOff),
   },
   {
     label: "Servers",
@@ -290,9 +321,23 @@ const testServer = (switchOn, target) => {
     message.warning(`${target} server turned off`);
   }
 };
+
+const toReset = () => {
+  appConfig.reset();
+  message.success("Settings reset to default");
+};
+
+const notificationPanelOnRight = ref(appConfig.get("notificationPanelOnRight"));
+
+const toggleNotificationPanelPosition = (value) => {
+  // console.log("onNotificationPanelOnRightChange", value);
+  appConfig.set("notificationPanelOnRight", value);
+  ipcRenderer.send("assist-position-toggle", value);
+  notificationPanelOnRight.value = value;
+};
 </script>
     
-  <style scoped>
+<style scoped>
 .active {
   background-color: #e3f5f1 !important;
   /* color: #f5f5f5; */

@@ -14,6 +14,7 @@ export const createMainWindow = async (userHeader) => {
 
     frame: true,
     resizable: true,
+    closable: true,
     minWidth: 590,
     minHeight: 40,
 
