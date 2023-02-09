@@ -416,17 +416,79 @@
       <div style="padding-left: 10px">New app</div>
     </template>
     <div>
-      <n-input-group>
-        <n-button size="small" secondary style="padding: 10px 5px 10px">
-          App Name
-        </n-button>
-        <n-input
-          v-model:value="newAppName"
-          size="small"
-          style="width: 260px"
-          placeholder="E.g., new-app-name"
-        />
-      </n-input-group>
+      <n-space justify="center" style="padding-bottom: 10px">
+        <n-radio
+          :checked="addAppType === 'download'"
+          value="download"
+          @change="addAppType = 'download'"
+        >
+          Download
+        </n-radio>
+        <n-radio
+          :checked="addAppType === 'empty'"
+          value="empty"
+          @change="addAppType = 'empty'"
+        >
+          Blank app
+        </n-radio>
+      </n-space>
+      <n-space v-if="addAppType === 'empty'">
+        <n-space>
+          <n-input-group>
+            <n-button size="small" secondary style="padding: 10px 5px 10px">
+              App Name
+            </n-button>
+            <n-input
+              v-model:value="newAppName"
+              size="small"
+              style="width: 200px"
+              placeholder="E.g., new-app-name"
+            />
+          </n-input-group>
+          <n-input-group>
+            <n-button size="small" secondary style="padding: 10px 5px 10px">
+              App icon
+            </n-button>
+            <n-input
+              v-model:value="newAppIcon"
+              size="small"
+              style="width: 200px"
+              placeholder=""
+            />
+          </n-input-group>
+          <n-space>
+            <n-avatar
+              :bordered="false"
+              :size="28"
+              :src="newAppIcon"
+              fallback-src="https://pngimg.com/d/apple_logo_PNG19689.png"
+              style="display: block; background-color: #ffffff"
+            />
+          </n-space>
+        </n-space>
+      </n-space>
+
+      <n-space v-else>
+        <n-space vertical justify="center">
+          <n-input
+            style="width: 400px"
+            size="small"
+            v-model:value="githubFolderLink"
+            placeholder="E.g. https://github.com/danalites/apps/tree/master/macos"
+          />
+
+          <n-space justify="center">
+            <n-button text type="info" size="tiny">
+              <template #icon>
+                <n-icon>
+                  <Search />
+                </n-icon>
+              </template>
+              more FREE apps in store!
+            </n-button>
+          </n-space>
+        </n-space>
+      </n-space>
     </div>
     <template #action>
       <n-space style="margin: 0px">
@@ -704,6 +766,7 @@ const showAddTaskModal = ref(false);
 const macroRecordOptions = ref(["mouse-keys"]);
 const newTaskName = ref("");
 
+const addAppType = ref("download");
 const addNewTask = async () => {
   if (
     newTaskName.value === "" ||
@@ -736,10 +799,59 @@ const addNewTask = async () => {
   }, 200);
 };
 
+const downloadAppFromGithub = (link) => {
+  if (wsConn === null || wsConn.readyState !== WebSocket.OPEN) {
+    message.warning("Backend disconnected. Failed downloading...");
+    return;
+  }
+  try {
+    wsConn.send(
+      JSON.stringify({
+        event: "I_EVENT_WSS_REQUEST",
+        action: "download",
+        url: link,
+      })
+    );
+  } catch (e) {
+    console.log(e);
+    message.warning(`Failed downloading ${link}...`);
+  }
+  showModalRef.value = false;
+};
+
 // Add new app
+const githubFolderLink = ref("");
 const showAddAppModal = ref(false);
 const newAppName = ref("");
+const newAppIcon = ref("");
+
 const addNewApp = () => {
+  if (
+    newAppName.value === "" ||
+    newAppName.value.includes("/") ||
+    newAppName.value.includes("\\") ||
+    newAppName.value.includes(".")
+  ) {
+    message.error(`Invalid app name \"${newAppName.value}\"`);
+    return;
+  }
+
+  if (addAppType.value === "download") {
+    if (
+      githubFolderLink.value === "" ||
+      !githubFolderLink.value.startsWith("http")
+    ) {
+      message.warning("Please enter a valid link");
+      return;
+    }
+    downloadAppFromGithub(githubFolderLink.value);
+  } else {
+    ipcRenderer.invoke("to-console", {
+      action: "create-app",
+      name: newAppName.value,
+      icon: newAppIcon.value,
+    });
+  }
   showAddAppModal.value = false;
 };
 

@@ -16,14 +16,6 @@ export const appConfig = new Store({
     'scheduledTasksCache': [],
     'eventsCache': [],
     'notificationPanelOnRight': true,
-    'autoPickChampion': {
-      championId: "157",
-      isAuto: false
-    },
-    'autoBanChampion': {
-      championId: "101",
-      isAuto: false
-    },
     'autoRune': {},
     'credentials': { 'port': '' },
     'appHome': '',

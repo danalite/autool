@@ -35,13 +35,13 @@
             @refreshApps="refreshApps"
           ></AppLists>
 
-          <TaskScheduler
+          <TaskSch
             v-show="activeMenuItem == 'scheduler'"
             @runTask="runTask($event)"
             @stopTask="stopTask($event)"
             :tasksStatusTable="tasksStatusTable"
             :taskEvents="taskEvents"
-          ></TaskScheduler>
+          ></TaskSch>
 
           <SettingsPage
             v-show="activeMenuItem == 'settings'"
@@ -65,7 +65,7 @@ import SettingsPage from "./settingsPage.vue";
 
 import TaskBar from "./taskBar.vue";
 import AppLists from "./appLists.vue";
-import TaskScheduler from "./taskScheduler.vue";
+import TaskSch from "./taskSch.vue";
 
 import {
   NLayout,

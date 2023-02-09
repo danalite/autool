@@ -24,11 +24,11 @@ export const createMainWindow = async (userHeader) => {
       symbolColor: '#74b1be',
       height: 30
     },
-    
+
     x: pos.x,
     y: pos.y,
     width: dim.width,
-    height: dim.height,
+    height: dim.isCollapsed ? 40 : dim.height,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -40,6 +40,8 @@ export const createMainWindow = async (userHeader) => {
 
   if (dim.isCollapsed) {
     win.setAlwaysOnTop(true, 'floating', 1)
+    win.setWindowButtonVisibility(false)
+    win.setResizable(false)
   }
 
   win.webContents.openDevTools()

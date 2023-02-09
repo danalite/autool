@@ -139,7 +139,7 @@ const isConsecutiveKeys = (targetKey) => {
   let newKeys = [...keyStrokesWindow].reverse().slice(0, 4)
   const interval = (newKeys[0].time - newKeys[3].time) / 10e8
 
-  // console.log("@@", newKeys.map((k) => k.keycode), interval)
+  console.log("@@", newKeys.map((k) => k.keycode), interval)
   return uioEventEnum[newKeys[0].type] == "keyup" && newKeys.reduce((a, c) => a && (c.keycode == targetKey), true) && (interval < 0.5)
 }
 
@@ -221,10 +221,10 @@ const macroRecordUpdateMAT = (options) => {
       if (isMacroRecording) {
         if (isTrackingTime) {
           let delta = e.time - lastActionTimeStamp
-          if (delta > 0.1 * 1e8) {
+          if (delta > 0.02 * 1e9) {
             macroRecordedSequence.push({
               type: "delay",
-              value: delta / 1e8
+              value: delta / 1e9
             })
           }
           lastActionTimeStamp = e.time
@@ -330,6 +330,7 @@ export const registerUioEvent = (assistWindow, event) => {
         action: (e) => {
           console.log("@@", "stop recording macro")
           isMacroRecording = false
+          assistWindow.restore()
 
           assistWindow.webContents.send('assist-win-push', {
             type: "push-notification",

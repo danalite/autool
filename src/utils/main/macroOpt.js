@@ -61,6 +61,6 @@ export const parseSequence = (seq) => {
     if (inputSeq !== '') {
         optSeq.push({ type: 'input', value: inputSeq })
     }
-    console.log("@@@", optSeq)
+    // console.log("@@@", optSeq)
     return optSeq
 }

@@ -38,8 +38,6 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
       {
         label: "Exit",
         click() {
-          let dim = mainWindow.getBounds();
-          appConfig.set('mainWindowPosition', { x: dim.x, y: dim.y })
           app.quit();
         }
       },

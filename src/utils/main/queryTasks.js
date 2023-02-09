@@ -1,5 +1,4 @@
 const fs = require('fs');
-// const fs = require('fs').promises;
 
 const path = require('path');
 const yaml = require('js-yaml');
@@ -15,8 +14,24 @@ async function readFile(path) {
   });
 }
 
-export const addTask = (appPath, taskPath, taskName) => {
+export const addTask = (appPath, taskName, doc) => {
+  let appJsonPath = path.join(appPath, "tasks.json")
+  let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
+  let newTasks = appJson.tasks.push(taskName)
+  appJson.tasks = newTasks
+
+  fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
+    if (err) {
+      console.error(err);
+    }
+  });
   
+  let newTaskPath = path.join(appPath, taskName)
+  fs.writeFile(newTaskPath, yaml.dump(doc), (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
 }
 
 export const deleteTask = (appPath, taskPath, taskName) => {

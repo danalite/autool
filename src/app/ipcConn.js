@@ -21,7 +21,8 @@ async function runShellCommand(cmd) {
 export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.on('move-main', (event, pos) => {
     let dim = appConfig.get('mainWindowDimension')
-    mainWindow.setBounds({ x: pos.x, y: pos.y, width: dim.width, height: dim.height })
+    let bounds = dim.isCollapsed ? { width: 590, height: 40 } : { width: dim.width, height: dim.height }
+    mainWindow.setBounds({ x: pos.x, y: pos.y, ...bounds })
   })
 
   // Collapse main console to floating bar
@@ -49,9 +50,11 @@ export const ipcListener = (mainWindow, assistWindow) => {
     if (targetHeight < 100) {
       mainWindow.setAlwaysOnTop(true, 'floating', 1)
       mainWindow.setWindowButtonVisibility(false)
+      mainWindow.setResizable(false)
     } else {
       mainWindow.setAlwaysOnTop(false)
       mainWindow.setWindowButtonVisibility(true)
+      mainWindow.setResizable(true)
     }
   })
 
@@ -102,7 +105,6 @@ export const ipcListener = (mainWindow, assistWindow) => {
     } else if (action === "task-delete") {
       deleteTask(message.taskPath, message.taskPath, message.taskName)
 
-
     } else if (action === "shell") {
       runShellCommand(message.cmd)
 
@@ -118,7 +120,9 @@ export const ipcListener = (mainWindow, assistWindow) => {
         callback: (ret) => {
           if (message.type == "macroRecord") {
             // Save the image to disk
-            addTask()
+            // console.log(ret, message)
+            addTask(message.appPath, message.taskName, ret)
+
           } else {
             mainWindow.webContents.send("uio-callback", ret)
           }

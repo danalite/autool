@@ -5,16 +5,19 @@
 - [ ] Check legality of the task hotkey
 
 ## 2023-02
+- [ ] Clear button to remove scheduled or hotkey dummy task
+- [x] Window resized event to cache the window size and position 
+- [ ] Update function to clear scheduled and hotkey tasks
 - [x] Add empty state for task panel
 - [ ] NodeJS function to create new task or app
-- [ ] Refresh tasks cache in computed function
+- [x] Refresh tasks cache in computed function
 - [x] Fix reloaded scheduled apps bug (countdown based on current time - start time ? positive)
 - [x] Toggle the position of msg panel
 - [x] Fix missing stamp in event timeline
 - [x] Prompt for accessibility access for darwin
 - [x] Show red tags for tasks stopped with errors (and error message)
 - [x] Prompt when closing main window
-- [x] Cache app options (collapsed, stopped scheduled and hotkeyed tasks)
+- [x] Cache app options (collapsed, stopped scheduled and hotkey tasks)
 - [x] Add app options (edit, delete, upgrade)
 - [x] Removed the layout footer (status bar)
 - [x] Update the new task scheduler panel

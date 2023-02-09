@@ -1,9 +1,5 @@
 <template>
-  <n-space
-    v-mouse-drag="handleDrag"
-    class="headerTitle"
-    justify="center"
-  >
+  <n-space v-mouse-drag="handleDrag" class="headerTitle" justify="center">
     <n-space class="headerTitle">
       <img
         src="../../assets/icon/logo.png"
@@ -88,10 +84,6 @@ function testLatency() {
     });
 }
 
-const toSettingPage = () => {
-  store.pageIncrease();
-};
-
 const handleDrag = (pos) => {
   ipcRenderer.send("move-main", {
     x: pos.x,
@@ -99,22 +91,10 @@ const handleDrag = (pos) => {
   });
 };
 
-
 const handleCollapse = () => {
-  let isCollapsed = appConfig.get("mainWindowDimension.isCollapsed");
-
-  let newDim = isCollapsed
-    ? { width: 590, height: 300 }
-    : { width: 590, height: 40 };
-  newDim.isCollapsed = !isCollapsed;
-
-  if (newDim.isCollapsed) {
-    store.pageReset(0);
-  } else {
-    store.pageReset(1);
-  }
-  ipcRenderer.send("main-win-collapse", newDim);
-  appConfig.set("mainWindowDimension", newDim);
+  store.pageReset(0);
+  ipcRenderer.send("main-win-collapse", { width: 590, height: 40 });
+  appConfig.set("mainWindowDimension.isCollapsed", true);
 };
 
 onMounted(() => {

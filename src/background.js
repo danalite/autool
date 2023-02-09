@@ -134,20 +134,23 @@ app.whenReady().then(async () => {
     }
   })
 
-  mainWindow.on('resize', function () {
+  mainWindow.on('moved', () => {
+    var size = mainWindow.getBounds();
+    appConfig.set('mainWindowPosition.x', size.x)
+    appConfig.set('mainWindowPosition.y', size.y)
+  })
+
+  mainWindow.on('resized', function (e) {
     var size = mainWindow.getSize();
     var width = size[0];
     var height = size[1];
 
-    // let isCollapsed = dim.height < 100
-    // appConfig.set('mainWindowDimension', {
-    //   width: dim.width, height: dim.height, isCollapsed: isCollapsed
-    // })
-    // appConfig.set('mainWindowPosition', { x: dim.x, y: dim.y })
+    appConfig.set('mainWindowDimension.width', width)
+    appConfig.set('mainWindowDimension.height', height)
   });
 
   mainWindow.on('close', (e) => {
-   var choice = dialog.showMessageBoxSync(
+    var choice = dialog.showMessageBoxSync(
       mainWindow,
       {
         type: 'question',
@@ -158,12 +161,8 @@ app.whenReady().then(async () => {
 
     e.preventDefault();
     if (choice == 0) {
-      console.log("[ NodeJS ] backing up waiting tasks...")
-      mainWindow.webContents.send('scheduler-close')
-      ipcMain.once('scheduler-closed', (event, arg) => {
-        uioStop()
-        app.quit()
-      })
+      uioStop()
+      app.quit()
     }
   })
 
@@ -249,9 +248,11 @@ const appSetup = async () => {
       ipcMain.once("auto-start-approve", (event, message) => {
         let tasks = JSON.parse(message)
         let approvedTasks = apps.autostart.filter(t => tasks.includes(t.relTaskPath))
-        // console.log("[NodeJS] autostart ", approvedTasks)
-        mainWindow.webContents.send('to-main-win',
-          { action: "run-task", tasks: approvedTasks })
+
+        if (mainWindow) {
+          mainWindow.webContents.send('to-main-win',
+            { action: "run-task", tasks: approvedTasks })
+        }
       })
     }, 2000)
   }

@@ -4,9 +4,9 @@
       <img
         src="../../assets/icon/logo.png"
         draggable="false"
-        width="32"
+        width="28"
         style="padding-top: 2px"
-        @click="handleCollapse"
+        @click="handleExpand"
       /> 
       <n-space style="padding-left:5px; padding-bottom: 2px; width: 100%" :size="[4,2]" class="banner">
         <n-button secondary size="tiny" color="black" @click="decreasePage">
@@ -137,22 +137,22 @@ const handleDrag = (pos) => {
   });
 };
 
-const handleCollapse = () => {
-  let isCollapsed = appConfig.get("mainWindowDimension.isCollapsed");
+// Restore to original window size
+const handleExpand = () => {
+  let dim = appConfig.get("mainWindowDimension");
 
-  let newDim = isCollapsed
-    ? { width: 590, height: 300 }
-    : { width: 590, height:40 };
-  newDim.isCollapsed = !isCollapsed;
+  // let newDim = dim.isCollapsed
+  //   ? { width: dim.width, height: dim.height }
+  //   : { width: 590, height:40 };
+  // newDim.isCollapsed = !dim.isCollapsed;
 
-  if (newDim.isCollapsed) {
-    store.pageReset(0);
-  } else {
-    store.pageReset(1);
-    document.getElementsByTagName("html")[0].className = "container";
-  }
-  ipcRenderer.send("main-win-collapse", newDim);
-  appConfig.set("mainWindowDimension", newDim);
+  store.pageReset(1);
+  //   store.pageReset(1);
+  //   document.getElementsByTagName("html")[0].className = "container";
+  // }
+  ipcRenderer.send("main-win-collapse", { width: dim.width, height: dim.height });
+
+  appConfig.set("mainWindowDimension.isCollapsed", false);
 };
 
 const onlyAllowNumber = (value) => {
