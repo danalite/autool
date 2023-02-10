@@ -5,16 +5,19 @@
 - [ ] Check legality of the task hotkey
 
 ## 2023-02
+- [x] Issue in displaying stopped tasks 
+- [x] Use selector to choose templates (cron & task)
+- [x] NodeJS function to create new task or app
+- [x] Finish the hotkey trigger and unregister part
 - [x] Move task caching into index
 - [x] Window resized event to cache the window size and position 
-- [x] Update function to clear scheduled and hotkey tasks
+- [x] Update function to clear schedule
 - [x] Add empty state for task panel
-- [ ] NodeJS function to create new task or app
 - [x] Refresh tasks cache in computed function
 - [x] Fix reloaded scheduled apps bug (countdown based on current time - start time ? positive)
 - [x] Toggle the position of msg panel
 - [x] Fix missing stamp in event timeline
-- [x] Prompt for accessibility access for darwin
+- [x] Prompt for accessibility access for OSX
 - [x] Show red tags for tasks stopped with errors (and error message)
 - [x] Prompt when closing main window
 - [x] Cache app options (collapsed, stopped scheduled and hotkey tasks)

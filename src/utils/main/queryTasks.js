@@ -2,6 +2,7 @@ const fs = require('fs');
 
 const path = require('path');
 const yaml = require('js-yaml');
+import { appConfig } from '@/utils/main/config'
 
 async function readFile(path) {
   return new Promise((resolve, reject) => {
@@ -15,19 +16,54 @@ async function readFile(path) {
 }
 
 export const addTask = (appPath, taskName, doc) => {
+  let taskNameExt = taskName + ".yaml"
   let appJsonPath = path.join(appPath, "tasks.json")
   let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
-  let newTasks = appJson.tasks.push(taskName)
-  appJson.tasks = newTasks
 
+  appJson.tasks.push(taskNameExt)
+  // console.log("@@", appJson)
   fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
     if (err) {
       console.error(err);
     }
   });
-  
-  let newTaskPath = path.join(appPath, taskName)
-  fs.writeFile(newTaskPath, yaml.dump(doc), (err) => {
+
+  let newTaskPath = path.join(appPath, taskNameExt)
+  fs.writeFile(newTaskPath, doc, (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+}
+
+// Create a new app with folder and tasks.json
+export const addApp = (appAuthor, appName, appIcon) => {
+  let appHome = appConfig.get('appHome')
+  let scriptHome = path.join(appHome, "scripts", appAuthor, appName)
+
+  if (!fs.existsSync(scriptHome)) {
+    fs.mkdirSync(scriptHome, { recursive: true });
+  }
+
+  let appJson = {
+    "app": appName,
+    "author": appAuthor,
+    "icon": appIcon,
+    "tasks": ["example.yaml"]
+  }
+  let appJsonPath = path.join(scriptHome, "tasks.json")
+  fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
+    if (err) {
+      console.error(err);
+    }
+  });
+
+  let exampleTask = {
+    "task": "example",
+    "actions": ["cmd.print(Hello World!)", "cmd.print(This is an example task.)"]
+  }
+  let exampleTaskPath = path.join(scriptHome, "example.yaml")
+  fs.writeFile(exampleTaskPath, yaml.dump(exampleTask), (err) => {
     if (err) {
       console.error(err);
     }
@@ -41,6 +77,7 @@ export const deleteTask = (appPath, taskPath, taskName) => {
     let appJsonPath = path.join(appPath, "tasks.json")
     let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
     let newTasks = appJson.tasks.filter(t => t !== taskName + ".yaml")
+
     appJson.tasks = newTasks
     fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
       if (err) {
@@ -177,7 +214,7 @@ export const loadApps = async (appDir) => {
     }))
 
     // console.log("@@", JSON.stringify(taskList))
-    taskList.sort(function(a, b) {return a.key - b.key})
+    taskList.sort(function (a, b) { return a.key - b.key })
     appJson.tasks = taskList
 
     appJson.index = appIndex
@@ -185,7 +222,7 @@ export const loadApps = async (appDir) => {
   }))
 
   // console.log("appList", appList)
-  appList.sort(function(a, b) {return a.index - b.index})
+  appList.sort(function (a, b) { return a.index - b.index })
   return { 'apps': appList, 'autostart': autostartTasks }
 }
 

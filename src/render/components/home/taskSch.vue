@@ -383,7 +383,7 @@ const menuOptions = [
     icon: renderIcon(PlayerPlay, "#409eff"),
   },
   {
-    label: "Scheduled",
+    label: "Later",
     key: "scheduled",
     icon: renderIcon(Alarm),
   },

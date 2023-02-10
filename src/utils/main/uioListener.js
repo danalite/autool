@@ -134,12 +134,29 @@ export const uioStartup = (assistWindow) => {
   }
 }
 
+const isHotKeyComboPressed = (hotKeyStr) => {
+  let targetKeys = hotKeyStr.split("+").reverse()
+  let length = targetKeys.length
+
+  if (keyStrokesWindow.length < length) return false
+  let newKeys = [...keyStrokesWindow].reverse().slice(0, 4)
+
+  let match = 0
+  for (let i = 0; i < length; i++) {
+    if (targetKeys[i] == getKeyByValue(newKeys[i].keycode) && uioEventEnum[newKeys[i].type] == "keydown") {
+      match++
+    }
+  }
+  // console.log("match", newKeys.map((k) => getKeyByValue(k.keycode)), match)
+  return match == length
+}
+
 const isConsecutiveKeys = (targetKey) => {
   if (keyStrokesWindow.length < 4) return false
   let newKeys = [...keyStrokesWindow].reverse().slice(0, 4)
   const interval = (newKeys[0].time - newKeys[3].time) / 10e8
 
-  console.log("@@", newKeys.map((k) => k.keycode), interval)
+  // console.log("@@", newKeys.map((k) => k.keycode), interval)
   return uioEventEnum[newKeys[0].type] == "keyup" && newKeys.reduce((a, c) => a && (c.keycode == targetKey), true) && (interval < 0.5)
 }
 
@@ -178,8 +195,21 @@ const detectIcon = (e, reception = { width: 600, height: 120 }) => {
   })
 }
 
+const hotkeyRemoveUpdateMAT = (event) => {
+  keyboardActionTable = keyboardActionTable.filter((a) => a.name != `hotkey-${event.taskId}`)
+}
+
 const hotkeyRegisterUpdateMAT = (event) => {
-  console.log(event, "@@@ hotkey")
+  keyboardActionTable.push({
+    name: `hotkey-${event.taskId}`,
+    source: event.source,
+    rule: (e) => {
+      return isHotKeyComboPressed(event.hotkey)
+    },
+    action: (e) => {
+      event.callback({taskId: event.taskId})
+    }
+  })
 }
 
 const keyWaitUpdateMAT = (event) => {
@@ -362,7 +392,7 @@ export const registerUioEvent = (assistWindow, event) => {
       keyWaitUpdateMAT(event)
     } 
   
-  } else if (event.type == "registerHotkey") {
+  } else if (event.type == "hotkeyWait") {
     // When macro recording is on, queue the event
     if (isMacroRecording) {
       ioEventQueue.push(event)
@@ -370,6 +400,12 @@ export const registerUioEvent = (assistWindow, event) => {
     } else {
       hotkeyRegisterUpdateMAT(event)
     }
+
+  } else if (event.type == "hotkeyRemove") {
+    // console.log("@@ remove Hotkey", event)
+    keyboardActionTable = keyboardActionTable.filter((item) => {
+      return item.name != `hotkey-${event.taskId}`
+    })
   }
 }
 

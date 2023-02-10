@@ -203,7 +203,7 @@ const appSetup = async () => {
   const license = appConfig.get('license')
   if (license.key !== '') {
     try {
-      console.log(`[ NodeJS ] License validating ${license.key}`)
+      console.log(`[ NodeJS ] Vlidating license ${license.key}`)
       const res = await axios.post(`https://api.whop.com/api/v1/licenses/${license.key}/validate`, { metadata: {} }, {
         headers: {
           "Authorization": "fe5f45a48bb348cd0cdad3b81dc9fa0def67265a8e",

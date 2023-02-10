@@ -172,7 +172,7 @@ onMounted(() => {
       tasksStatusTable.value.push(task);
       ipcRenderer.invoke("to-console", {
         action: "uio-event",
-        type: "registerHotkey",
+        type: "hotkeyWait",
         source: task.taskName,
         taskId: task.id,
         hotkey: task.hotkey,
@@ -244,6 +244,7 @@ const runTask = async (task) => {
   let tasksStatus = {
     id: taskId,
     taskName: task.relTaskPath,
+    taskPath: task.absTaskPath,
     hotkey: task.hotkey,
     options: task.options,
     status: "",
@@ -275,12 +276,7 @@ const runTask = async (task) => {
       (t) => t.hotkey === task.hotkey && t.status === "listening"
     );
     if (isKeyRegistered) {
-      ipcRenderer.send("to-assist-window", {
-        type: "push-notification",
-        title: `WARNING: "${task.relTaskPath}" hotkey occupied`,
-        content: `"${task.hotkey}" used by "${isKeyRegistered.taskName}"`,
-        source: "console.appMain",
-      });
+      message.error(`"${task.hotkey}" occupied by "${isKeyRegistered.taskName}"`, { duration: 5e3 });
       return;
     }
 
@@ -292,7 +288,7 @@ const runTask = async (task) => {
     // The hotkey remains registered until the task is stopped
     await ipcRenderer.invoke("to-console", {
       action: "uio-event",
-      type: "registerHotkey",
+      type: "hotkeyWait",
       source: task.relTaskPath,
       taskId: taskId,
       hotkey: task.hotkey,
@@ -334,10 +330,12 @@ const stopTask = (task) => {
   if (isHotkeyTask) {
     // Unregister hotkey bind with the task
     ipcRenderer.invoke("to-console", {
-      action: "remove-hotkey-task",
+      action: "uio-event",
+      type: "hotkeyRemove",
       taskId: task.id,
       source: task.relTaskPath,
     });
+
   } else {
     // Cancel task running in the backend
     let newEvent = {
@@ -385,9 +383,15 @@ ipcRenderer.on("uio-callback", (event, message) => {
     taskEvents.value.push(newEvent);
     sendMessageToBackend(newEvent);
     return;
-  } else if (message.type === "hotkey") {
+    
+  } else if (message.type === "hotkeyWait") {
     // Run a new task with hotkey attribute disabled
-    console.message("hotkey", message);
+    let task = tasksStatusTable.value.find((t) => t.id === message.taskId);
+    // console.log("hotkey", message, task);
+    runTask({
+      relTaskPath: task.taskName,
+      absTaskPath: task.taskPath,
+    });
   }
 });
 
@@ -415,7 +419,7 @@ const menuOptions = [
 ];
 
 const refreshApps = async () => {
-  await ipcRenderer.invoke("to-console", { action: "app-reload" });
+  await ipcRenderer.invoke("to-console", { action: "reload-apps" });
   apps.value = appConfig.get("apps");
 };
 </script>

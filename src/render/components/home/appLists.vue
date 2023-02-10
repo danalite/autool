@@ -40,7 +40,15 @@
                 paddingLeft: '12px',
               }"
             >
-              <n-avatar :src="app.icon" size="small" />
+              <n-avatar
+                :src="app.icon"
+                size="small"
+                style="
+                  margin-right: 0px;
+                  border-radius: 6px;
+                  background-color: #ffffff;
+                "
+              />
               <n-space
                 vertical
                 :size="[0, 0]"
@@ -228,7 +236,7 @@
           <n-input
             size="small"
             v-model:value="updateSetupValue"
-            placeholder="time in cron format"
+            placeholder="select a cron template"
             style="width: 220px"
           >
           </n-input>
@@ -242,18 +250,14 @@
           </n-button>
         </n-input-group>
 
-        <n-button size="small" @click="updateSetupValue = '15 9 * * mon-fri'"
-          >9:15am on Weekdays</n-button
-        >
-        <n-button size="small" @click="updateSetupValue = '0 */6 * * *'">
-          Every 6 hours
-        </n-button>
-        <n-button size="small" @click="updateSetupValue = '0 7,17 * * *'">
-          7am, 5pm daily
-        </n-button>
-        <n-button size="small" @click="updateSetupValue = '0 8 1-7 feb *'">
-          8am in Feb's first week
-        </n-button>
+        <n-select
+          placeholder="Select a template"
+          size="small"
+          v-model:value="updateSetupValue"
+          style="padding-top: 5px; padding-left: 30px; width: 260px"
+          :options="cronTemplates"
+          :render-label="renderLabel"
+        />
       </n-space>
 
       <n-space v-else>
@@ -341,44 +345,39 @@
         </n-radio>
       </n-space>
 
-      <n-card
-        class="boxShadow"
+      <n-select
         v-if="addTaskType === 'template'"
+        placeholder="Select a template"
         size="small"
-        style="margin: 5px 0px 0px; padding: 0px"
+        placement="bottom"
+        v-model:value="selectedTemplate"
+        style="padding-top: 10px; padding-left: 100px; width: 180px"
+        :options="templateOptions"
+        :render-label="renderLabel"
+      />
+
+      <n-checkbox-group
+        v-else
+        v-model:value="macroRecordOptions"
+        style="padding-top: 10px; padding-left: 30px"
       >
         <n-space item-style="display: flex;">
-          <n-button size="small"> Notification </n-button>
-          <n-button size="small"> App launcher </n-button>
-          <n-button size="small"> Text OCR </n-button>
+          <n-checkbox
+            disabled
+            checked
+            value="mouse-keys"
+            label="mouse-click and keys"
+          />
+
+          <n-checkbox value="mouse-move" label="mouse-move" />
+          <n-checkbox
+            disabled
+            value="mouse click by image"
+            label="mouse-click-by-image"
+          />
+          <n-checkbox value="delay" label="time delay" />
         </n-space>
-      </n-card>
-
-      <n-card
-        class="boxShadow"
-        v-else
-        size="small"
-        style="margin: 5px 0px 0px; padding: 0px"
-      >
-        <n-checkbox-group v-model:value="macroRecordOptions">
-          <n-space item-style="display: flex;">
-            <n-checkbox
-              disabled
-              checked
-              value="mouse-keys"
-              label="mouse-click and keys"
-            />
-
-            <n-checkbox value="mouse-move" label="mouse-move" />
-            <n-checkbox
-              disabled
-              value="mouse click by image"
-              label="mouse-click-by-image"
-            />
-            <n-checkbox value="delay" label="time delay" />
-          </n-space>
-        </n-checkbox-group>
-      </n-card>
+      </n-checkbox-group>
     </div>
     <template #action>
       <n-space style="margin: 0px">
@@ -439,10 +438,16 @@
               App Name
             </n-button>
             <n-input
+              v-model:value="newAppAuthor"
+              style="width: 90px"
+              size="small"
+              placeholder="author"
+            />
+            <n-input
               v-model:value="newAppName"
               size="small"
               style="width: 200px"
-              placeholder="E.g., new-app-name"
+              placeholder="new-app-name"
             />
           </n-input-group>
           <n-input-group>
@@ -516,6 +521,7 @@ import {
   NCheckbox,
   NEllipsis,
   NSpace,
+  NSelect,
   NIcon,
   NInput,
   NButton,
@@ -552,6 +558,7 @@ import {
 } from "@vicons/tabler";
 
 import { ipcRenderer, shell } from "electron";
+import { taskTemplates } from "@/utils/render/taskTemplates";
 
 const props = defineProps({
   apps: {
@@ -641,7 +648,7 @@ const appOptions = [
 const handleAppAction = async (key, app) => {
   if (key === "delete") {
     await ipcRenderer.invoke("to-console", {
-      action: "app-delete",
+      action: "delete-app",
       appPath: app.path,
     });
     emits("refreshApps", {});
@@ -689,9 +696,9 @@ const handleTaskAction = async (key) => {
     shell.openExternal(`vscode://file/${activeSelectedTask.value.absTaskPath}`);
   } else if (key === "delete") {
     await ipcRenderer.invoke("to-console", {
-      action: "task-delete",
-      taskPath: activeSelectedTask.value.absTaskPath,
+      action: "delete-task",
       appPath: activeSelectedTask.value.appPath,
+      taskPath: activeSelectedTask.value.absTaskPath,
       taskName: activeSelectedTask.value.relTaskPath,
     });
 
@@ -716,7 +723,7 @@ const handleContextMenu = (e, task) => {
 const handleTaskChecked = async (isChecked, task) => {
   // Update local task config
   await ipcRenderer.invoke("to-console", {
-    action: "task-configs-update",
+    action: "update-task-configs",
     taskPath: task.absTaskPath,
     key: "shortcut",
     update: isChecked,
@@ -731,7 +738,7 @@ const updateSetupValue = ref("");
 const handleToggleProperty = async (task, property) => {
   if (property === "autostart" || property === "remote") {
     await ipcRenderer.invoke("to-console", {
-      action: "task-configs-update",
+      action: "update-task-configs",
       taskPath: task.absTaskPath,
       key: property,
       update: !task.options?.includes(property),
@@ -749,7 +756,7 @@ const handleToggleProperty = async (task, property) => {
 const saveSetupsToFile = async () => {
   showSetupModal.value = false;
   await ipcRenderer.invoke("to-console", {
-    action: "task-configs-update",
+    action: "update-task-configs",
     taskPath: activeSelectedTask.value.absTaskPath,
     key: quickSetupTarget.value,
     update: updateSetupValue.value,
@@ -763,6 +770,7 @@ const addTaskType = ref("template");
 const showAddTaskModal = ref(false);
 const macroRecordOptions = ref(["mouse-keys"]);
 const newTaskName = ref("");
+const selectedTemplate = ref("notification");
 
 const addAppType = ref("download");
 const addNewTask = async () => {
@@ -776,9 +784,13 @@ const addNewTask = async () => {
     return;
   }
 
-  // TODO: save template to disk and open
-  // TODO: start macro recording
   if (addTaskType.value === "template") {
+    ipcRenderer.invoke("to-console", {
+      action: "create-task",
+      taskName: newTaskName.value,
+      appPath: props.apps[activeAppIndex.value].path,
+      content: taskTemplates[selectedTemplate.value],
+    });
   } else if (addTaskType.value === "macro-record") {
     await ipcRenderer.invoke("to-console", {
       action: "uio-event",
@@ -786,9 +798,8 @@ const addNewTask = async () => {
       options: [...macroRecordOptions.value],
       source: "console.appLists",
       appPath: props.apps[activeAppIndex.value].path,
-      taskName: `${newTaskName.value}.yaml`,
+      taskName: newTaskName.value,
     });
-    emits("refreshApps", {});
   }
 
   setTimeout(() => {
@@ -820,6 +831,7 @@ const downloadAppFromGithub = (link) => {
 // Add new app
 const githubFolderLink = ref("");
 const showAddAppModal = ref(false);
+const newAppAuthor = ref("");
 const newAppName = ref("");
 const newAppIcon = ref(
   "https://raw.githubusercontent.com/danalites/autoo/main/resources/logo.png"
@@ -848,15 +860,65 @@ const addNewApp = () => {
   } else {
     ipcRenderer.invoke("to-console", {
       action: "create-app",
-      name: newAppName.value,
-      icon: newAppIcon.value,
+      appAuthor: newAppAuthor.value,
+      appName: newAppName.value,
+      appIcon: newAppIcon.value,
     });
   }
   showAddAppModal.value = false;
 };
 
-const getImageUrl = () => {
-  return require(`../../assets/icon/app-icon.png`);
+const cronTemplates = [
+  {
+    label: "9:15am on Weekdays",
+    value: "15 9 * * mon-fri",
+  },
+  {
+    label: "Every 6 hours",
+    value: "0 */6 * * *",
+  },
+  {
+    label: "7am, 5pm daily",
+    value: "0 7,17 * * *",
+  },
+  {
+    label: "8am in Feb's first week",
+    value: "0 8 1-7 feb *",
+  },
+];
+
+const templateOptions = [
+  {
+    label: "Notification",
+    value: "notification",
+  },
+  {
+    label: "Web Search",
+    value: "web-search",
+  },
+  {
+    label: "Desktop UI",
+    value: "desktop-ui",
+  },
+];
+
+const renderLabel = (option) => {
+  if (option.type === "group") return option.label + "(Cool!)";
+  return [
+    h(
+      NIcon,
+      {
+        style: {
+          verticalAlign: "-0.15em",
+          marginRight: "4px",
+        },
+      },
+      {
+        default: () => h(FileReport),
+      }
+    ),
+    option.label,
+  ];
 };
 </script>
 

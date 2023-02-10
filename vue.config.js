@@ -1,4 +1,4 @@
-const {defineConfig} = require('@vue/cli-service')
+const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
@@ -12,14 +12,14 @@ module.exports = defineConfig({
     electronBuilder: {
       nodeIntegration: true,
       builderOptions: {
-        productName: "Aba",
-        appId: "com.aba.app",
-        copyright: "Copyright © 2022 hecmay",
+        productName: "AuTool",
+        appId: "com.autool.app",
+        copyright: "Danalite PTE LTD",
         extraResources: [
-          {from:'./resources',to:'./resources'},
-          {from: './dist/app', to: './backend'}],
+          { from: './resources', to: './resources' },
+          { from: './dist/app', to: './backend' }],
         directories: {
-            output: "release/"
+          output: "release/"
         },
         mac: {
           target: ['dmg'],
@@ -32,11 +32,11 @@ module.exports = defineConfig({
             "portable"
           ]
         },
-        "nsis": {
-          "runAfterFinish":false,
-          "oneClick":false,
-          "allowToChangeInstallationDirectory":true,
-          "createDesktopShortcut":true
+        nsis: {
+          "runAfterFinish": false,
+          "oneClick": false,
+          "allowToChangeInstallationDirectory": true,
+          "createDesktopShortcut": true
         },
       },
     },

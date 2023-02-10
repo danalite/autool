@@ -1,6 +1,6 @@
 import { screen, ipcMain } from "electron";
 import { appConfig } from "@/utils/main/config";
-import { deleteApp, addTask, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
+import { addApp, addTask, deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
 import { registerUioEvent } from "@/utils/main/uioListener";
 
 async function runShellCommand(cmd) {
@@ -91,19 +91,25 @@ export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.handle('to-console', async (event, message) => {
     let action = message.action
 
-    if (action === "app-reload") {
+    if (action === "reload-apps") {
       const apps = await loadApps(appConfig.get('appHome'))
-      appConfig.set('apps', apps.apps)
+    appConfig.set('apps', apps.apps)
 
-    } else if (action === "app-delete") {
+    } else if (action === "delete-app") {
       let appPath = message.appPath
       deleteApp(appPath)
 
-    } else if (action === "task-configs-update") {
+    } else if (action === "create-app") {
+      addApp(message.appAuthor, message.appName, message.appIcon)
+
+    } else if (action === "update-task-configs") {
       updateTaskYaml(message.taskPath, message.key, message.update)
 
-    } else if (action === "task-delete") {
-      deleteTask(message.taskPath, message.taskPath, message.taskName)
+    } else if (action === "delete-task") {
+      deleteTask(message.appPath, message.taskPath, message.taskName)
+    
+    } else if (action === "create-task") {
+      addTask(message.appPath, message.taskName, message.content)
 
     } else if (action === "shell") {
       runShellCommand(message.cmd)
@@ -120,12 +126,16 @@ export const ipcListener = (mainWindow, assistWindow) => {
 
         callback: (ret) => {
           if (message.type == "macroRecord") {
-            // Save the image to disk
-            // console.log(ret, message)
-            addTask(message.appPath, message.taskName, ret)
+            let task = {
+              task: message.taskName,
+              actions: ret
+            }
+            addTask(message.appPath, message.taskName, task)
 
           } else {
-            mainWindow.webContents.send("uio-callback", ret)
+            // keyWait or hotkeyWait
+            mainWindow.webContents.send("uio-callback",
+              { type: message.type, taskName: message.source, ...ret })
           }
         }
 
