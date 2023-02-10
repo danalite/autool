@@ -43,9 +43,7 @@
             :taskEvents="taskEvents"
           ></TaskSch>
 
-          <SettingsPage
-            v-show="activeMenuItem == 'settings'"
-          />
+          <SettingsPage v-show="activeMenuItem == 'settings'" />
 
           <!-- <n-layout-footer
             bordered
@@ -157,6 +155,30 @@ onMounted(() => {
   ipcRenderer.on("to-backend", (event, data) => {
     sendMessageToBackend(data);
   });
+
+  // Load cached tasks and re-register hotkeys
+  let scheduledTasksCache = appConfig.get("scheduledTasksCache");
+  let hotkeyTasksCache = appConfig.get("hotkeyTasksCache");
+  tasksStatusTable.value = scheduledTasksCache.map((task) => {
+    task.nextDates = parseCron(task.startTime);
+    return task;
+  });
+
+  tasksStatusTable.value = tasksStatusTable.value.concat(appConfig.get("stoppedTasksCache"));
+
+  setTimeout(() => {
+    hotkeyTasksCache.forEach((task) => {
+      // console.log("Registering hotkey: ", task);
+      tasksStatusTable.value.push(task);
+      ipcRenderer.invoke("to-console", {
+        action: "uio-event",
+        type: "registerHotkey",
+        source: task.taskName,
+        taskId: task.id,
+        hotkey: task.hotkey,
+      });
+    });
+  }, 600);
 });
 
 // Websocket connection to backend
@@ -200,6 +222,7 @@ const backendEventHook = (message) => {
       break;
 
     case EventType.O_EVENT_HOOK_REQ:
+      // keyWait or event.on(__KEY...)
       ipcRenderer.invoke("to-console", {
         action: "uio-event",
         type: value.type,
@@ -270,17 +293,14 @@ const runTask = async (task) => {
     await ipcRenderer.invoke("to-console", {
       action: "uio-event",
       type: "registerHotkey",
-      hotkey: task.hotkey,
-      source: "console.appMain",
+      source: task.relTaskPath,
       taskId: taskId,
+      hotkey: task.hotkey,
     });
-
   } else if (task.startTime) {
-
     tasksStatus.status = "scheduled";
     tasksStatus.nextDates = parseCron(task.startTime);
     tasksStatusTable.value.push(tasksStatus);
-
   } else {
     tasksStatus.status = "running";
     tasksStatusTable.value.push(tasksStatus);
@@ -290,6 +310,7 @@ const runTask = async (task) => {
 };
 
 const stopTask = (task) => {
+  // console.log("stopTask", task);
   var isHotkeyTask = false;
   var isScheduledTask = false;
   tasksStatusTable.value = tasksStatusTable.value.map((t) => {
@@ -336,7 +357,7 @@ const stopTask = (task) => {
 };
 
 // Handle events from node process and task bar
-eventBus.on("run-task-from-bar", (task) => {
+eventBus.on("run-task", (task) => {
   runTask(task);
 });
 

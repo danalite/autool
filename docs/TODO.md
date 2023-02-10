@@ -5,9 +5,9 @@
 - [ ] Check legality of the task hotkey
 
 ## 2023-02
-- [ ] Clear button to remove scheduled or hotkey dummy task
+- [x] Move task caching into index
 - [x] Window resized event to cache the window size and position 
-- [ ] Update function to clear scheduled and hotkey tasks
+- [x] Update function to clear scheduled and hotkey tasks
 - [x] Add empty state for task panel
 - [ ] NodeJS function to create new task or app
 - [x] Refresh tasks cache in computed function
@@ -41,7 +41,7 @@
 - [x] Fix the app display order (it changed with async load)
 - [x] Update macro recorder NodeJS module
 - [x] Fix readSync issue in NodeJS
-- [x] A pop-up model to config start time and hotkey
+- [x] A pop-up modal to configure start time and hotkey
 - [x] Handle queued tasks in appMain
 - [x] Send stop signal to backend instead of killing
 - [x] Apps (open chrome history, web search, translate)

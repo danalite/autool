@@ -179,7 +179,7 @@ const detectIcon = (e, reception = { width: 600, height: 120 }) => {
 }
 
 const hotkeyRegisterUpdateMAT = (event) => {
-
+  console.log(event, "@@@ hotkey")
 }
 
 const keyWaitUpdateMAT = (event) => {

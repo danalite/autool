@@ -1,13 +1,11 @@
 <script setup>
-import { NMessageProvider, NDialogProvider } from "naive-ui";
+import { NMessageProvider, NConfigProvider, darkTheme } from "naive-ui";
 </script>
 
 <template>
-  <n-dialog-provider>
   <n-message-provider :placement="'bottom'">
     <router-view></router-view>
   </n-message-provider>
-</n-dialog-provider>
 </template>
 
 <style>

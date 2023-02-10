@@ -205,7 +205,7 @@ onMounted(async () => {
 const loadingTask = ref("");
 const runTargetTask = (e, taskName) => {
   let task = selectedTasks.value.find((task) => task.relTaskPath == taskName);
-  eventBus.emit("run-task-from-bar", task);
+  eventBus.emit("run-task", task);
   loadingTask.value = taskName;
   setTimeout(() => {
     loadingTask.value = "";

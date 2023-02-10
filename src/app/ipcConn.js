@@ -116,6 +116,7 @@ export const ipcListener = (mainWindow, assistWindow) => {
         source: message.source,
         taskId: message.taskId,
         options: message.options,
+        hotkey: message.hotkey,
 
         callback: (ret) => {
           if (message.type == "macroRecord") {

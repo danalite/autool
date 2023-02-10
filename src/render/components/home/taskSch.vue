@@ -440,27 +440,6 @@ const eventItems = computed(() => {
 });
 
 
-let scheduledTasksCache = appConfig.get("scheduledTasksCache");
-let hotkeyTasksCache = appConfig.get("hotkeyTasksCache");
-onMounted(() => {
-  console.log("@@", scheduledTasksCache, hotkeyTasksCache)
-  // Update the nextRunTimes for scheduled tasks
-  if (scheduledTasksCache.length > 0) {
-    scheduledTasksCache = scheduledTasksCache.map((t) => {
-      let nextDates = parseCron(t.startTime);
-      t.nextDates = nextDates;
-      return t;
-    });
-  }
-
-  // Re-register hotkey events
-  if (hotkeyTasksCache.length > 0) {
-    hotkeyTasksCache.forEach((t) => {
-      // console.log(t, "@@@")
-    });
-  }
-});
-
 const showEmptyIcon = computed(() => {
   if (taskSchTab.value === "running") {
     return runningTasks.value.length === 0;
@@ -482,11 +461,10 @@ const runningTasks = computed(() => {
 // (active) tasks listening for hotkey
 const hotkeyTasks = computed(() => {
   let hotkeys = props.tasksStatusTable.filter((t) => t.status === "listening");
-
-  hotkeys = hotkeys.concat(hotkeyTasksCache);
   if (hotkeys.length > 20) {
     hotkeys = hotkeys.slice(0, 20);
   }
+  appConfig.set("hotkeyTasksCache", hotkeys);
   return hotkeys;
 });
 
@@ -495,18 +473,15 @@ const scheduledTasks = computed(() => {
   let scheduled = props.tasksStatusTable.filter(
     (t) => t.status === "scheduled"
   );
-  scheduled = scheduled.concat(scheduledTasksCache);
-
   if (scheduled.length > 20) {
     scheduled = scheduled.slice(0, 20);
   }
-
+  
   // Save the scheduled tasks every time updated
   appConfig.set("scheduledTasksCache", scheduled);
   return scheduled;
 });
 
-let stoppedTasksCache = appConfig.get("stoppedTasksCache");
 const stoppedTasks = computed(() => {
   let stopped = props.tasksStatusTable.filter(
     (t) =>
@@ -514,7 +489,6 @@ const stoppedTasks = computed(() => {
       t.status === "taskFinish" ||
       t.status === "stopped"
   );
-  stopped = stopped.concat(stoppedTasksCache);
   if (stopped.length > 30) {
     stopped = stopped.slice(0, 30);
   }
@@ -523,6 +497,7 @@ const stoppedTasks = computed(() => {
   return stopped;
 });
 
+// Send a stop signal to the background task
 const stopTask = (task) => {
   // message.warning(`Stopping task ${task.taskName}...`);
   emits("stopTask", task);

@@ -452,8 +452,8 @@
             <n-input
               v-model:value="newAppIcon"
               size="small"
-              style="width: 200px"
-              placeholder=""
+              style="width: 260px"
+              placeholder="URL to image icon"
             />
           </n-input-group>
           <n-space>
@@ -474,7 +474,7 @@
             style="width: 400px"
             size="small"
             v-model:value="githubFolderLink"
-            placeholder="E.g. https://github.com/danalites/apps/tree/master/macos"
+            placeholder="https://github.com/danalites/apps/tree/master/macos"
           />
 
           <n-space justify="center">
@@ -564,9 +564,7 @@ const message = useMessage();
 
 const runTask = (task) => {
   if (task.startTime) {
-    message.info(
-      `"${task.relTaskPath}" scheduled. Check scheduler for details`
-    );
+    message.info(`"${task.relTaskPath}" scheduled.`);
 
     // TODO: allow scheduled hotkey
     if (task.hotkey) {
@@ -823,7 +821,9 @@ const downloadAppFromGithub = (link) => {
 const githubFolderLink = ref("");
 const showAddAppModal = ref(false);
 const newAppName = ref("");
-const newAppIcon = ref("");
+const newAppIcon = ref(
+  "https://raw.githubusercontent.com/danalites/autoo/main/resources/logo.png"
+);
 
 const addNewApp = () => {
   if (
