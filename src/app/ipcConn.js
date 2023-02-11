@@ -133,7 +133,7 @@ export const ipcListener = (mainWindow, assistWindow) => {
             addTask(message.appPath, message.taskName, task)
 
           } else {
-            // keyWait or hotkeyWait
+            // keyWait (resumeTask) or hotkeyWait (trigger task)
             mainWindow.webContents.send("uio-callback",
               { type: message.type, taskName: message.source, ...ret })
           }

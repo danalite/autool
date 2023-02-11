@@ -40,12 +40,12 @@
         <n-space v-if="taskSchTab == 'events'" justify="center">
           <n-timeline size="large">
             <n-timeline-item
-              v-for="e in eventItems.slice().reverse()"
+              v-for="e in eventItems"
               :key="e.key"
               :type="e.type"
               :title="e.title"
               :content="e.content"
-              :time="e.time"
+              :time="new Date(e.time).toLocaleString()"
             />
           </n-timeline>
         </n-space>
@@ -88,8 +88,8 @@
             </n-space>
 
             <n-space justify="space-between">
-              <n-ellipsis style="max-width: 180px">
-                {{ task.stamp }}
+              <n-ellipsis style="max-width: 185px">
+                {{ new Date(task.stamp).toLocaleString() }}
               </n-ellipsis>
               <n-button size="tiny" type="error" @click="() => stopTask(task)">
                 Stop
@@ -234,7 +234,7 @@
 
             <n-space justify="space-between">
               <n-text>
-                {{ task.stamp }}
+                {{ new Date(task.stamp).toLocaleString() }}
               </n-text>
               <n-button
                 size="tiny"
@@ -432,6 +432,7 @@ const eventItems = computed(() => {
   });
 
   events = eventsCache.concat(events);
+  events.sort((a, b) => b.time - a.time);
   if (events.length > 50) {
     events = events.slice(0, 50);
   }
@@ -455,7 +456,9 @@ const showEmptyIcon = computed(() => {
 });
 
 const runningTasks = computed(() => {
-  return props.tasksStatusTable.filter((t) => t.status === "running");
+  let running = props.tasksStatusTable.filter((t) => t.status === "running");
+  running.sort(function (a, b) { return b.stamp - a.stamp })
+  return running;
 });
 
 // (active) tasks listening for hotkey
@@ -473,10 +476,10 @@ const scheduledTasks = computed(() => {
   let scheduled = props.tasksStatusTable.filter(
     (t) => t.status === "scheduled"
   );
+  scheduled.sort(function (a, b) { return b.stamp - a.stamp })
   if (scheduled.length > 20) {
     scheduled = scheduled.slice(0, 20);
   }
-  
   // Save the scheduled tasks every time updated
   appConfig.set("scheduledTasksCache", scheduled);
   return scheduled;
@@ -489,6 +492,7 @@ const stoppedTasks = computed(() => {
       t.status === "taskFinish" ||
       t.status === "stopped"
   );
+  stopped.sort(function (a, b) { return b.stamp - a.stamp })
   if (stopped.length > 30) {
     stopped = stopped.slice(0, 30);
   }

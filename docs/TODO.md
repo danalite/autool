@@ -3,8 +3,10 @@
 - [ ] Add and example to test event bus
 - [ ] Click app icon to show documents
 - [ ] Check legality of the task hotkey
+- [ ] Task or app renaming
 
 ## 2023-02
+- [x] Fix the tasks ordering issue
 - [x] Issue in displaying stopped tasks 
 - [x] Use selector to choose templates (cron & task)
 - [x] NodeJS function to create new task or app

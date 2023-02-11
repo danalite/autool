@@ -67,7 +67,7 @@ const createSelectOptions = (command) => {
     content: () => renderOptions(command.options),
     duration: count ? count * 1000 : undefined,
     meta: count
-      ? `task (${command.source}): continue in ${count} s...`
+      ? `task (${command.source})\ncontinue in ${count} s...`
       : `task (${command.source})`,
     avatar: () =>
       h(
@@ -97,7 +97,7 @@ const createSelectOptions = (command) => {
       if (count) {
         const minusCount = () => {
           count--;
-          nRef.meta = `task (${command.source}): exit in ${count} s...`;
+          nRef.meta = `task (${command.source})\nexit in ${count} s...`;
           if (count > 0) {
             window.setTimeout(minusCount, 1e3);
           }
@@ -140,7 +140,7 @@ const createNotification = (command) => {
     content: () => renderTextContent(command.content),
     duration: count ? count * 1000 : undefined,
     meta: count
-      ? `task (${command.source}): exit in ${count} s...`
+      ? `task (${command.source}) disappear in ${count} s...`
       : `task (${command.source})`,
     avatar: () =>
       h(
@@ -191,7 +191,7 @@ const createNotification = (command) => {
       if (count) {
         const minusCount = () => {
           count--;
-          nRef.meta = `task (${command.source}): continue in ${count} s...`;
+          nRef.meta = `task (${command.source})\ndisappear in ${count} s...`;
           if (count > 0) {
             window.setTimeout(minusCount, 1e3);
           }

@@ -207,7 +207,7 @@ const taskEvents = ref([]);
 const tasksStatusTable = ref([]);
 const backendEventHook = (message) => {
   const value = message.value;
-  message.time = new Date().toLocaleString();
+  message.time = new Date().getTime();
   taskEvents.value.push({ source: "backend", ...message });
 
   switch (message.event) {
@@ -232,6 +232,16 @@ const backendEventHook = (message) => {
       });
       break;
 
+    case EventType.O_EVENT_USER_NOTIFY:
+      ipcRenderer.send("to-assist-window", {
+        type: "push-notification",
+        title: message.value.title,
+        content: message.value.content,
+        source: message.taskName,
+        timeout: message.value.timeout,
+      });
+      break;
+
     default:
       console.log(message.event, message);
       break;
@@ -249,7 +259,7 @@ const runTask = async (task) => {
     options: task.options,
     status: "",
     startTime: task.startTime,
-    stamp: new Date().toLocaleString(),
+    stamp: new Date().getTime(),
   };
 
   // Events tracing between console and backend
@@ -267,7 +277,7 @@ const runTask = async (task) => {
       options: task.options,
       content: task.content,
     },
-    stamp: new Date().toLocaleString(),
+    stamp: new Date().getTime(),
   };
 
   if (task.hotkey) {
@@ -346,7 +356,7 @@ const stopTask = (task) => {
       value: {
         type: "cancelTask",
       },
-      stamp: new Date().toLocaleString(),
+      stamp: new Date().getTime(),
     };
 
     taskEvents.value.push(newEvent);
@@ -378,7 +388,7 @@ ipcRenderer.on("uio-callback", (event, message) => {
         type: "resumeTask",
         return: message.return,
       },
-      stamp: new Date().toLocaleString(),
+      stamp: new Date().getTime(),
     };
     taskEvents.value.push(newEvent);
     sendMessageToBackend(newEvent);
