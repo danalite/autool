@@ -7,6 +7,7 @@
 - [ ] More examples for tutorials app: www.free-api.com
 
 ## 2023-02
+- [ ] Make notification window layout more compact
 - [x] Fix task bar task naming issue
 - [x] Fix taskbar tasks loading issue
 - [x] Select option notification panel

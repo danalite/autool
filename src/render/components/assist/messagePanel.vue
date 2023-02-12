@@ -77,8 +77,16 @@ const renderOptions = (optionNames, params) => {
 const createSelectOptions = (command) => {
   isInputAcquired = true;
   let count = command.timeout;
+  let presetValues = []
+  if (command.preset == true || command.preset == false) {
+    presetValues = Array(command.options.length).fill(command.preset)
+    
+  } else {
+    presetValues = command.preset
+  };
+  
   let preset = command.options.filter((option, index) => {
-    if (command.preset[index]) {
+    if (presetValues[index]) {
       return true;
     }
     return false;

@@ -264,6 +264,7 @@ const backendEventHook = (message) => {
       });
       ipcRenderer.send("to-assist-window", {
         type: value.type,
+        title: value.title,
         options: value.options,
         max: value.max,
         min: value.min,

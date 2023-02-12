@@ -46,7 +46,7 @@
           @click="runTargetTask($event, taskName)"
         >
           <n-ellipsis style="max-width: 160px" :tooltip="false">
-            {{ taskName }}
+            {{ taskName.split(pathSeparator).slice(-1)[0] }}
           </n-ellipsis>
         </n-button>
 
@@ -176,11 +176,11 @@ const decreasePage = () => {
 // reLoad local apps before collapse
 const taskPage = ref("1");
 const selectedTasks = ref([]);
-const pathSeparator = appConfig.get("pathSeparator");
+const pathSeparator = ref(appConfig.get("pathSeparator"));
 
 const selectedTaskNames = computed(() => {
   return selectedTasks.value.map(
-    (task) => task.relTaskPath.split(pathSeparator).slice(-1)[0]
+    (task) => task.relTaskPath
   );
 });
 
