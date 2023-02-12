@@ -28,9 +28,55 @@ import {
 import { Select, Mail, FileImport } from "@vicons/tabler";
 import { h, ref, onMounted } from "vue";
 import { appConfig } from "../../../utils/main/config";
+import dragDemo from "../../assets/apps/drop-files-demo.gif";
 
 const notification = useNotification();
-// const emits = defineEmits(['refreshListeners']);
+
+const renderTitle = (title, icon) => {
+  return h(
+    NSpace,
+    { size: [10, 2] },
+    {
+      default: () => [
+        h(NIcon, { color: "green", size: 20 }, { default: () => h(icon) }),
+        h("span", title),
+      ],
+    }
+  );
+};
+
+const renderMeta = (source, sub) => {
+  return h(
+    "div",
+    {
+      style: {
+        display: "flex",
+        alignItems: "center",
+      },
+    },
+    [
+      h(
+        "div",
+        {
+          style: {
+            marginLeft: "0px",
+            padding: "4px 0",
+          },
+        },
+        [
+          h("div", null, [source]),
+          h(
+            NText,
+            { depth: 3, tag: "div" },
+            {
+              default: () => sub,
+            }
+          ),
+        ]
+      ),
+    ]
+  );
+};
 
 // Closable options selection
 let isInputAcquired = true;
@@ -77,14 +123,13 @@ const renderOptions = (optionNames, params) => {
 const createSelectOptions = (command) => {
   isInputAcquired = true;
   let count = command.timeout;
-  let presetValues = []
+  let presetValues = [];
   if (command.preset == true || command.preset == false) {
-    presetValues = Array(command.options.length).fill(command.preset)
-    
+    presetValues = Array(command.options.length).fill(command.preset);
   } else {
-    presetValues = command.preset
-  };
-  
+    presetValues = command.preset;
+  }
+
   let preset = command.options.filter((option, index) => {
     if (presetValues[index]) {
       return true;
@@ -95,7 +140,7 @@ const createSelectOptions = (command) => {
 
   let title = command.title ? command.title : "Select options";
   const nRef = notification.create({
-    title: title,
+    title: () => renderTitle(title, Select),
     content: () =>
       renderOptions(command.options, {
         preset: preset,
@@ -103,17 +148,12 @@ const createSelectOptions = (command) => {
         min: command.min,
       }),
     duration: count ? count * 1000 : undefined,
-    meta: count
-      ? `task (${command.source})\ncontinue in ${count} s...`
-      : `task (${command.source})`,
-    avatar: () =>
-      h(
-        NIcon,
-        { color: "green" },
-        {
-          default: () => h(Select),
-        }
+    meta: () =>
+      renderMeta(
+        `task (${command.source})`,
+        count ? `close in ${count} s...` : null
       ),
+
     action: () =>
       h(
         NSpace,
@@ -125,7 +165,7 @@ const createSelectOptions = (command) => {
             h(
               NButton,
               {
-                secondary: true,
+                tertiary: true,
                 size: "small",
                 type: "error",
                 onClick: () => {
@@ -141,7 +181,7 @@ const createSelectOptions = (command) => {
             h(
               NButton,
               {
-                secondary: true,
+                tertiary: true,
                 size: "small",
                 type: "success",
                 onClick: () => {
@@ -197,36 +237,67 @@ const createSelectOptions = (command) => {
 };
 
 const renderTextContent = (content) => {
+  let contentList = [];
+  if (typeof content == "string") {
+    contentList = [content];
+  } else {
+    contentList = content;
+  }
   return h(
-    NText,
+    NList,
     {
-      style: {
-        "font-size": "14px",
-        "line-height": "0px",
-        color: "#3a4dbf",
-        "font-family": '"Lucida Console", "Courier New", monospace',
-      },
+      bordered: false,
+      showDivider: true,
+      hoverable: true,
+      clickable: true,
     },
-    { default: () => content }
+    {
+      default: () =>
+        contentList.map((content) =>
+          h(
+            NListItem,
+            {
+              onClick: () => {
+                navigator.clipboard.writeText(content);
+              },
+              style: {
+                "padding-top": "5px",
+                "padding-bottom": "5px",
+              },
+            },
+            {
+              default: () =>
+                h(
+                  NText,
+                  {
+                    style: {
+                      "font-size": "14px",
+                      "line-height": "0px",
+                      "margin-left": "10px",
+                      color: "#3a4dbf",
+                      "font-family":
+                        '"Lucida Console", "Courier New", monospace',
+                    },
+                  },
+                  { default: () => content }
+                ),
+            }
+          )
+        ),
+    }
   );
 };
 
 const createNotification = (command) => {
   let count = command.timeout;
   const nRef = notification.create({
-    title: command.title,
+    title: () => renderTitle(command.title, Mail),
     content: () => renderTextContent(command.content),
     duration: count ? count * 1000 : undefined,
-    meta: count
-      ? `task (${command.source}) disappear in ${count} s...`
-      : `task (${command.source})`,
-    avatar: () =>
-      h(
-        NIcon,
-        { size: 22, color: "#2685c2" },
-        {
-          default: () => h(Mail),
-        }
+    meta: () =>
+      renderMeta(
+        `task (${command.source})`,
+        count ? `close in ${count} s...` : null
       ),
     action: () =>
       h(
@@ -239,21 +310,7 @@ const createNotification = (command) => {
             h(
               NButton,
               {
-                secondary: true,
-                size: "small",
-                type: "info",
-                onClick: () => {
-                  navigator.clipboard.writeText(command.content);
-                },
-              },
-              {
-                default: () => h("span", { style: {} }, "Copy"),
-              }
-            ),
-            h(
-              NButton,
-              {
-                secondary: true,
+                tertiary: true,
                 size: "small",
                 type: "success",
                 onClick: () => {
@@ -261,7 +318,7 @@ const createNotification = (command) => {
                 },
               },
               {
-                default: () => h("span", { style: {} }, "Okay"),
+                default: () => "Close",
               }
             ),
           ],
@@ -272,7 +329,10 @@ const createNotification = (command) => {
         const minusCount = () => {
           count--;
           nRef.meta = () =>
-            `task (${command.source})\ndisappear in ${count} s...`;
+            renderMeta(
+              `task (${command.source})`,
+              count ? `cont in ${count} s...` : null
+            );
           if (count > 0) {
             window.setTimeout(minusCount, 1e3);
           }
@@ -340,6 +400,7 @@ const createTextInput = (command) => {
         {
           size: "small",
           type: "success",
+          tertiary: true,
           onClick: () => {
             nRef.destroy();
           },
@@ -352,7 +413,7 @@ const createTextInput = (command) => {
   });
 };
 
-const fileListRef = ref(["TEST.png"]);
+const fileListRef = ref([]);
 const renderFileInput = () => {
   return h(
     NSpace,
@@ -361,19 +422,28 @@ const renderFileInput = () => {
       default: () => [
         h(
           NSpace,
-          { style: { "margin-top": "5px", "margin-bottom": "2px" } },
+          { style: { margin: "5px 3px 3px" }, justify: "center" },
           {
             default: () =>
               h("img", {
-                src: "https://vuejsexamples.com/content/images/2021/09/finalResult.gif",
-                style: { width: "280px" },
+                draggable: false,
+                src: dragDemo,
+                style: { width: "180px" },
               }),
           }
         ),
         h(
-          "span",
-          { style: { "font-size": "14px", color: "#3a4dbf" } },
-          "Drop files to tray icon to upload."
+          NText,
+          {
+            style: {
+              "font-size": "14px",
+              "line-height": "0px",
+              "margin-left": "10px",
+              color: "#3a4dbf",
+              "font-family": '"Lucida Console", "Courier New", monospace',
+            },
+          },
+          { default: () => "Select Drop files to tray icon" }
         ),
         h(
           NUpload,
@@ -411,23 +481,16 @@ ipcRenderer.on("drop-files", (event, files) => {
 const createFileInput = (command) => {
   fileListRef.value = [];
   let nRef = notification.create({
-    title: command.title,
+    title: () => renderTitle(command.title, FileImport),
     content: () => renderFileInput(),
-    meta: () => `stask (${command.source})`,
-    avatar: () =>
-      h(
-        NIcon,
-        { color: "green" },
-        {
-          default: () => h(FileImport),
-        }
-      ),
+    meta: () => renderMeta(`task (${command.source})`, null),
     action: () =>
       h(
         NButton,
         {
           size: "small",
           type: "success",
+          tertiary: true,
           onClick: () => {
             nRef.destroy();
           },
@@ -444,8 +507,8 @@ onMounted(() => {
   setTimeout(() => {
     createNotification({
       title: "AuTool started",
-      content: "Aren't you excited?",
-      timeout: 20,
+      content: ["Aren't you excited?", "Click me to copy text"],
+      timeout: 60,
       source: "console.MsgPanel",
     });
     createFileInput({
@@ -512,6 +575,12 @@ ipcRenderer.on("assist-win-push", (event, message) => {
 </script>
 
 <style scoped>
+.n-notification-container
+  .n-notification
+  .n-notification-main
+  .n-notification-main__content {
+  margin: 2px, 0px, 0px;
+}
 .n-card {
   margin: 15px;
   border-radius: 10px;

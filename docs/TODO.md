@@ -4,10 +4,11 @@
 - [ ] Click app icon to show documents
 - [ ] Check legality of the task hotkey
 - [ ] Task or app renaming
-- [ ] More examples for tutorials app: www.free-api.com
+- [ ] More examples for tutorials app: www.free-api.com, AI service, etc
 
 ## 2023-02
-- [ ] Make notification window layout more compact
+- [x] Improve notification copy & paste experience
+- [x] Make notification window layout more compact
 - [x] Fix task bar task naming issue
 - [x] Fix taskbar tasks loading issue
 - [x] Select option notification panel
