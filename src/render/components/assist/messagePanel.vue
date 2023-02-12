@@ -21,6 +21,8 @@ import {
   useNotification,
   NUpload,
   NUploadFileList,
+  NCheckboxGroup,
+  NCheckbox,
 } from "naive-ui";
 
 import { Select, Mail, FileImport } from "@vicons/tabler";
@@ -34,26 +36,39 @@ const notification = useNotification();
 let isInputAcquired = true;
 const currentOptions = ref([]);
 
-const renderOptions = (optionNames) => {
-  currentOptions.value = optionNames;
+const renderOptions = (optionNames, params) => {
   return h(
-    NSpace,
-    { style: { "margin-top": "5px", "margin-bottom": "2px" } },
+    NCheckboxGroup,
+    {
+      onUpdateValue: (value) => {
+        currentOptions.value = value;
+        // console.log("Options: ", value);
+      },
+      defaultValue: params.preset,
+      max: params.max,
+      min: params.min,
+    },
     {
       default: () =>
-        currentOptions.value.map((name) =>
-          h(
-            NTag,
-            {
-              closable: true,
-              style: {},
-              type: "info",
-              onClose: () => {
-                currentOptions.value.splice(optionNames.indexOf(name), 1);
-              },
-            },
-            { default: () => name }
-          )
+        h(
+          NSpace,
+          {
+            style: { "margin-top": "5px", "margin-bottom": "2px" },
+            itemStyle: "display: flex;",
+          },
+          {
+            default: () =>
+              optionNames.map((name) =>
+                h(
+                  NCheckbox,
+                  {
+                    value: name,
+                    label: name,
+                  },
+                  {}
+                )
+              ),
+          }
         ),
     }
   );
@@ -62,9 +77,23 @@ const renderOptions = (optionNames) => {
 const createSelectOptions = (command) => {
   isInputAcquired = true;
   let count = command.timeout;
+  let preset = command.options.filter((option, index) => {
+    if (command.preset[index]) {
+      return true;
+    }
+    return false;
+  });
+  currentOptions.value = preset;
+
+  let title = command.title ? command.title : "Select options";
   const nRef = notification.create({
-    title: command.title,
-    content: () => renderOptions(command.options),
+    title: title,
+    content: () =>
+      renderOptions(command.options, {
+        preset: preset,
+        max: command.max,
+        min: command.min,
+      }),
     duration: count ? count * 1000 : undefined,
     meta: count
       ? `task (${command.source})\ncontinue in ${count} s...`
@@ -79,18 +108,44 @@ const createSelectOptions = (command) => {
       ),
     action: () =>
       h(
-        NButton,
+        NSpace,
         {
-          size: "small",
-          type: "error",
-          onClick: () => {
-            isInputAcquired = false;
-            nRef.destroy();
-            // TODO: Send back abort ACK
-          },
+          style: { "margin-top": "5px", "margin-bottom": "2px", size: [0, 0] },
         },
         {
-          default: () => h("span", { style: {} }, "Stop"),
+          default: () => [
+            h(
+              NButton,
+              {
+                secondary: true,
+                size: "small",
+                type: "error",
+                onClick: () => {
+                  isInputAcquired = false;
+                  nRef.destroy();
+                  // TODO: Send back abort ACK and cancel the task
+                },
+              },
+              {
+                default: () => h("span", { style: {} }, "Stop"),
+              }
+            ),
+            h(
+              NButton,
+              {
+                secondary: true,
+                size: "small",
+                type: "success",
+                onClick: () => {
+                  isInputAcquired = true;
+                  nRef.destroy();
+                },
+              },
+              {
+                default: () => h("span", { style: {} }, "Okay"),
+              }
+            ),
+          ],
         }
       ),
     onAfterEnter: () => {
@@ -107,11 +162,26 @@ const createSelectOptions = (command) => {
     },
     onAfterLeave: () => {
       if (isInputAcquired) {
-        // console.log("Sending back options: ", currentOptions.value, command.callback);
-        ipcRenderer.send(
-          command.callback,
-          JSON.stringify(currentOptions.value)
-        );
+        // console.log(
+        //   "Sending back options: ",
+        //   currentOptions.value,
+        //   command.callback
+        // );
+        if (command.callback == "auto-start-approve") {
+          // Send to console main
+          ipcRenderer.send(
+            command.callback,
+            JSON.stringify(currentOptions.value)
+          );
+        } else {
+          // Proxy to main window
+          // Send data to main window's event listener
+          // console.log("Sending back options: ", currentOptions.value);
+          ipcRenderer.send("event-to-main-win", {
+            callback: command.callback,
+            data: JSON.stringify(currentOptions.value),
+          });
+        }
       }
     },
   });
@@ -153,7 +223,9 @@ const createNotification = (command) => {
     action: () =>
       h(
         NSpace,
-        { style: { "margin-top": "5px", "margin-bottom": "2px" } },
+        {
+          style: { "margin-top": "5px", "margin-bottom": "2px", size: [0, 0] },
+        },
         {
           default: () => [
             h(
@@ -191,7 +263,8 @@ const createNotification = (command) => {
       if (count) {
         const minusCount = () => {
           count--;
-          nRef.meta = `task (${command.source})\ndisappear in ${count} s...`;
+          nRef.meta = () =>
+            `task (${command.source})\ndisappear in ${count} s...`;
           if (count > 0) {
             window.setTimeout(minusCount, 1e3);
           }
@@ -271,13 +344,24 @@ const createTextInput = (command) => {
   });
 };
 
-const fileListRef = ref([]);
+const fileListRef = ref(["TEST.png"]);
 const renderFileInput = () => {
   return h(
     NSpace,
     { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
     {
       default: () => [
+        h(
+          NSpace,
+          { style: { "margin-top": "5px", "margin-bottom": "2px" } },
+          {
+            default: () =>
+              h("img", {
+                src: "https://vuejsexamples.com/content/images/2021/09/finalResult.gif",
+                style: { width: "280px" },
+              }),
+          }
+        ),
         h(
           "span",
           { style: { "font-size": "14px", color: "#3a4dbf" } },
@@ -321,7 +405,7 @@ const createFileInput = (command) => {
   let nRef = notification.create({
     title: command.title,
     content: () => renderFileInput(),
-    meta: `task (${command.source})`,
+    meta: () => `stask (${command.source})`,
     avatar: () =>
       h(
         NIcon,
@@ -356,16 +440,12 @@ onMounted(() => {
       timeout: 20,
       source: "console.MsgPanel",
     });
-    // createFileInput({
-    //   title: "File Input",
-    //   source: "console",
-    // });
+    createFileInput({
+      title: "File Input",
+      source: "console",
+    });
   }, 1000);
 });
-
-const getImageUrl = (imgId) => {
-  return require(`../../assets/runes/${imgId}.png`);
-};
 
 const deleteAutoRune = () => {
   if (appConfig.has(`autoRune.${currentChamp.value}`)) {
@@ -377,17 +457,20 @@ const deleteAutoRune = () => {
 ipcRenderer.on("assist-win-push", (event, message) => {
   let messageType = message.type;
   switch (messageType) {
-    case "select-options":
+    case "select":
       createSelectOptions({
         title: message.title,
         source: message.source,
-        timeout: message.timeout,
         options: message.options,
+        max: message.max,
+        min: message.min,
+        preset: message.preset,
+        timeout: message.timeout,
         callback: message.callback,
       });
       break;
 
-    case "input-text":
+    case "input":
       createTextInput({
         title: message.title,
         source: message.source,
@@ -395,6 +478,7 @@ ipcRenderer.on("assist-win-push", (event, message) => {
         placeholders: message.hints,
       });
       break;
+
     case "push-notification":
       createNotification({
         title: message.title,

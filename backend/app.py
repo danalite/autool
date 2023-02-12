@@ -30,7 +30,7 @@ async def loopMain(websocket):
 
         if userEvent in done:
             message = json.loads(userEvent.result())
-            if message["event"] == "I_EVENT_WSS_REQUEST":
+            if message["event"] == "I_EVENT_WSS_REQ":
                 action = message["action"]
                 # if action == "close":
                 #     asyncio.get_event_loop().stop()

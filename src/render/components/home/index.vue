@@ -43,7 +43,10 @@
             :taskEvents="taskEvents"
           ></TaskSch>
 
-          <SettingsPage v-show="activeMenuItem == 'settings'" />
+          <SettingsPage
+            v-show="activeMenuItem == 'settings'"
+            @refreshApps="refreshApps"
+          />
 
           <!-- <n-layout-footer
             bordered
@@ -164,7 +167,9 @@ onMounted(() => {
     return task;
   });
 
-  tasksStatusTable.value = tasksStatusTable.value.concat(appConfig.get("stoppedTasksCache"));
+  tasksStatusTable.value = tasksStatusTable.value.concat(
+    appConfig.get("stoppedTasksCache")
+  );
 
   setTimeout(() => {
     hotkeyTasksCache.forEach((task) => {
@@ -207,12 +212,12 @@ const taskEvents = ref([]);
 const tasksStatusTable = ref([]);
 const backendEventHook = (message) => {
   const value = message.value;
-  message.time = new Date().getTime();
+  message.stamp = new Date().getTime();
   taskEvents.value.push({ source: "backend", ...message });
 
+  const taskId = message.uuid;
   switch (message.event) {
     case EventType.O_EVENT_TASK_STATUS:
-      const taskId = message.uuid;
       tasksStatusTable.value = tasksStatusTable.value.map((task) => {
         if (task.id === taskId) {
           task.status = value.type;
@@ -235,10 +240,36 @@ const backendEventHook = (message) => {
     case EventType.O_EVENT_USER_NOTIFY:
       ipcRenderer.send("to-assist-window", {
         type: "push-notification",
-        title: message.value.title,
-        content: message.value.content,
+        title: value.title,
+        content: value.content,
         source: message.taskName,
-        timeout: message.value.timeout,
+        timeout: value.timeout,
+      });
+      break;
+
+    case EventType.O_EVENT_USER_INPUT:
+      let callback = `callback-${taskId}`
+      ipcRenderer.once(callback, (event, data) => {
+        // console.log("User input received: ", data, " for task: ", message.taskName);
+        sendMessageToBackend({
+          event: EventType.I_EVENT_TASK_REQ,
+          source: "Main.UserInput",
+          uuid: taskId,
+          taskName: message.taskName,
+          value: {
+            type: "resumeTask",
+            selected: JSON.parse(data),
+          },
+        });
+      });
+      ipcRenderer.send("to-assist-window", {
+        type: value.type,
+        options: value.options,
+        max: value.max,
+        min: value.min,
+        preset: value.preset,
+        source: message.taskName,
+        callback: callback,
       });
       break;
 
@@ -286,7 +317,10 @@ const runTask = async (task) => {
       (t) => t.hotkey === task.hotkey && t.status === "listening"
     );
     if (isKeyRegistered) {
-      message.error(`"${task.hotkey}" occupied by "${isKeyRegistered.taskName}"`, { duration: 5e3 });
+      message.error(
+        `"${task.hotkey}" occupied by "${isKeyRegistered.taskName}"`,
+        { duration: 5e3 }
+      );
       return;
     }
 
@@ -345,7 +379,6 @@ const stopTask = (task) => {
       taskId: task.id,
       source: task.relTaskPath,
     });
-
   } else {
     // Cancel task running in the backend
     let newEvent = {
@@ -393,7 +426,6 @@ ipcRenderer.on("uio-callback", (event, message) => {
     taskEvents.value.push(newEvent);
     sendMessageToBackend(newEvent);
     return;
-    
   } else if (message.type === "hotkeyWait") {
     // Run a new task with hotkey attribute disabled
     let task = tasksStatusTable.value.find((t) => t.id === message.taskId);

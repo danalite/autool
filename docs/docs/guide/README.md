@@ -6,7 +6,7 @@
 
 ## Add new scripts
 - Click the "+" button next to the search box to download the script from GitHub to local disk
-- AuTool reads the `tasks.json` file in the root directory of the repository to get the script information
+- AuTool reads the `autool-tasks.json` file in the root directory of the repository to get the script information
 - Example: downloading
 
 ## Settings

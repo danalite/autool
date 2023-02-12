@@ -4,8 +4,13 @@
 - [ ] Click app icon to show documents
 - [ ] Check legality of the task hotkey
 - [ ] Task or app renaming
+- [ ] More examples for tutorials app: www.free-api.com
 
 ## 2023-02
+- [x] Fix task bar task naming issue
+- [x] Fix taskbar tasks loading issue
+- [x] Select option notification panel
+- [x] Optional appHome selection
 - [x] Fix the tasks ordering issue
 - [x] Issue in displaying stopped tasks 
 - [x] Use selector to choose templates (cron & task)

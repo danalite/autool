@@ -211,12 +211,6 @@
               @select="handleTaskAction"
             />
           </n-list>
-          <n-space
-            v-show="activeAppIndex > -1"
-            style="padding-top: 10px"
-            justify="center"
-          >
-          </n-space>
         </div>
       </n-layout>
     </n-layout>
@@ -559,6 +553,7 @@ import {
 
 import { ipcRenderer, shell } from "electron";
 import { taskTemplates } from "@/utils/render/taskTemplates";
+import { EventType } from "@/utils/render/eventTypes";
 
 const props = defineProps({
   apps: {
@@ -672,12 +667,16 @@ const taskItemOptions = [
     icon: renderIcon(Pencil, { color: "#2685c2" }),
   },
   {
+    type: "divider",
+    key: "d1",
+  },
+  {
     label: () => h("span", {}, "Debug"),
     key: "showLog",
     icon: renderIcon(FileReport, { color: "#FAD02C" }),
   },
   {
-    label: () => h("span", { style: { color: "#db2544" } }, "Delete"),
+    label: () => h("span", { }, "Delete"),
     key: "delete",
     icon: renderIcon(Trash, { color: "#db2544" }),
   },
@@ -728,6 +727,7 @@ const handleTaskChecked = async (isChecked, task) => {
     key: "shortcut",
     update: isChecked,
   });
+  emits("refreshApps", {});
 };
 
 // Toggle autostart, remote, time, hotkey
@@ -816,7 +816,7 @@ const downloadAppFromGithub = (link) => {
   try {
     wsConn.send(
       JSON.stringify({
-        event: "I_EVENT_WSS_REQUEST",
+        event: EventType.I_EVENT_WSS_REQ,
         action: "download",
         url: link,
       })

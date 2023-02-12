@@ -1,14 +1,18 @@
 <template>
   <header v-mouse-drag="handleDrag" class="headerTitle">
-    <n-space class="banner" :size="[4,12]">
+    <n-space class="banner" :size="[4, 12]">
       <img
         src="../../assets/icon/logo.png"
         draggable="false"
         width="28"
         style="padding-top: 2px"
         @click="handleExpand"
-      /> 
-      <n-space style="padding-left:5px; padding-bottom: 2px; width: 100%" :size="[4,2]" class="banner">
+      />
+      <n-space
+        style="padding-left: 5px; padding-bottom: 2px; width: 100%"
+        :size="[4, 2]"
+        class="banner"
+      >
         <n-button secondary size="tiny" color="black" @click="decreasePage">
           <n-icon size="10">
             <ChevronLeft />
@@ -140,17 +144,11 @@ const handleDrag = (pos) => {
 // Restore to original window size
 const handleExpand = () => {
   let dim = appConfig.get("mainWindowDimension");
-
-  // let newDim = dim.isCollapsed
-  //   ? { width: dim.width, height: dim.height }
-  //   : { width: 590, height:40 };
-  // newDim.isCollapsed = !dim.isCollapsed;
-
   store.pageReset(1);
-  //   store.pageReset(1);
-  //   document.getElementsByTagName("html")[0].className = "container";
-  // }
-  ipcRenderer.send("main-win-collapse", { width: dim.width, height: dim.height });
+  ipcRenderer.send("main-win-collapse", {
+    width: dim.width,
+    height: dim.height,
+  });
 
   appConfig.set("mainWindowDimension.isCollapsed", false);
 };
@@ -165,7 +163,7 @@ const onlyAllowNumber = (value) => {
 
 const increasePage = () => {
   let newPage = Number(taskPage.value) + 1;
-  if (newPage * 2 - 1 > selectedTasks.value.length) return;
+  if (newPage * 3 - 2 > selectedTasks.value.length) return;
   taskPage.value = String(Number(taskPage.value) + 1);
 };
 
@@ -178,8 +176,12 @@ const decreasePage = () => {
 // reLoad local apps before collapse
 const taskPage = ref("1");
 const selectedTasks = ref([]);
+const pathSeparator = appConfig.get("pathSeparator");
+
 const selectedTaskNames = computed(() => {
-  return selectedTasks.value.map((task) => task.relTaskPath);
+  return selectedTasks.value.map(
+    (task) => task.relTaskPath.split(pathSeparator).slice(-1)[0]
+  );
 });
 
 onMounted(async () => {

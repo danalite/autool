@@ -29,7 +29,7 @@
       </n-layout-sider>
 
       <n-layout content-style="padding: 15px 25px 5px;">
-        <n-space v-if="subTab == 'accounts'">
+        <n-space v-if="subTab == 'accounts'" vertical>
           <n-input-group size="small">
             <n-button secondary :bordered="false" size="small">
               License
@@ -56,10 +56,39 @@
             </n-button>
           </n-input-group>
 
-          <n-button @click="toReset"> Reset </n-button>
+
+
+          <n-space justify="center">
+            <n-button @click="toReset"> Reset </n-button>
+          </n-space>
+          
         </n-space>
 
         <n-space v-if="subTab == 'styles'" vertical>
+          <n-input-group size="small">
+            <n-button secondary :bordered="false" size="small">
+              appHome
+            </n-button>
+            <n-input
+              size="small"
+              v-model:value="appHome"
+              type="text"
+              style="width: 240px"
+            />
+
+            <n-button
+              secondary
+              @click="onAppHomeChange"
+              :bordered="false"
+              :type="'success'"
+              size="small"
+            >
+              <n-icon size="16">
+                <Refresh />
+              </n-icon>
+            </n-button>
+          </n-input-group>
+
           <n-space justify="space-between">
             <n-button secondary :bordered="false" size="small">
               Notification position
@@ -246,7 +275,10 @@ import { ipcRenderer, shell } from "electron";
 import { appConfig } from "@/utils/main/config";
 import { request } from "@/utils/render/request";
 
+const emits = defineEmits(["refreshApps"]);
 const message = useMessage();
+
+const appHome = ref(appConfig.get("appHome"));
 const license = ref(appConfig.get("license"));
 const remoteServer = reactive(appConfig.get("remoteServer"));
 
@@ -255,6 +287,11 @@ const subTab = ref("accounts");
 const onMenuCollapse = () => {
   collapsed.value = !collapsed.value;
   appConfig.set("isSettingsMenuCollapsed", collapsed.value);
+};
+
+const onAppHomeChange = () => {
+  appConfig.set("appHome", appHome.value);
+  emits("refreshApps", {});
 };
 
 function renderIcon(icon) {

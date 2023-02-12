@@ -177,7 +177,7 @@ app.whenReady().then(async () => {
   app.on("before-quit", async () => {
     // Send stop signal to backend
     // await mainWindow.webContents.send('to-backend', {
-    //   event: 'I_EVENT_WSS_REQUEST',
+    //   event: 'I_EVENT_WSS_REQ',
     //   action: 'stop'
     // })
     console.log("[ NodeJS ] before-quit!")
@@ -195,15 +195,17 @@ const appSetup = async () => {
   let appHome = appConfig.get('appHome')
   if (appHome === '') {
     let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
-    appConfig.set('appHome', userPath)
-    appHome = userPath
+    appHome = path.join(userPath, 'scripts')
+
+    appHome = "/Users/hecmay/Desktop/apps/"
+    appConfig.set('appHome', appHome)
   }
 
   // Validate license 
   const license = appConfig.get('license')
   if (license.key !== '') {
     try {
-      console.log(`[ NodeJS ] Vlidating license ${license.key}`)
+      console.log(`[ NodeJS ] Checking license ${license.key}`)
       const res = await axios.post(`https://api.whop.com/api/v1/licenses/${license.key}/validate`, { metadata: {} }, {
         headers: {
           "Authorization": "fe5f45a48bb348cd0cdad3b81dc9fa0def67265a8e",
@@ -227,20 +229,22 @@ const appSetup = async () => {
 
   const apps = await loadApps(appHome)
   appConfig.set('apps', apps.apps)
+  appConfig.set('pathSeparator', path.sep)
 
   // Gather and confirm whether to autostart tasks
   let taskNames = apps.autostart.map((e) => e.relTaskPath.split(path.sep).slice(-1)[0])
 
   if (taskNames.length > 0) {
     // console.log(`[ NodeJS ] autostart ${taskNames}`)
-    setTimeout(async () => {
+    setTimeout(() => {
       // Once approved, options are forwarded to main window & backend
       assistWindow.webContents.send('assist-win-push', {
-        type: "select-options",
+        type: "select",
         options: taskNames,
-        title: "Auto-start these tasks?",
-        timeout: 6,
-        source: "console-manager",
+        title: "Auto-start tasks?",
+        timeout: 18,
+        max: taskNames.length,
+        source: "console.main",
         callback: "auto-start-approve",
         preset: Array(taskNames.length).fill(true)
       })
@@ -254,6 +258,7 @@ const appSetup = async () => {
             { action: "run-task", tasks: approvedTasks })
         }
       })
+
     }, 2000)
   }
 }

@@ -17,7 +17,7 @@ async function readFile(path) {
 
 export const addTask = (appPath, taskName, doc) => {
   let taskNameExt = taskName + ".yaml"
-  let appJsonPath = path.join(appPath, "tasks.json")
+  let appJsonPath = path.join(appPath, "autool-tasks.json")
   let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
 
   appJson.tasks.push(taskNameExt)
@@ -36,10 +36,10 @@ export const addTask = (appPath, taskName, doc) => {
   });
 }
 
-// Create a new app with folder and tasks.json
+// Create a new app with folder and autool-tasks.json
 export const addApp = (appAuthor, appName, appIcon) => {
   let appHome = appConfig.get('appHome')
-  let scriptHome = path.join(appHome, "scripts", appAuthor, appName)
+  let scriptHome = path.join(appHome, appAuthor, appName)
 
   if (!fs.existsSync(scriptHome)) {
     fs.mkdirSync(scriptHome, { recursive: true });
@@ -51,7 +51,7 @@ export const addApp = (appAuthor, appName, appIcon) => {
     "icon": appIcon,
     "tasks": ["example.yaml"]
   }
-  let appJsonPath = path.join(scriptHome, "tasks.json")
+  let appJsonPath = path.join(scriptHome, "autool-tasks.json")
   fs.writeFile(appJsonPath, JSON.stringify(appJson), err => {
     if (err) {
       console.error(err);
@@ -74,7 +74,7 @@ export const deleteTask = (appPath, taskPath, taskName) => {
   fs.unlink(taskPath, function (err) {
     if (err) return console.log(err);
 
-    let appJsonPath = path.join(appPath, "tasks.json")
+    let appJsonPath = path.join(appPath, "autool-tasks.json")
     let appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'))
     let newTasks = appJson.tasks.filter(t => t !== taskName + ".yaml")
 
@@ -109,13 +109,15 @@ export const updateTaskYaml = (taskPath, key, update) => {
       doc.configs.options = doc.configs.options.filter(o => o !== key)
     }
 
-  } else {
-    // update startTime or hotkey
+  } else if (key == 'startTime' || key == 'hotkey') {
     let newKey = key == 'startTime' ? 'start-time' : 'hotkey'
+    if (newKey == 'hotkey' && typeof update !== 'string') {
+      console.log("@@ waring: hotkey should be string", update)
+      return
+    }
     doc.configs[newKey] = update;
-  }
-
-  if (key == 'shortcut') {
+    
+  } else if (key == 'shortcut') {
     doc.configs[key] = update;
   }
 
@@ -135,9 +137,7 @@ export const deleteApp = (appPath) => {
 }
 
 export const loadApps = async (appDir) => {
-
-  let scripts = path.join(appDir, 'scripts');
-  const appEntries = findTasksJson(scripts)
+  const appEntries = findTasksJson(appDir)
 
   let appList = []
   let autostartTasks = []
@@ -145,7 +145,7 @@ export const loadApps = async (appDir) => {
   // Read apps in parallel without forEach
   // https://stackoverflow.com/a/37576787
   await Promise.all(appEntries.map(async (appEntry, appIndex) => {
-    let tasks = path.join(appEntry, 'tasks.json')
+    let tasks = path.join(appEntry, 'autool-tasks.json')
     const content = await fs.readFileSync(tasks, 'utf8')
 
     let appJson = JSON.parse(content)
@@ -180,6 +180,11 @@ export const loadApps = async (appDir) => {
         if ("doc" in doc) taskItem.doc = doc.doc
 
         // options: autostart, remote
+        taskItem.shortcut = false
+        taskItem.hotkey = ""
+        taskItem.startTime = ""
+        taskItem.options = []
+
         taskItem.options = []
         if ("configs" in doc) {
           if ("options" in doc.configs) {
@@ -237,7 +242,7 @@ function findTasksJson(dir) {
       const apps = fs.readdirSync(a).filter(f => fs.statSync(path.join(a, f)).isDirectory()).map(f => path.join(a, f))
 
       apps.forEach(app => {
-        let tasks = path.join(app, 'tasks.json')
+        let tasks = path.join(app, 'autool-tasks.json')
         if (fs.existsSync(tasks)) {
           allFiles.push(app)
         }

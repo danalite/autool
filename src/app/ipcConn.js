@@ -87,13 +87,18 @@ export const ipcListener = (mainWindow, assistWindow) => {
     assistWindow.webContents.send('assist-win-push', message)
   })
 
+  // Proxy message from assist window to main window
+  ipcMain.on('event-to-main-win', (event, message) => {
+    mainWindow.webContents.send(message.callback, message.data)
+  })
+
   // read or update local apps, invoke shell command (from windows)
   ipcMain.handle('to-console', async (event, message) => {
     let action = message.action
 
     if (action === "reload-apps") {
       const apps = await loadApps(appConfig.get('appHome'))
-    appConfig.set('apps', apps.apps)
+      appConfig.set('apps', apps.apps)
 
     } else if (action === "delete-app") {
       let appPath = message.appPath
@@ -107,7 +112,7 @@ export const ipcListener = (mainWindow, assistWindow) => {
 
     } else if (action === "delete-task") {
       deleteTask(message.appPath, message.taskPath, message.taskName)
-    
+
     } else if (action === "create-task") {
       addTask(message.appPath, message.taskName, message.content)
 
