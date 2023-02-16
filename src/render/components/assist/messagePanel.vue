@@ -3,17 +3,21 @@
 </template>
 
 <script setup>
-import { ipcRenderer } from "electron";
+import { shell, ipcRenderer } from "electron";
 import {
+  NCarousel,
+  NCarouselItem,
   NCard,
   NAvatar,
   NSpace,
   NTag,
   NIcon,
+  NImage,
   NText,
   NInput,
   NInputGroup,
   NBadge,
+  NSwitch,
   NButton,
   NList,
   NListItem,
@@ -25,12 +29,114 @@ import {
   NCheckbox,
 } from "naive-ui";
 
-import { Select, Mail, FileImport } from "@vicons/tabler";
+import { Select, Mail, FileImport, ExternalLink, Copy } from "@vicons/tabler";
 import { h, ref, onMounted } from "vue";
 import { appConfig } from "../../../utils/main/config";
 import dragDemo from "../../assets/apps/drop-files-demo.gif";
 
 const notification = useNotification();
+
+const handleCopyImg = (src) => {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+
+  img.crossOrigin = "Anonymous";
+  img.src = src;
+
+  img.onload = () => {
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(img, 0, 0);
+
+    canvas.toBlob(async (blob) => {
+      // console.log(blob);
+      const data = [
+        new ClipboardItem({
+          [blob.type]: blob,
+        }),
+      ];
+      // https://w3c.github.io/clipboard-apis/#dom-clipboard-write
+      await navigator.clipboard.write(data).then(
+        () => {
+          console.log("Copied to clipboard successfully!");
+        },
+        () => {
+          console.error("Unable to write to clipboard.");
+        }
+      );
+    });
+  };
+};
+
+const renderPreviews = (images) => {
+  return h(
+    NCarousel,
+    {
+      effect: "card",
+      "prev-slide-style": "transform: translateX(-150%) translateZ(-800px);",
+      "next-slide-style": "transform: translateX(50%) translateZ(-800px);",
+      style: { height: "180px" },
+      "show-dots": false,
+    },
+    {
+      default: () =>
+        images.map((image) => {
+          return h(
+            NCarouselItem,
+            { style: { width: "70%" } },
+            {
+              default: () => [
+                h(NImage, {
+                  src: image,
+                  height: "180",
+                  "object-fit": "fill",
+                  "preview-disabled": true,
+                }),
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    circle: true,
+                    type: "info",
+                    onClick: () => shell.openExternal(image),
+                    style: {
+                      position: "absolute",
+                      bottom: "8px",
+                      right: "8px",
+                    },
+                  },
+                  {
+                    default: () =>
+                      h(
+                        NIcon,
+                        { size: 20 },
+                        { default: () => h(ExternalLink) }
+                      ),
+                  }
+                ),
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    circle: true,
+                    type: "info",
+                    onClick: () => handleCopyImg(image),
+                    style: { position: "absolute", bottom: "8px", left: "8px" },
+                  },
+                  {
+                    default: () =>
+                      h(NIcon, { size: 20 }, { default: () => h(Copy) }),
+                  }
+                ),
+              ],
+            }
+          );
+        }),
+    }
+  );
+};
 
 const renderTitle = (title, icon) => {
   return h(
@@ -82,70 +188,159 @@ const renderMeta = (source, sub) => {
 let isInputAcquired = true;
 const currentOptions = ref([]);
 
-const renderOptions = (optionNames, params) => {
+const renderPreviewsSelection = (options) => {
   return h(
-    NCheckboxGroup,
+    NCarousel,
     {
-      onUpdateValue: (value) => {
-        currentOptions.value = value;
-        // console.log("Options: ", value);
-      },
-      defaultValue: params.preset,
-      max: params.max,
-      min: params.min,
+      effect: "card",
+      "prev-slide-style": "transform: translateX(-150%) translateZ(-800px);",
+      "next-slide-style": "transform: translateX(50%) translateZ(-800px);",
+      style: { height: "180px" },
+      "show-dots": false,
     },
     {
       default: () =>
-        h(
-          NSpace,
-          {
-            style: { "margin-top": "5px", "margin-bottom": "2px" },
-            itemStyle: "display: flex;",
-          },
-          {
-            default: () =>
-              optionNames.map((name) =>
+        options.map((option, index) => {
+          return h(
+            NCarouselItem,
+            { style: { width: "70%" } },
+            {
+              default: () => [
+                h(NImage, {
+                  src: option.value,
+                  height: "180",
+                  "object-fit": "fill",
+                  "preview-disabled": true,
+                }),
                 h(
-                  NCheckbox,
+                  NButton,
                   {
-                    value: name,
-                    label: name,
+                    size: "small",
+                    circle: true,
+                    type: "info",
+                    onClick: () => shell.openExternal(image),
+                    style: {
+                      position: "absolute",
+                      bottom: "8px",
+                      right: "8px",
+                    },
                   },
-                  {}
-                )
-              ),
-          }
-        ),
+                  {
+                    default: () =>
+                      h(
+                        NIcon,
+                        { size: 20 },
+                        { default: () => h(ExternalLink) }
+                      ),
+                  }
+                ),
+                h(
+                  NSwitch,
+                  {
+                    round: false,
+                    style: { position: "absolute", bottom: "8px", left: "8px" },
+                    onUpdateValue: (value) => {
+                      if (value) {
+                        currentOptions.value.push({ index: index, ...option});
+                      } else {
+                        currentOptions.value = currentOptions.value.filter(
+                          (item) => item.index !== index
+                        );
+                      }
+                    },
+                  },
+                  {
+                    default: () => null,
+                  }
+                ),
+              ],
+            }
+          );
+        }),
     }
   );
+};
+
+const renderOptions = (options, params) => {
+  if (params.isPreview) {
+    return renderPreviewsSelection(options);
+  } else {
+    return h(
+      NCheckboxGroup,
+      {
+        onUpdateValue: (value) => {
+          currentOptions.value = value;
+          // console.log("Options: ", value);
+        },
+        defaultValue: params.preset,
+        max: params.max,
+        min: params.min,
+      },
+      {
+        default: () =>
+          h(
+            NSpace,
+            {
+              style: { "margin-top": "5px", "margin-bottom": "2px" },
+              itemStyle: "display: flex;",
+            },
+            {
+              default: () =>
+                options.map((option) =>
+                  h(
+                    NCheckbox,
+                    {
+                      label: option.label,
+                      value: option.value,
+                    },
+                    {}
+                  )
+                ),
+            }
+          ),
+      }
+    );
+  }
 };
 
 const createSelectOptions = (command) => {
   isInputAcquired = true;
   let count = command.timeout;
-  let presetValues = [];
+
+  // Setup preset values
+  let defaultSetValue = false;
   if (command.preset == true || command.preset == false) {
-    presetValues = Array(command.options.length).fill(command.preset);
-  } else {
-    presetValues = command.preset;
+    defaultSetValue = command.preset;
   }
 
-  let preset = command.options.filter((option, index) => {
-    if (presetValues[index]) {
-      return true;
-    }
-    return false;
-  });
-  currentOptions.value = preset;
+  // Options: ['str'...] or [{label: 'str', value: 'str', set: true/false}...]
+  let options = [];
+  if (command.options.every((item) => typeof item === "string")) {
+    options = command.options.map((option) => {
+      return {
+        label: option,
+        value: option,
+        set: defaultSetValue,
+      };
+    });
+  } else {
+    options = command.options;
+  }
 
-  let title = command.title ? command.title : "Select options";
+  let preset = options
+    .filter((option) => (option.set == true ? true : defaultSetValue))
+    .map((option) => option.value);
+
+  currentOptions.value = preset;
+  let title = command.title ? command.title : "Select options and continue";
+
   const nRef = notification.create({
     title: () => renderTitle(title, Select),
     content: () =>
-      renderOptions(command.options, {
-        preset: preset,
+      renderOptions(options, {
         max: command.max,
         min: command.min,
+        isPreview: command.isPreview == undefined ? false : command.isPreview,
       }),
     duration: count ? count * 1000 : undefined,
     meta: () =>
@@ -200,7 +395,11 @@ const createSelectOptions = (command) => {
       if (count) {
         const minusCount = () => {
           count--;
-          nRef.meta = `task (${command.source})\nexit in ${count} s...`;
+          nRef.meta = () =>
+            renderMeta(
+              `task (${command.source})`,
+              count ? `close in ${count} s...` : null
+            );
           if (count > 0) {
             window.setTimeout(minusCount, 1e3);
           }
@@ -239,7 +438,7 @@ const createSelectOptions = (command) => {
 const renderTextContent = (content) => {
   let contentList = [];
   if (typeof content == "string") {
-    contentList = [content];
+    contentList = [{ label: content, value: content }];
   } else {
     contentList = content;
   }
@@ -258,7 +457,7 @@ const renderTextContent = (content) => {
             NListItem,
             {
               onClick: () => {
-                navigator.clipboard.writeText(content);
+                navigator.clipboard.writeText(content.value);
               },
               style: {
                 "padding-top": "5px",
@@ -279,7 +478,7 @@ const renderTextContent = (content) => {
                         '"Lucida Console", "Courier New", monospace',
                     },
                   },
-                  { default: () => content }
+                  { default: () => content.label }
                 ),
             }
           )
@@ -288,11 +487,21 @@ const renderTextContent = (content) => {
   );
 };
 
+const renderNotificationContent = (content, isPreview) => {
+  if (isPreview == true) {
+    return renderPreviews(content);
+  } else {
+    return renderTextContent(content);
+  }
+};
+
 const createNotification = (command) => {
   let count = command.timeout;
+
   const nRef = notification.create({
     title: () => renderTitle(command.title, Mail),
-    content: () => renderTextContent(command.content),
+    content: () =>
+      renderNotificationContent(command.content, command.isPreview),
     duration: count ? count * 1000 : undefined,
     meta: () =>
       renderMeta(
@@ -414,7 +623,7 @@ const createTextInput = (command) => {
 };
 
 const fileListRef = ref([]);
-const renderFileInput = () => {
+const renderFileInput = (command) => {
   return h(
     NSpace,
     { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
@@ -424,12 +633,13 @@ const renderFileInput = () => {
           NSpace,
           { style: { margin: "5px 3px 3px" }, justify: "center" },
           {
-            default: () =>
+            default: () => [
               h("img", {
                 draggable: false,
                 src: dragDemo,
                 style: { width: "180px" },
               }),
+            ],
           }
         ),
         h(
@@ -450,6 +660,8 @@ const renderFileInput = () => {
           {
             abstract: true,
             fileList: fileListRef.value,
+            directory: command.allowDir,
+            max: command.max,
             onChange: (event) => {
               const { file, fileList } = event;
               fileListRef.value = fileList;
@@ -482,7 +694,7 @@ const createFileInput = (command) => {
   fileListRef.value = [];
   let nRef = notification.create({
     title: () => renderTitle(command.title, FileImport),
-    content: () => renderFileInput(),
+    content: () => renderFileInput(command),
     meta: () => renderMeta(`task (${command.source})`, null),
     action: () =>
       h(
@@ -499,22 +711,23 @@ const createFileInput = (command) => {
           default: () => h("span", { style: {} }, "Submit"),
         }
       ),
-    onAfterLeave: () => {},
+    onAfterLeave: () => {
+      ipcRenderer.send("event-to-main-win", {
+        callback: command.callback,
+        data: JSON.stringify(fileListRef.value),
+      });
+    },
   });
 };
 
 onMounted(() => {
   setTimeout(() => {
-    createNotification({
-      title: "AuTool started",
-      content: ["Aren't you excited?", "Click me to copy text"],
-      timeout: 60,
-      source: "console.MsgPanel",
-    });
-    createFileInput({
-      title: "File Input",
-      source: "console",
-    });
+    // createNotification({
+    //   title: "AuTool started",
+    //   content: ["Aren't you excited?", "Click me to copy text"],
+    //   timeout: 60,
+    //   source: "console.MsgPanel",
+    // });
   }, 1000);
 });
 
@@ -537,11 +750,12 @@ ipcRenderer.on("assist-win-push", (event, message) => {
         min: message.min,
         preset: message.preset,
         timeout: message.timeout,
+        isPreview: message.isPreview,
         callback: message.callback,
       });
       break;
 
-    case "input":
+    case "text":
       createTextInput({
         title: message.title,
         source: message.source,
@@ -556,19 +770,21 @@ ipcRenderer.on("assist-win-push", (event, message) => {
         content: message.content,
         source: message.source,
         timeout: message.timeout,
+        isPreview: message.isPreview,
       });
       break;
 
-    case "input-files":
+    case "upload":
       createFileInput({
         title: message.title,
         source: message.source,
-        options: message.options,
-        placeholders: message.hints,
+        max: message.max,
+        allowDir: message.directory,
         callback: message.callback,
       });
       break;
     default:
+      console.log("unknown message type", message);
       break;
   }
 });

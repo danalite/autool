@@ -40,6 +40,7 @@ let assistWindow;
 // Backend PyWebsocket server
 let subPy = null;
 let subPyExited = false
+let isRestartEnabled = false
 
 const PY_SRC_FOLDER = "../backend"
 const PY_MODULE = "app.py"
@@ -77,6 +78,12 @@ const startPythonSubprocess = () => {
     console.log('[ NodeJS ] process exited with ' +
       `code ${code} and signal ${signal}`);
     subPyExited = true
+
+    if (isRestartEnabled) {
+      startPythonSubprocess()
+      isRestartEnabled = false
+      mainWindow.webContents.send('wss-server-restarted')
+    }
   });
 
   subPy.stdout.on('data', (data) => {
@@ -87,10 +94,10 @@ const startPythonSubprocess = () => {
   subPy.stderr.pipe(process.stdout)
 };
 
-ipcMain.on('restart-wss-server', (event, arg) => {
+ipcMain.on('wss-server-restart', (event, arg) => {
   console.log("[ NodeJS ] restarting wss server...")
-  subPy.kill('SIGTERM')
-  startPythonSubprocess()
+  subPy.kill('SIGTERM')  
+  isRestartEnabled = true
 })
 
 const init = async () => {

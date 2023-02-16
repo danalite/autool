@@ -420,12 +420,11 @@ const getNextRunTime = (task, index) => {
 
 let eventsCache = appConfig.get("eventsCache");
 const eventItems = computed(() => {
-  let index = 0;
   let events = props.taskEvents.map((e) => {
     return {
       title: `${e.event} (${e.uuid.slice(0, 8)})`,
       content: genEventContent(e.value, e.taskName),
-      key: index++,
+      key: e.stamp,
       type: genEventType(e.value, e.source),
       time: e.stamp,
     };

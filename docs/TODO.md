@@ -4,9 +4,13 @@
 - [ ] Click app icon to show documents
 - [ ] Check legality of the task hotkey
 - [ ] Task or app renaming
-- [ ] More examples for tutorials app: www.free-api.com, AI service, etc
+- [ ] More examples for tutorials app: www.free-api.com, AI service, https://api.aa1.cn/, etc
 
 ## 2023-02
+- [x] Preview mode for `user.input`
+- [ ] Build documentations for apps
+- [ ] Sort apps based on class
+- [x] Update proxy example with selenium: https://www.browserstack.com/guide/set-proxy-in-selenium
 - [x] Improve notification copy & paste experience
 - [x] Make notification window layout more compact
 - [x] Fix task bar task naming issue

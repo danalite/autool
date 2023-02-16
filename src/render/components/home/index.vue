@@ -128,10 +128,13 @@ function setupWsConn() {
     };
   } catch (e) {
     console.log("Failed. Backend not responding.", e);
-    ipcRenderer.send("restart-wss-server", {});
-    setTimeout(() => {
-      setupWsConn();
-    }, 5000);
+    // ipcRenderer.send("wss-server-restart");
+    // wsConn = null;
+    // ipcRenderer.once("wss-server-restarted", () => {
+    //   setTimeout(() => {
+    //     setupWsConn();
+    //   }, 600);
+    // });
   }
 }
 
@@ -194,11 +197,11 @@ const sendMessageToBackend = (message) => {
       wsConn.close();
       console.log("wsConn is closed, trying to reconnect...");
 
-      ipcRenderer.send("restart-wss-server");
-      setTimeout(() => {
+      ipcRenderer.send("wss-server-restart");
+      ipcRenderer.once("wss-server-restarted", () => {
         setupWsConn();
         wsConn.send(JSON.stringify(message));
-      }, 1000);
+      });
     } else {
       wsConn.send(JSON.stringify(message));
     }
@@ -244,34 +247,42 @@ const backendEventHook = (message) => {
         content: value.content,
         source: message.taskName,
         timeout: value.timeout,
+        isPreview: value.isPreview,
       });
       break;
 
     case EventType.O_EVENT_USER_INPUT:
-      let callback = `callback-${taskId}`
-      ipcRenderer.once(callback, (event, data) => {
-        // console.log("User input received: ", data, " for task: ", message.taskName);
-        sendMessageToBackend({
-          event: EventType.I_EVENT_TASK_REQ,
-          source: "Main.UserInput",
-          uuid: taskId,
-          taskName: message.taskName,
-          value: {
-            type: "resumeTask",
-            selected: JSON.parse(data),
-          },
+      // TODO: Type: "area"
+      //      Waiting for callback from uioListener
+      if (value.type === "area") {
+      } else {
+        // Type: "select", "text", "upload"
+        //      Waiting for callback from assist window
+        let callback = `callback-${taskId}`;
+        ipcRenderer.once(callback, (event, data) => {
+          sendMessageToBackend({
+            event: EventType.I_EVENT_TASK_REQ,
+            source: "Main.UserInput",
+            uuid: taskId,
+            taskName: message.taskName,
+            value: {
+              type: "resumeTask",
+              selected: JSON.parse(data),
+            },
+          });
         });
-      });
-      ipcRenderer.send("to-assist-window", {
-        type: value.type,
-        title: value.title,
-        options: value.options,
-        max: value.max,
-        min: value.min,
-        preset: value.preset,
-        source: message.taskName,
-        callback: callback,
-      });
+        ipcRenderer.send("to-assist-window", {
+          type: value.type,
+          title: value.title,
+          options: value.options,
+          max: value.max,
+          min: value.min,
+          preset: value.preset,
+          isPreview: value.isPreview,
+          source: message.taskName,
+          callback: callback,
+        });
+      }
       break;
 
     default:
