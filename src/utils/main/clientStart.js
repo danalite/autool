@@ -1,6 +1,5 @@
 import {promisify} from 'util'
 import {exec} from 'child_process'
-import {RIOT_GAMES_CERT} from "@/utils/render/RIOT"
 
 const runCommand = promisify(exec)
 

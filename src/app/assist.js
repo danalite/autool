@@ -4,24 +4,23 @@ import { appConfig } from "../utils/main/config";
 
 export const createAssistWindow = async (userHeader) => {
   const currentScreen = screen.getPrimaryDisplay()['size']
-
-  const notificationPanelOnRight = appConfig.get('notificationPanelOnRight')
-  const assistWindowPosition = notificationPanelOnRight ? { x: currentScreen.width - 380, y: 15 } : { x: 0, y: 15}
-
+  appConfig.set('assistWinSize', currentScreen)
   const assistWin = new BrowserWindow({
     title: 'toolAssist',
     frame: false,
     transparent: true,
     // closable: false,
     fullscreenable: false,
+    hasShadow: false,
     resizable: false,
     movable: false,
-    width: 380,
-    height: currentScreen.height - 20,
-    x: assistWindowPosition.x,
-    y: assistWindowPosition.y,
+    width: currentScreen.width,
+    height: currentScreen.height,
+    x: 0,
+    y: 0,
     alwaysOnTop: true,
     webPreferences: {
+      webviewTag: true,
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
@@ -34,8 +33,23 @@ export const createAssistWindow = async (userHeader) => {
     assistWin.show()
   })
 
-  assistWin.setIgnoreMouseEvents(false);
+  assistWin.webContents.session.webRequest.onHeadersReceived({ urls: ["*://*/*"] },
+    (d, c) => {
+      if (d.responseHeaders['X-Frame-Options']) {
+        delete d.responseHeaders['X-Frame-Options'];
+      } else if (d.responseHeaders['x-frame-options']) {
+        delete d.responseHeaders['x-frame-options'];
+      }
+
+      c({ cancel: false, responseHeaders: d.responseHeaders });
+    }
+  );
+
+  assistWin.setIgnoreMouseEvents(true);
+  assistWin.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  assistWin.setAlwaysOnTop(true, 'floating', 1)
   assistWin.setFocusable(true);
+
   assistWin.webContents.openDevTools()
 
   if (process.env.npm_lifecycle_event === "electron:serve") {

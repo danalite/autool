@@ -1,4 +1,4 @@
-import { screen, ipcMain } from "electron";
+import { ipcMain } from "electron";
 import { appConfig } from "@/utils/main/config";
 import { addApp, addTask, deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
 import { registerUioEvent } from "@/utils/main/uioListener";
@@ -55,18 +55,6 @@ export const ipcListener = (mainWindow, assistWindow) => {
       mainWindow.setAlwaysOnTop(false)
       mainWindow.setWindowButtonVisibility(true)
       mainWindow.setResizable(true)
-    }
-  })
-
-  ipcMain.on('assist-position-toggle', (event, onRight) => {
-    let pos = assistWindow.getBounds()
-    const currentScreen = screen.getPrimaryDisplay()['size']
-
-    if (onRight && pos.x == 0) {
-      assistWindow.setBounds({ x: currentScreen.width - 380, y: 15, width: 380, height: currentScreen.height - 20 })
-
-    } else if (!onRight && pos.x > 0) {
-      assistWindow.setBounds({ x: 0, y: 15, width: 380, height: currentScreen.height - 20 })
     }
   })
 

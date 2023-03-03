@@ -1,9 +1,41 @@
 <template>
-  <div></div>
+  <div :width="canvasWidth" :height="canvasHeight">
+    <n-tooltip
+      v-for="(marker, index) in activeAnnotations"
+      :key="index"
+      trigger="hover"
+    >
+      <template #trigger>
+        <div
+          :style="{
+            border: `2px solid #D9554F`,
+            width: marker.width,
+            height: marker.height,
+            position: 'absolute',
+            left: marker.x,
+            top: marker.y,
+          }"
+        >
+          <n-button size="small" text>
+            <n-checkbox :checked="true" />
+            <img
+              src="../../assets/icon/logo.png"
+              draggable="false"
+              alt=""
+              width="22"
+              style="padding-left: 3px"
+            />
+          </n-button>
+        </div>
+      </template>
+      {{ marker.label }}
+    </n-tooltip>
+  </div>
 </template>
 
 <script setup>
 import { shell, ipcRenderer } from "electron";
+import iconMarker from "../../assets/icon/logo.png";
 import {
   NCarousel,
   NCarouselItem,
@@ -13,7 +45,9 @@ import {
   NTag,
   NIcon,
   NImage,
+  NDivider,
   NText,
+  NTooltip,
   NInput,
   NInputGroup,
   NBadge,
@@ -34,7 +68,12 @@ import { h, ref, onMounted } from "vue";
 import { appConfig } from "../../../utils/main/config";
 import dragDemo from "../../assets/apps/drop-files-demo.gif";
 
+const emits = defineEmits(["togglePromptPlacement"]);
 const notification = useNotification();
+
+let assistWinSize = appConfig.get("assistWinSize");
+const canvasWidth = ref(assistWinSize.width);
+const canvasHeight = ref(assistWinSize.height);
 
 const handleCopyImg = (src) => {
   const canvas = document.createElement("canvas");
@@ -90,8 +129,8 @@ const renderPreviews = (images) => {
               default: () => [
                 h(NImage, {
                   src: image,
-                  height: "180",
-                  "object-fit": "fill",
+                  width: "320",
+                  "object-fit": "cover",
                   "preview-disabled": true,
                 }),
                 h(
@@ -144,7 +183,15 @@ const renderTitle = (title, icon) => {
     { size: [10, 2] },
     {
       default: () => [
-        h(NIcon, { color: "green", size: 20 }, { default: () => h(icon) }),
+        h(
+          NIcon,
+          {
+            color: "green",
+            size: 20,
+            onClick: () => emits("togglePromptPlacement", {}),
+          },
+          { default: () => h(icon) }
+        ),
         h("span", title),
       ],
     }
@@ -241,7 +288,7 @@ const renderPreviewsSelection = (options) => {
                     style: { position: "absolute", bottom: "8px", left: "8px" },
                     onUpdateValue: (value) => {
                       if (value) {
-                        currentOptions.value.push({ index: index, ...option});
+                        currentOptions.value.push({ index: index, ...option });
                       } else {
                         currentOptions.value = currentOptions.value.filter(
                           (item) => item.index !== index
@@ -558,6 +605,7 @@ const createNotification = (command) => {
 // Input-text request
 const inputText = ref([]);
 const renderInputText = (command) => {
+  inputText.value = Array(command.options.length).fill("");
   return h(
     NSpace,
     { style: { "margin-top": "5px", "margin-bottom": "2px" } },
@@ -566,23 +614,20 @@ const renderInputText = (command) => {
         command.options.map((key) =>
           h(
             NSpace,
-            { style: {} },
+            { style: {}, vertical: true },
             {
-              default: () =>
-                h(
-                  NInputGroup,
-                  { size: "small", style: { width: "280px" } },
-                  {
-                    default: () => [
-                      h(NTag, { type: "info" }, { default: () => key }),
-                      h(NInput, {
-                        size: "small",
-                        placeholder:
-                          command.placeholders[command.options.indexOf(key)],
-                      }),
-                    ],
-                  }
-                ),
+              default: () => [
+                h(NButton, { text: true }, { default: () => key }),
+                h(NInput, {
+                  size: "small",
+                  onInput: (e) => {
+                    inputText.value[command.options.indexOf(key)] = e;
+                  },
+                  placeholder:
+                    command.placeholders[command.options.indexOf(key)],
+                }),
+                h(NDivider, { dashed: true }),
+              ],
             }
           )
         ),
@@ -591,8 +636,9 @@ const renderInputText = (command) => {
 };
 
 const createTextInput = (command) => {
+  let title = command.title ? command.title : "Input required";
   let nRef = notification.create({
-    title: command.title,
+    title: title,
     content: () => renderInputText(command),
     meta: `task (${command.source})`,
     avatar: () =>
@@ -618,7 +664,12 @@ const createTextInput = (command) => {
           default: () => h("span", { style: {} }, "Submit"),
         }
       ),
-    onAfterLeave: () => {},
+    onAfterLeave: () => {
+      ipcRenderer.send("event-to-main-win", {
+        callback: command.callback,
+        data: JSON.stringify(inputText.value),
+      });
+    },
   });
 };
 
@@ -760,7 +811,8 @@ ipcRenderer.on("assist-win-push", (event, message) => {
         title: message.title,
         source: message.source,
         options: message.options,
-        placeholders: message.hints,
+        placeholders: message.preset,
+        callback: message.callback,
       });
       break;
 
@@ -788,6 +840,17 @@ ipcRenderer.on("assist-win-push", (event, message) => {
       break;
   }
 });
+
+const activeAnnotations = ref([
+  {
+    label: "Some tips",
+    x: '200px',
+    y: '200px',
+    width: '100px',
+    height: '100px',
+    color: "#ff0000",
+  },
+]);
 </script>
 
 <style scoped>
@@ -807,22 +870,6 @@ ipcRenderer.on("assist-win-push", (event, message) => {
   align-items: center;
 }
 
-.runImgPrimary {
-  width: 50px;
-  height: 50px;
-}
-
-.runImg {
-  width: 30px;
-  height: 30px;
-}
-
-.runImgseSondary {
-  width: 25px;
-  height: 25px;
-  margin-bottom: -7px;
-}
-
 .n-card > .n-card__content > .runeCard {
   padding: 0 !important;
 }
@@ -830,66 +877,5 @@ ipcRenderer.on("assist-win-push", (event, message) => {
 .buttonSwitch {
   margin-top: 5px;
   margin-left: -5px;
-}
-
-.bottomTip {
-  margin-bottom: 0px;
-  height: 80px;
-  padding-top: 10px;
-  padding-left: 1px;
-}
-
-.itemImg {
-  width: 35px;
-  height: 35px;
-  border-radius: 4px;
-  position: absolute;
-}
-
-.skillDiv {
-  position: relative;
-}
-
-.skillText {
-  width: 16px;
-  height: 16px;
-  position: absolute;
-  top: 19px;
-  left: 19px;
-  background: rgba(32, 45, 55, 0.9);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  white-space: nowrap;
-  color: rgb(0, 215, 176) !important;
-  font-size: 11px !important;
-}
-
-.itemsTotal {
-  float: right;
-  position: absolute;
-  right: 4px;
-  bottom: -2px;
-  color: #9aa4af;
-}
-
-.slide-in-bottom {
-  -webkit-animation: slide-in-bottom 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)
-    both;
-  animation: slide-in-bottom 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-}
-
-@keyframes slide-in-bottom {
-  0% {
-    -webkit-transform: translateY(1000px);
-    transform: translateY(1000px);
-    opacity: 0;
-  }
-  100% {
-    -webkit-transform: translateY(0);
-    transform: translateY(0);
-    opacity: 1;
-  }
 }
 </style>

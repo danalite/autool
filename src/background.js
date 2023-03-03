@@ -1,13 +1,15 @@
 import {
   app,
+  shell,
   dialog,
   systemPreferences,
   BrowserWindow,
-  ipcMain,
+  ipcMain
 } from 'electron'
 
 const axios = require('axios')
 
+// import { kill } from './utils/main/subprocessUtils'
 import { uioStop } from './utils/main/uioListener'
 import { appConfig, userAgentList } from './utils/main/config'
 
@@ -18,7 +20,7 @@ import {
   makeTray
 } from "./app";
 
-import { execFile, spawn } from "child_process"
+import { execFile, spawn, exec } from "child_process"
 import { loadApps } from './utils/main/queryTasks';
 import { uioStartup } from "./utils/main/uioListener";
 

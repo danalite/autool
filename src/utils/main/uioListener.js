@@ -54,25 +54,28 @@ var lastActionTimeStamp = 0
 
 var mouseActionTables = []
 var isOverAssist = false
+var isHelperWindowShown = false
+var assistBounds = {}
 
 const assistWindowMouseWatch = (assistWindow) => {
   // If no macro recording, activate assist window and DOM listeners  
   //    when mouse is hovered on assist window area. 
   //   Otherwise, assist window is hidden and DOM listeners are disabled.
+  assistBounds = assistWindow.getBounds()
+
   mouseActionTables.push(
     {
       name: "move-assist-window-enter",
       source: "console",
       rule: (e) => {
-        const assistBounds = assistWindow.getBounds()
-        return !isOverAssist && e.x > assistBounds.x && e.x < assistBounds.x + assistBounds.width
-          && e.y > assistBounds.y && e.y < assistBounds.y + assistBounds.height
+        // console.log("assistBounds", promptPosition, range, assistBounds)
+        return e.x > assistBounds.x + assistBounds.width - 380 || e.x < 500
       },
       action: (e) => {
-        // console.log("enter assist window area")
-        isOverAssist = true
-        assistWindow.focus()
-        assistWindow.webContents.send('mouse-over-assist', {})
+        // console.log("enter assist window area")  
+        // assistWindow.focus()
+
+        assistWindow.webContents.send('mouse-over-assist', { isOverPrompt: e.x > assistBounds.x + assistBounds.width - 380 })
       }
     },
 
@@ -81,15 +84,13 @@ const assistWindowMouseWatch = (assistWindow) => {
       name: "move-assist-window-leave",
       source: "console",
       rule: (e) => {
-        const assistBounds = assistWindow.getBounds()
-        return isOverAssist && !(e.x > assistBounds.x && e.x < assistBounds.x + assistBounds.width
-          && e.y > assistBounds.y && e.y < assistBounds.y + assistBounds.height)
+        return e.x > 500 && e.x < assistBounds.x + assistBounds.width - 380
       },
       action: (e) => {
         // console.log("leave assist window area")
-        isOverAssist = false
+        assistWindow.webContents.send('mouse-leave-assist', { })
       }
-    }
+    }, 
   )
 }
 
@@ -131,6 +132,14 @@ export const uioStartup = (assistWindow) => {
         }
       })
     })
+  }
+
+  let ret = globalShortcut.register('CommandOrControl+Q', () => {
+    isHelperWindowShown = !isHelperWindowShown
+    assistWindow.webContents.send('toggle-helper-drawer', {})
+  })
+  if (!ret) {
+    console.log(`[ NodeJS ] hotkey failed`)
   }
 }
 
@@ -207,7 +216,7 @@ const hotkeyRegisterUpdateMAT = (event) => {
       return isHotKeyComboPressed(event.hotkey)
     },
     action: (e) => {
-      event.callback({taskId: event.taskId})
+      event.callback({ taskId: event.taskId })
     }
   })
 }
@@ -390,8 +399,8 @@ export const registerUioEvent = (assistWindow, event) => {
 
     } else {
       keyWaitUpdateMAT(event)
-    } 
-  
+    }
+
   } else if (event.type == "hotkeyWait") {
     // When macro recording is on, queue the event
     if (isMacroRecording) {

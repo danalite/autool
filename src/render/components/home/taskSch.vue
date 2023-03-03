@@ -72,7 +72,7 @@
 
                 <n-button :text="true" size="small" @click="openLog(task)">
                   <n-ellipsis style="max-width: 155px">
-                    {{ task.taskName }}
+                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
                   </n-ellipsis>
                 </n-button>
               </n-space>
@@ -120,7 +120,7 @@
 
                 <n-button :text="true" size="small">
                   <n-ellipsis style="max-width: 155px">
-                    {{ task.taskName }}
+                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }} 
                   </n-ellipsis>
                 </n-button>
               </n-space>
@@ -169,7 +169,7 @@
 
                 <n-button :text="true" size="small">
                   <n-ellipsis style="max-width: 155px">
-                    {{ task.taskName }}
+                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
                   </n-ellipsis>
                 </n-button>
               </n-space>
@@ -217,7 +217,7 @@
 
                 <n-button :text="true" size="small" @click="openLog(task)">
                   <n-ellipsis style="max-width: 155px; width: 155px">
-                    {{ task.taskName }}
+                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
                   </n-ellipsis>
                 </n-button>
                 <n-button
@@ -364,6 +364,7 @@ const genEventContent = (item, taskName) => {
   }
 };
 
+const pathSeparator = ref(appConfig.get("pathSeparator"));
 const collapsed = ref(appConfig.get("isTaskSchMenuCollapsed"));
 const taskSchTab = ref("running");
 

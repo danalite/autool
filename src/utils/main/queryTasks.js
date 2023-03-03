@@ -116,7 +116,7 @@ export const updateTaskYaml = (taskPath, key, update) => {
       return
     }
     doc.configs[newKey] = update;
-    
+
   } else if (key == 'shortcut') {
     doc.configs[key] = update;
   }
@@ -133,6 +133,56 @@ export const deleteApp = (appPath) => {
     fs.rmSync(appPath, { recursive: true, force: true })
   } else {
     console.error(`${appPath} not exists`)
+  }
+}
+
+const parseTask = async (taskFile, taskItem) => {
+  try {
+    let content = await readFile(taskFile)
+    let doc = yaml.load(content);
+
+    if (doc === undefined) {
+      console.error("@@ loadApps. ", content)
+      console.error(`Error: ${taskFile} is empty`)
+      return
+    }
+
+    taskItem.desc = []
+    if ("desc" in doc) taskItem.desc = doc.desc
+    taskItem.doc = ""
+    if ("doc" in doc) taskItem.doc = doc.doc
+
+    // options: autostart, remote
+    taskItem.shortcut = false
+    taskItem.hotkey = ""
+    taskItem.startTime = ""
+    taskItem.options = []
+
+    taskItem.options = []
+    if ("configs" in doc) {
+      if ("options" in doc.configs) {
+        taskItem.options = doc.configs.options
+      }
+      if ("hotkey" in doc.configs) {
+        taskItem.hotkey = doc.configs.hotkey
+      }
+      if ("shortcut" in doc.configs) {
+        taskItem.shortcut = doc.configs.shortcut
+      }
+      if ("start-time" in doc.configs) {
+        taskItem.startTime = doc.configs["start-time"]
+      }
+    }
+
+    taskItem.inputs = []
+    if (doc.inputs) {
+      for (const [key, value] of Object.entries(doc.inputs)) {
+        taskItem.inputs.push({ "key": key, "value": value })
+      }
+    }
+
+  } catch (e) {
+    console.log(e);
   }
 }
 
@@ -164,59 +214,13 @@ export const loadApps = async (appDir) => {
         'author': appJson.author,
       }
 
-      try {
-        let content = await readFile(taskFile)
-        let doc = yaml.load(content);
-
-        if (doc === undefined) {
-          console.error("@@ loadApps. ", content)
-          console.error(`Error: ${taskFile} is empty`)
-          return
-        }
-
-        taskItem.desc = []
-        if ("desc" in doc) taskItem.desc = doc.desc
-        taskItem.doc = ""
-        if ("doc" in doc) taskItem.doc = doc.doc
-
-        // options: autostart, remote
-        taskItem.shortcut = false
-        taskItem.hotkey = ""
-        taskItem.startTime = ""
-        taskItem.options = []
-
-        taskItem.options = []
-        if ("configs" in doc) {
-          if ("options" in doc.configs) {
-            taskItem.options = doc.configs.options
-          }
-          if ("hotkey" in doc.configs) {
-            taskItem.hotkey = doc.configs.hotkey
-          }
-          if ("shortcut" in doc.configs) {
-            taskItem.shortcut = doc.configs.shortcut
-          }
-          if ("start-time" in doc.configs) {
-            taskItem.startTime = doc.configs["start-time"]
-          }
-        }
-
-        taskItem.inputs = []
-        if (doc.inputs) {
-          for (const [key, value] of Object.entries(doc.inputs)) {
-            taskItem.inputs.push({ "key": key, "value": value })
-          }
-        }
-
-        if (taskItem.options.includes("autostart")) {
-          autostartTasks.push(taskItem)
-        }
-
-      } catch (e) {
-        console.log(e);
+      await parseTask(taskFile, taskItem)
+      if (taskItem.options.includes("autostart")) {
+        autostartTasks.push(taskItem)
       }
       taskList.push(taskItem)
     }))
+
 
     // console.log("@@", JSON.stringify(taskList))
     taskList.sort(function (a, b) { return a.key - b.key })

@@ -5,12 +5,7 @@ import { defineStore } from 'pinia'
 export const useStore = defineStore('app', {
   state: () => {
     return {
-      pageCount: 1,// 首页页面切换计数器
-      summonerInfo: [],// 当前对局中队友的信息
-      endGameAfterInfo: [[], []],// 当前对局敌我双方信息
-      currentBlackList: [],// 当前对局中出现的黑名单队友
-      showSummonerInfoModal: false,
-      frankVersion: '1.20.1215'
+      pageCount: 1
     }
   },
   actions: {

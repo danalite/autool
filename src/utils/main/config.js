@@ -11,11 +11,12 @@ export const appConfig = new Store({
       x: 0,
       y: 0
     },
+    'assistWinSize': {},
     'hotkeyTasksCache': [],
     'stoppedTasksCache': [],
     'scheduledTasksCache': [],
     'eventsCache': [],
-    'notificationPanelOnRight': true,
+    'promptPosition': 'top-right',
     'autoRune': {},
     'appHome': '',
     'license': {
@@ -31,6 +32,7 @@ export const appConfig = new Store({
       'showType': 'running',
     },
     'apps': [],
+    'isLocalServerActive': false,
     'remoteServer': {
       'ocr': { 'url': 'http://localhost:8866/predict/ocr_system', 'valid': false },
       'ui': { 'url': 'http://localhost:8867/ui', 'valid': false },

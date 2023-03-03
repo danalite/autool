@@ -1,10 +1,9 @@
 <p align="center">
-  <img src="docs/images/cover.png" height="90" title="main">
+  <img src="resources/banner.png" height="90" title="main">
 </p>
 
 ## What is AuTool?
 - A programming framework that helps you build your own automation scripts easily
-- Let scripts do trivial things, so you can focus on the important things
 
 ## What scripts can you build?
 Here is a list of scripts that I built with AuTool for my daily routines. You can also build your own.

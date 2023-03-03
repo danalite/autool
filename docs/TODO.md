@@ -7,9 +7,10 @@
 - [ ] More examples for tutorials app: www.free-api.com, AI service, https://api.aa1.cn/, etc
 
 ## 2023-02
+- [ ] Add `window.annotate` to annotate the window
 - [x] Preview mode for `user.input`
-- [ ] Build documentations for apps
-- [ ] Sort apps based on class
+- [x] Build documentations for apps
+- [x] Sort apps based on class
 - [x] Update proxy example with selenium: https://www.browserstack.com/guide/set-proxy-in-selenium
 - [x] Improve notification copy & paste experience
 - [x] Make notification window layout more compact

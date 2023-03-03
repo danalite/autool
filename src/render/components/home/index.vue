@@ -124,7 +124,7 @@ function setupWsConn() {
     };
 
     wsConn.onerror = (e) => {
-      message.error("wsConn error", e);
+      message.error("wsConn error", JSON.stringify(e), { duration: 8000 });
     };
   } catch (e) {
     console.log("Failed. Backend not responding.", e);
@@ -158,6 +158,16 @@ onMounted(() => {
     }, 600);
   });
 
+  setInterval(() => {
+    let status = false;
+    if (wsConn !== null) {
+      if (wsConn.readyState === WebSocket.OPEN) {
+        status = true;
+      }
+    }
+    appConfig.set("isLocalServerActive", status);
+  }, 2000);
+
   ipcRenderer.on("to-backend", (event, data) => {
     sendMessageToBackend(data);
   });
@@ -186,26 +196,52 @@ onMounted(() => {
         hotkey: task.hotkey,
       });
     });
-  }, 600);
+  }, 2000);
 });
 
 // Websocket connection to backend
 let wsConn = null;
+const waitForConnection = (callback, interval) => {
+  if (wsConn.readyState === 1) {
+    callback();
+  } else {
+    console.log("waiting for connection...", wsConn.readyState);
+    setTimeout(() => {
+      waitForConnection(callback, interval);
+    }, interval);
+  }
+};
+
 const sendMessageToBackend = (message) => {
   try {
     if (wsConn.readyState !== WebSocket.OPEN) {
       wsConn.close();
       console.log("wsConn is closed, trying to reconnect...");
 
+      wsConn = null;
       ipcRenderer.send("wss-server-restart");
       ipcRenderer.once("wss-server-restarted", () => {
-        setupWsConn();
-        wsConn.send(JSON.stringify(message));
+        setTimeout(() => {
+          setupWsConn();
+          waitForConnection(() => {
+            wsConn.send(JSON.stringify(message));
+          }, 1000);
+        }, 1000);
       });
     } else {
       wsConn.send(JSON.stringify(message));
     }
   } catch (e) {
+    wsConn = null;
+    ipcRenderer.send("wss-server-restart");
+    ipcRenderer.once("wss-server-restarted", () => {
+      setTimeout(() => {
+        setupWsConn();
+        waitForConnection(() => {
+          wsConn.send(JSON.stringify(message));
+        }, 1000);
+      }, 1000);
+    });
     console.log(JSON.stringify(e), "Backend not responding...");
   }
 };
