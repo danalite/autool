@@ -105,6 +105,7 @@ const store = useStore();
 let { pageCount } = storeToRefs(store);
 const message = useMessage();
 
+let wsConn = null;
 function setupWsConn() {
   try {
     wsConn = new WebSocket("ws://127.0.0.1:5678/");
@@ -114,11 +115,8 @@ function setupWsConn() {
     };
     wsConn.onopen = (event) => {
       sendMessageToBackend({
-        event: EventType.I_EVENT_TASK_REQ,
-        value: {
-          type: "REGISTRATION",
-          worker: "Main",
-        },
+        event: EventType.I_EVENT_WSS_REQ,
+        value: "MainLoop",
       });
       console.log("Connected to backend server.");
     };
@@ -127,19 +125,13 @@ function setupWsConn() {
       message.error("wsConn error", JSON.stringify(e), { duration: 8000 });
     };
   } catch (e) {
-    console.log("Failed. Backend not responding.", e);
-    // ipcRenderer.send("wss-server-restart");
-    // wsConn = null;
-    // ipcRenderer.once("wss-server-restarted", () => {
-    //   setTimeout(() => {
-    //     setupWsConn();
-    //   }, 600);
-    // });
+    message.error("wsConn error in setup", JSON.stringify(e), { duration: 8000 });
   }
 }
 
 // On startup load apps
 const apps = ref([]);
+let failureCount = 0;
 onMounted(() => {
   let dim = appConfig.get("mainWindowDimension");
   let openPage = dim.isCollapsed ? 0 : 1;
@@ -155,18 +147,28 @@ onMounted(() => {
       if (wsConn === null) {
         setupWsConn();
       }
-    }, 600);
+    }, 800);
   });
+
 
   setInterval(() => {
     let status = false;
     if (wsConn !== null) {
       if (wsConn.readyState === WebSocket.OPEN) {
         status = true;
-      }
+      } 
     }
     appConfig.set("isLocalServerActive", status);
-  }, 2000);
+    if (status === false) {
+      if (failureCount > 3) {
+        // message.error("Local server is not active.");
+        setupWsConn();
+      } else {
+        failureCount++;
+      }
+    } 
+
+  }, 1000);
 
   ipcRenderer.on("to-backend", (event, data) => {
     sendMessageToBackend(data);
@@ -199,50 +201,12 @@ onMounted(() => {
   }, 2000);
 });
 
-// Websocket connection to backend
-let wsConn = null;
-const waitForConnection = (callback, interval) => {
-  if (wsConn.readyState === 1) {
-    callback();
-  } else {
-    console.log("waiting for connection...", wsConn.readyState);
-    setTimeout(() => {
-      waitForConnection(callback, interval);
-    }, interval);
-  }
-};
-
-const sendMessageToBackend = (message) => {
+const sendMessageToBackend = (msg) => {
   try {
-    if (wsConn.readyState !== WebSocket.OPEN) {
-      wsConn.close();
-      console.log("wsConn is closed, trying to reconnect...");
-
-      wsConn = null;
-      ipcRenderer.send("wss-server-restart");
-      ipcRenderer.once("wss-server-restarted", () => {
-        setTimeout(() => {
-          setupWsConn();
-          waitForConnection(() => {
-            wsConn.send(JSON.stringify(message));
-          }, 1000);
-        }, 1000);
-      });
-    } else {
-      wsConn.send(JSON.stringify(message));
-    }
+      wsConn.send(JSON.stringify(msg));
   } catch (e) {
     wsConn = null;
-    ipcRenderer.send("wss-server-restart");
-    ipcRenderer.once("wss-server-restarted", () => {
-      setTimeout(() => {
-        setupWsConn();
-        waitForConnection(() => {
-          wsConn.send(JSON.stringify(message));
-        }, 1000);
-      }, 1000);
-    });
-    console.log(JSON.stringify(e), "Backend not responding...");
+    message.error("wsConn error", JSON.stringify(e), { duration: 8000 });
   }
 };
 
@@ -274,6 +238,10 @@ const backendEventHook = (message) => {
         taskId: message.uuid,
         options: [value.key],
       });
+      break;
+
+    case EventType.O_EVENT_WINDOW_REQ:
+      console.log("O_EVENT_WINDOW_REQ", value);
       break;
 
     case EventType.O_EVENT_USER_NOTIFY:

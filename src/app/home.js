@@ -44,7 +44,7 @@ export const createMainWindow = async (userHeader) => {
     win.setResizable(false)
   }
 
-  // win.webContents.openDevTools()
+  win.webContents.openDevTools()
   win.on('ready-to-show', () => {
     win.show()
   })

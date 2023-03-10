@@ -9,7 +9,7 @@
         :placement="'left'"
         :show-mask="false"
         :mask-closable="false"
-        style="border-radius: 12px;"
+        style="border-radius: 12px"
       >
         <n-drawer-content
           :native-scrollbar="false"
@@ -18,11 +18,19 @@
         >
           <template #header>
             <n-popselect v-model:value="selectType" :options="options">
-              <n-button>{{ selectType || "Popselect" }}</n-button>
+              <n-button style="width: 400px">
+                <n-ellipsis style="max-width: 380px">
+                  {{
+                selectType || "Popselect"
+              }}
+                </n-ellipsis>
+
+              </n-button>
             </n-popselect>
           </template>
 
           <webview
+            id="my-webview"
             :src="selectType"
             style="width: 100%; height: 100%; border: none"
           ></webview>
@@ -37,6 +45,7 @@ import {
   NNotificationProvider,
   NDrawer,
   NDrawerContent,
+  NEllipsis,
   NButton,
   NPopselect,
 } from "naive-ui";
@@ -70,9 +79,17 @@ const options = [
     value: "https://chat.openai.com/",
   },
   {
+    label: "TinyWow Toolbox",
+    value: "https://tinywow.com/",
+  },
+  {
+    label: "Todo Lists",
+    value: "https://tasks-app-aridsm.netlify.app",
+  },
+  {
     label: "AuTool Documents",
     value: "https://danalites.github.io/autoo/",
-  }
+  },
 ];
 
 onMounted(() => {
@@ -88,9 +105,36 @@ onMounted(() => {
   }, 3000);
 });
 
+function waitForElm(selector) {
+  return new Promise((resolve) => {
+    if (document.querySelector(selector)) {
+      return resolve(document.querySelector(selector));
+    }
+
+    const observer = new MutationObserver((mutations) => {
+      if (document.querySelector(selector)) {
+        resolve(document.querySelector(selector));
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  });
+}
+
 const showDrawer = ref(false);
 ipcRenderer.on("toggle-helper-drawer", (event, arg) => {
-  showDrawer.value = !showDrawer.value;
+  if (showDrawer.value) {
+    waitForElm("#my-webview").then((elm) => {
+      selectType.value = elm.src;
+      showDrawer.value = false;
+    });
+  } else {
+    showDrawer.value = true;
+  }
 });
 
 // document.getElementsByTagName("body")[0].addEventListener("mouseover", (e) => {

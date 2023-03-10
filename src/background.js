@@ -125,7 +125,7 @@ const init = async () => {
   await appSetup()
 
   ipcListener(mainWindow, assistWindow)
-  mainWindow.webContents.send('start-wss-backend')
+  mainWindow.webContents.send('start-wss-backend', {})
 }
 
 app.whenReady().then(async () => {
@@ -185,10 +185,10 @@ app.whenReady().then(async () => {
 
   app.on("before-quit", async () => {
     // Send stop signal to backend
-    // await mainWindow.webContents.send('to-backend', {
-    //   event: 'I_EVENT_WSS_REQ',
-    //   action: 'stop'
-    // })
+    await mainWindow.webContents.send('to-backend', {
+      event: 'I_EVENT_WSS_REQ',
+      action: 'Shutdown'
+    })
     console.log("[ NodeJS ] before-quit!")
     if (!subPyExited) {
       console.log("[ NodeJS ] subPy not exited. Killing...")
@@ -206,7 +206,8 @@ const appSetup = async () => {
     let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
     appHome = path.join(userPath, 'scripts')
 
-    appHome = "/Users/hecmay/Desktop/apps/"
+    let user = require("os").userInfo().username
+    appHome = `/Users/${user}/Desktop/apps/`
     appConfig.set('appHome', appHome)
   }
 

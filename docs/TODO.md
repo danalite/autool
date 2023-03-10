@@ -6,8 +6,16 @@
 - [ ] Task or app renaming
 - [ ] More examples for tutorials app: www.free-api.com, AI service, https://api.aa1.cn/, etc
 
+## 2023-03
+- [ ] Try out the SuperGlue
+- [ ] Push notification feature (game, stock, todo, etc)
+- [x] TTS demo (Azure and Free APIs)
+- [x] Resume the previously opened windows for popup
+- [x] Add python server restart function
+- [x] Fix the VueJS warning in popup window
+
 ## 2023-02
-- [ ] Add `window.annotate` to annotate the window
+- [x] Add `window.annotate` to annotate the window
 - [x] Preview mode for `user.input`
 - [x] Build documentations for apps
 - [x] Sort apps based on class

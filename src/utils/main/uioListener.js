@@ -134,7 +134,7 @@ export const uioStartup = (assistWindow) => {
     })
   }
 
-  let ret = globalShortcut.register('CommandOrControl+Q', () => {
+  let ret = globalShortcut.register('CommandOrControl+D', () => {
     isHelperWindowShown = !isHelperWindowShown
     assistWindow.webContents.send('toggle-helper-drawer', {})
   })

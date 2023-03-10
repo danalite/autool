@@ -42,7 +42,7 @@
             >
               <n-avatar
                 :src="app.icon"
-                size="small"
+                size="large"
                 style="
                   margin-right: 0px;
                   border-radius: 6px;
@@ -116,11 +116,12 @@
                   <n-button
                     secondary
                     :bordered="false"
+                    :loading="loadingTaskIndex == taskIndex"
                     size="small"
-                    @click="runTask(task)"
+                    @click="runTask(task, taskIndex)"
                     style="text-align: left"
                   >
-                    <n-ellipsis style="width: 160px; max-width: 160px">
+                    <n-ellipsis style="width: 205px; max-width: 205px">
                       {{
                         task.relTaskPath.includes("/")
                           ? task.relTaskPath.split("/")[1]
@@ -564,7 +565,8 @@ const props = defineProps({
 const emits = defineEmits(["runTask", "refreshApps"]);
 const message = useMessage();
 
-const runTask = (task) => {
+const loadingTaskIndex = ref(-1);
+const runTask = (task, index) => {
   if (task.startTime) {
     message.info(`"${task.relTaskPath}" scheduled.`);
 
@@ -574,7 +576,11 @@ const runTask = (task) => {
       return;
     }
   } else if (!task.hotkey) {
-    message.success(`Task "${task.relTaskPath}" started`);
+    // message.success(`Task "${task.relTaskPath}" started`);
+    loadingTaskIndex.value = index;
+    setTimeout(() => {
+      loadingTaskIndex.value = -1;
+    }, 1000);
   }
   emits("runTask", task);
 };
@@ -690,7 +696,7 @@ const activeSelectedTask = ref(null);
 const handleTaskAction = async (key) => {
   showDropdownRef.value = false;
   if (key === "run") {
-    runTask(activeSelectedTask.value);
+    runTask(activeSelectedTask.value, -1);
   } else if (key === "edit") {
     shell.openExternal(`vscode://file/${activeSelectedTask.value.absTaskPath}`);
   } else if (key === "delete") {

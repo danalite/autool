@@ -399,6 +399,25 @@ const onCreate = () => {
     value: "https://www.google.com",
   };
 };
+
+
+const restartBackendServer = () => {
+  request({
+    url: "http://localhost:3000/restart",
+    method: "GET",
+  })
+    .then((res) => {
+      if (res.status === 200) {
+        message.success(`Backend server restarted`);
+      } else {
+        message.error(`Backend server restart failed`);
+      }
+    })
+    .catch((err) => {
+      message.error(`Error: Backend server restart failed. ${err}`);
+    });
+};
+
 </script>
     
 <style scoped>

@@ -842,14 +842,14 @@ ipcRenderer.on("assist-win-push", (event, message) => {
 });
 
 const activeAnnotations = ref([
-  {
-    label: "Some tips",
-    x: '200px',
-    y: '200px',
-    width: '100px',
-    height: '100px',
-    color: "#ff0000",
-  },
+  // {
+  //   label: "Some tips",
+  //   x: '200px',
+  //   y: '200px',
+  //   width: '100px',
+  //   height: '100px',
+  //   color: "#ff0000",
+  // },
 ]);
 </script>
 
