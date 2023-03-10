@@ -4,4 +4,5 @@ yarn run init
 yarn run build-py
 yarn run electron:build
 
-./release/mac/Aba.app/Contents/MacOS/Aba
+# Run this to check the functionality and logs
+./release/mac/AuTool.app/Contents/MacOS/AuTool

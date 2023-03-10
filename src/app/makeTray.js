@@ -11,21 +11,21 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
 
   const createContextMenu = () =>
     Menu.buildFromTemplate([
+      // {
+      //   label: "Help documents",
+      //   click: () => {
+      //     process.nextTick(() => {
+      //       shell.openExternal("https://github.com/danalites/autoo");
+      //     });
+      //   },
+      // },
+      // { type: "separator" },
       {
-        label: "Help documents",
-        click: () => {
-          process.nextTick(() => {
-            shell.openExternal("https://github.com/danalites/autoo");
-          });
-        },
-      },
-      { type: "separator" },
-      {
-        label: "Show main window",
+        label: "Main window",
         click() {
           mainWindow.show();
           mainWindow.focus();
-          shell.beep()
+          // shell.beep()
         },
       },
       {

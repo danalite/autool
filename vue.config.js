@@ -27,18 +27,18 @@ module.exports = defineConfig({
         appId: "com.autool.app",
         copyright: "Danalite PTE LTD",
         extraResources: [
-          { from: './resources', to: './resources' },
+          { from: './imgs', to: './imgs' },
           { from: './dist/app', to: './backend' }],
         directories: {
           output: "release/"
         },
         mac: {
           target: ['dmg'],
-          icon: './resources/logo.png',
+          icon: './imgs/logo.png',
           asar: true
         },
         win: {
-          icon: "./resources/logo.png",
+          icon: "./imgs/logo.png",
           target: [
             "portable"
           ]

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="resources/banner.png" height="90" title="main">
+  <img src="imgs/banner.png" height="90" title="main">
 </p>
 
 **[NOTE]: We will release the package on Github soon. Please stay tuned.** 中文版文档很快也会发布，敬请期待。
@@ -7,9 +7,7 @@
 # AuTool Scripts
 AuTool is a programming framework to automate your desktop tasks. 
 
-AuTool provides a scripting language with a rich set of APIs to interact with your desktop
-
-You can think of it as a desktop version of Greasy Monkey. Check out our [showcases](#showcases) to see what you can do with AuTool.
+You can think of it as a desktop version of Greasy Monkey, which allows you to do many things with ease. AuTool provides a scripting language with a rich set of APIs to interact with your desktop. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
 - Windows TBA

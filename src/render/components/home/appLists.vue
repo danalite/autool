@@ -840,7 +840,7 @@ const showAddAppModal = ref(false);
 const newAppAuthor = ref("");
 const newAppName = ref("");
 const newAppIcon = ref(
-  "https://raw.githubusercontent.com/danalites/autoo/main/resources/logo.png"
+  "https://raw.githubusercontent.com/danalites/autoo/main/imgs/logo.png"
 );
 
 const addNewApp = () => {
