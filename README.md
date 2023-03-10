@@ -2,6 +2,8 @@
   <img src="resources/banner.png" height="90" title="main">
 </p>
 
+**[NOTE]: We will release the package on Github soon. Please stay tuned.**
+
 # AuTool: GreaseMonkey scripts on your desktop
 AuTool is a scripting framework that allows you to automate your desktop tasks. 
 
