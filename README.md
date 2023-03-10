@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="imgs/banner.png" height="90" title="main">
+  <img src="imgs/banner.png" height="90" title="autool">
 </p>
 
 **[NOTE]: We will release the package on Github soon. Please stay tuned.** 中文版文档很快也会发布，敬请期待。
@@ -7,18 +7,18 @@
 # AuTool Scripts
 AuTool is a programming framework to automate your desktop tasks. 
 
-To put it simple, it is like a desktop version of Greasy Monkey, which allows you to do many things with ease. AuTool provides a scripting language with a rich set of APIs to interact with your desktop. Check out our [showcases](#showcases) to see what you can do with AuTool.
+It is similar to a desktop version of Greasy Monkey, with which you can do many things with ease. AuTool provides a scripting language with a rich set of APIs to interact with your desktop. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
-- Windows TBA
-- MacOS TBA
+- Windows 8/10/11 (To be released soon)
+- [MacOS 10.15+ v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
 
 ### Build from Source
 The following instructions are for building from source.
 
 ```bash
-git clone https://github.com/danalites/autoo.git
-cd autoo
+git clone https://github.com/danalites/autool.git
+cd autool
 
 # Install dependencies and build 
 yarn run init
@@ -70,6 +70,6 @@ actions:
 Contributions are welcome! To contribute, please fork this repository, create a branch for your changes, and submit a pull request. Before submitting a pull request, please make sure that your changes are fully tested and that they adhere to the contributing guidelines.
 
 ## License
-AuTool is released under GPL v3.0 license. This license allows people to use, copy, distribute, and modify software, but only if they agree to distribute any modifications they make under the same license and not use the software for commercial purposes. All the rights are reserved by DanaLites LTD (Singapore).
+AuTool is released under GPL v3.0 license. This license allows people to use, copy, distribute, and modify software, but only if they agree to distribute any modifications they make under the same license and not use the software for commercial purposes. See [LICENSE](LICENSE) for more details.
 
-See [LICENSE](LICENSE) for more details.
+All the rights are reserved by DanaLites PTE LTD (Singapore).
