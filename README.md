@@ -44,6 +44,10 @@ actions:
     - window.locate({{ $IMAGE_PATH... }}) => $pos
     - mouse.click($pos)
     - key.type(Hello World!!!)
+
+    # This will incur a notification popup on the screen
+    # Title is 'Hello World!!!' and content is 'Enjoy
+    - user.notify(Hello World!!!, Enjoy)
 ```
 
 ## Documents
