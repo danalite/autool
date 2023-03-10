@@ -39,10 +39,11 @@ configs:
   - hotkey: Ctrl+Shift+Q 
 
 actions:
+  # Most basic action: locate and click
   - window.is(Visual Studio Code):
-    - mouse.click({{ [100, 100] }})
+    - window.locate({{ $IMAGE_PATH... }}) => $pos
+    - mouse.click($pos)
     - key.type(Hello World!!!)
-
 ```
 
 ## Documents
@@ -51,23 +52,14 @@ actions:
 
 ## Showcases
 <details>
-  <summary>Click to expand/collapse</summary>
+  <summary>Example 1</summary>
   
-  - This is the content that will be hidden until the user clicks on the summary element.
-
-
-  - This is the content that will be hidden until the user clicks on the summary element.
-
   - This is the content that will be hidden until the user clicks on the summary element.
 
 </details>
 
 <details>
-  <summary>Click to expand/collapse</summary>  
-  - This is the content that will be hidden until the user clicks on the summary element.
-
-  - This is the content that will be hidden until the user clicks on the summary element.
-
+  <summary>Example 2</summary>  
   - This is the content that will be hidden until the user clicks on the summary element.
 
 </details>
