@@ -7,7 +7,7 @@
 # AuTool Scripts
 AuTool is a programming framework to automate your desktop tasks. 
 
-You can think of it as a desktop version of Greasy Monkey, which allows you to do many things with ease. AuTool provides a scripting language with a rich set of APIs to interact with your desktop. Check out our [showcases](#showcases) to see what you can do with AuTool.
+To put it simple, it is like a desktop version of Greasy Monkey, which allows you to do many things with ease. AuTool provides a scripting language with a rich set of APIs to interact with your desktop. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
 - Windows TBA
@@ -67,7 +67,9 @@ actions:
 </details>
 
 ## Contributing
-Contributions to the Workflow Automation Tool are welcome! To contribute, please fork this repository, create a branch for your changes, and submit a pull request. Before submitting a pull request, please make sure that your changes are fully tested and that they adhere to the contributing guidelines.
+Contributions are welcome! To contribute, please fork this repository, create a branch for your changes, and submit a pull request. Before submitting a pull request, please make sure that your changes are fully tested and that they adhere to the contributing guidelines.
 
 ## License
-The Workflow Automation Tool is released under the MIT License.
+AuTool is released under GPL v3.0 license. This license allows people to use, copy, distribute, and modify software, but only if they agree to distribute any modifications they make under the same license and not use the software for commercial purposes. All the rights are reserved by DanaLites LTD (Singapore).
+
+See [LICENSE](LICENSE) for more details.
