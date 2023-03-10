@@ -2,28 +2,52 @@
   <img src="resources/banner.png" height="90" title="main">
 </p>
 
-**[NOTE]: We will release the package on Github soon. Please stay tuned.**
+**[NOTE]: We will release the package on Github soon. Please stay tuned.** 中文版文档很快也会发布，敬请期待。
 
-# AuTool: GreaseMonkey scripts on your desktop
-AuTool is a scripting framework that allows you to automate your desktop tasks. 
+# AuTool Scripts
+AuTool is a programming framework to automate your desktop tasks. 
 
-AuTool brings the power of GreaseMonkey scripts from browser to your desktop. Check out our [showcases](#showcases) to see what you can do with AuTool.
+AuTool provides a scripting language with a rich set of APIs to interact with your desktop
+
+You can think of it as a desktop version of Greasy Monkey. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
-- Windows
-- MacOS 
+- Windows TBA
+- MacOS TBA
+
+### Build from Source
+The following instructions are for building from source.
+
+```bash
+git clone https://github.com/danalites/autoo.git
+cd autoo
+
+# Install dependencies and build 
+yarn run init
+
+# Package python deps and electron app
+yarn run build-py
+yarn run electron:build
+```
 
 ## Usage
+This section shows how APIs are used in AuTool scripts. The following example shows how to create a task that clicks a button inside a window (if the window is live; does not have to be active window).
+
 ```yaml
-name: hello-world
-steps:
-  - name: print-message
-    command: echo "Hello, world!"
+task: click-background-window
+configs:
+  - hotkey: Ctrl+Shift+Q 
+
+actions:
+  - window.is(Visual Studio Code):
+    - mouse.click({{ [100, 100] }})
+    - key.type(Hello World!!!)
+
 ```
 
 ## Documents
-- Examples
-- API Reference
+- [Examples](https://danalites.github.io/autoo/docs/basics/apps-macos-display)
+- API Reference [Under construction]
 
 ## Showcases
 <details>
