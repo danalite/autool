@@ -4,6 +4,8 @@
 
 [中文README](README-zh.md)
 
+**NOTE: We are actively working to migrate our tech stack. AuTool runtime will be revamped using C++ to provide better scalability**
+
 # AuTool Scripts
 AuTool is a programming framework to automate your desktop tasks. 
 
@@ -28,8 +30,8 @@ yarn run build-py
 yarn run electron:build
 ```
 
-## Develop an AuTool Script
-- AuTool scripts are written in YAML format. You can configure the script start-time, hotkey, or executor types under `configs` key, and specify the actions under `actions` key.
+## Usage: AuTool Scripts
+- AuTool scripts (i.e.，plugins) are written in YAML format. You can specify the desired actions under `actions` key, and configure the script start-time, hotkey, or executor types under `configs` key, and
 
 - AuTool provides a set of built-in APIs in form of `${TYPE}.${ACTION}(...${ARGS})`. For example, `os.shell` is a built-in API that can execute shell commands.
 
@@ -47,6 +49,9 @@ actions:
       - cmd.if( {{ $win.title }} == 'Visual Studio Code' ):
           - os.shell(InputSourceSelector select com.apple.keylayout.US)
 ```
+
+## Usage: AuTool App
+- AuTool app is the GUI of AuTool runtime, which takes care of the following tasks: (1) manage installed AuTool scripts, (2) deploy and execute AuTool scripts, and (3) listen for system events and interact with AuTool scripts
 
 ## Documents
 - [Examples](https://danalites.github.io/autoo/docs/basics/apps-macos-display)
