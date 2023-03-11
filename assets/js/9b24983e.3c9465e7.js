@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_eightshift_docs=self.webpackChunk_eightshift_docs||[]).push([[8732],{4975:function(t){t.exports=JSON.parse('{"label":"eightshift","permalink":"/autool/blog/tags/eightshift","allTagsPath":"/autool/blog/tags","count":9}')}}]);

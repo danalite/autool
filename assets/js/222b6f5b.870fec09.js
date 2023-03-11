@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_eightshift_docs=self.webpackChunk_eightshift_docs||[]).push([[7881],{2229:function(s){s.exports=JSON.parse('{"label":"fonts","permalink":"/autool/blog/tags/fonts","allTagsPath":"/autool/blog/tags","count":1}')}}]);

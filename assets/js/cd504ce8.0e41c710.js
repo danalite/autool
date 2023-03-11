@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_eightshift_docs=self.webpackChunk_eightshift_docs||[]).push([[3217],{1896:function(s){s.exports=JSON.parse('{"label":"icons","permalink":"/autool/blog/tags/icons","allTagsPath":"/autool/blog/tags","count":1}')}}]);

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_eightshift_docs=self.webpackChunk_eightshift_docs||[]).push([[3838],{6746:function(a){a.exports=JSON.parse('{"label":"variations","permalink":"/autool/blog/tags/variations","allTagsPath":"/autool/blog/tags","count":1}')}}]);

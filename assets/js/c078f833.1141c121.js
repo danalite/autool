@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_eightshift_docs=self.webpackChunk_eightshift_docs||[]).push([[4079],{8846:function(t){t.exports=JSON.parse('{"label":"theme options","permalink":"/autool/blog/tags/theme-options","allTagsPath":"/autool/blog/tags","count":1}')}}]);

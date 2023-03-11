@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_eightshift_docs=self.webpackChunk_eightshift_docs||[]).push([[587],{8040:function(s){s.exports=JSON.parse('{"label":"taxonomies","permalink":"/autool/blog/tags/taxonomies","allTagsPath":"/autool/blog/tags","count":1}')}}]);
