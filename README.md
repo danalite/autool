@@ -2,20 +2,20 @@
   <img src="imgs/banner.png" height="90" title="autool">
 </p>
 
-**[NOTE]: We will release the package on Github soon. Please stay tuned.** 中文版文档很快也会发布，敬请期待。
+[中文README](README-zh.md)
 
 # AuTool Scripts
 AuTool is a programming framework to automate your desktop tasks. 
 
-It is similar to a desktop version of Greasy Monkey, with which you can do many things with ease. AuTool provides a scripting language with a rich set of APIs to interact with your desktop. Check out our [showcases](#showcases) to see what you can do with AuTool.
+Similar to a desktop version of Greasy Monkey, AuTool can make many things much easier. AuTool scripting language has a rich set of APIs to help you interact the digital world. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
 - Windows 8/10/11 (To be released soon)
 - [MacOS 10.15+ v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
 
 ### Build from Source
-The following instructions are for building from source.
-
+- The following instructions are for building from source.
+  
 ```bash
 git clone https://github.com/danalites/autool.git
 cd autool
@@ -28,24 +28,24 @@ yarn run build-py
 yarn run electron:build
 ```
 
-## Usage
-This section shows how APIs are used in AuTool scripts. The following example shows how to create a task that clicks a button inside a window (if the window is live; does not have to be active window).
+## Develop an AuTool Script
+- AuTool scripts are written in YAML format. You can configure the script start-time, hotkey, or executor types under `configs` key, and specify the actions under `actions` key.
+
+- AuTool provides a set of built-in APIs in form of `${TYPE}.${ACTION}(...${ARGS})`. For example, `os.shell` is a built-in API that can execute shell commands.
 
 ```yaml
-task: click-background-window
+task: switch-when-window-switched
 configs:
-  - hotkey: Ctrl+Shift+Q 
+  - hotkey: ~
+  - autostart: true
 
 actions:
-  # Most basic action: locate and click
-  - window.is(Visual Studio Code):
-    - window.locate({{ $IMAGE_PATH... }}) => $pos
-    - mouse.click($pos)
-    - key.type(Hello World!!!)
+  # Listen for window switch event
+  - event.on(__WIN_ACTIVE_CHANGED__) => $win:
 
-    # This will incur a notification popup on the screen
-    # Title is 'Hello World!!!' and content is 'Enjoy
-    - user.notify(Hello World!!!, Enjoy)
+      # Switch my input source to English if the window is Visual Studio Code
+      - cmd.if( {{ $win.title }} == 'Visual Studio Code' ):
+          - os.shell(InputSourceSelector select com.apple.keylayout.US)
 ```
 
 ## Documents
