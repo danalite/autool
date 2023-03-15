@@ -4,19 +4,19 @@
 
 [中文README](README-zh.md)
 
-**NOTE: We are actively working to migrate our tech stack. AuTool runtime will be revamped using C++ to provide better scalability**
+**IMPORTANT**: This repo is 
 
 # AuTool Scripts
 AuTool is a programming framework to automate your desktop tasks. 
 
-Similar to a desktop version of Greasy Monkey, AuTool can make many things much easier. AuTool scripting language has a rich set of APIs to help you interact the digital world. Check out our [showcases](#showcases) to see what you can do with AuTool.
+Similar to a desktop version of Greasy Monkey, AuTool makes it easier to bring custom functions to your desktop by providing a a rich set of APIs to help you interact the digital world. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
 - Windows 8/10/11 (To be released soon)
 - [MacOS 10.15+ v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
 
 ### Build from Source
-- The following instructions are for building from source.
+- The following instructions are for building from source. It will install all the dependencies and build the app (DMG for MacOS, and portable executable for Windows)
   
 ```bash
 git clone https://github.com/danalites/autool.git
@@ -30,7 +30,7 @@ yarn run build-py
 yarn run electron:build
 ```
 
-## Usage: AuTool Scripts
+## AuTool Scripts
 - AuTool scripts (i.e.，plugins) are written in YAML format. You can specify the desired actions under `actions` key, and configure the script start-time, hotkey, or executor types under `configs` key, and
 
 - AuTool provides a set of built-in APIs in form of `${TYPE}.${ACTION}(...${ARGS})`. For example, `os.shell` is a built-in API that can execute shell commands.
@@ -50,11 +50,30 @@ actions:
           - os.shell(InputSourceSelector select com.apple.keylayout.US)
 ```
 
-## Usage: AuTool App
-- AuTool app is the GUI of AuTool runtime, which takes care of the following tasks: (1) manage installed AuTool scripts, (2) deploy and execute AuTool scripts, and (3) listen for system events and interact with AuTool scripts
+## Usage
+### Install new apps
+- We provide some experimental apps that you can install to your OS. 
+
+```bash
+# go to desktop
+cd ~/Desktop
+
+# clone the apps repo 
+git clone https://github.com/danalites/apps.git
+```
+
+AuTool app will automatically search for `autool-tasks.json` file under `~/Desktop/apps` folder, and load the tasks into the app.
+
+- After loading the tasks, you can start the tasks by clicking the task name in the app.
+
+<p align="center">
+  <img src="imgs/demo-loaded-apps.png" height="90" title="autool">
+</p>
+
 
 ## Documents
 - [Examples](https://danalites.github.io/autoo/docs/basics/apps-macos-display)
+
 - API Reference [Under construction]
 
 ## Showcases
