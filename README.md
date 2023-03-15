@@ -67,7 +67,7 @@ AuTool app will automatically search for `autool-tasks.json` file under `~/Deskt
 - After loading the tasks, you can start the tasks by clicking the task name in the app.
 
 <p align="center">
-  <img src="imgs/demo-loaded-apps.png" height="90" title="autool">
+  <img src="imgs/demo-loaded-apps.png" width="500" title="autool">
 </p>
 
 
