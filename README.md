@@ -7,9 +7,7 @@
 # AuTool Scripts
 AuTool is a programming framework to automate your desktop tasks. 
 
-The goal of AuTool is to bring the power of Greasy Monkey to your desktop environment. AuTool provides a rich set of API intrinsics to help you interact the OS and network, and automate your workflow as needed. 
-
-Check out our [showcases](#showcases) to see what you can do with AuTool.
+AuTool brings the power of Greasy Monkey to your desktop environment by providing a rich set of API intrinsics to help you interact the OS and network, and automate your workflow as needed. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
 - [Windows 10/11 v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
@@ -33,7 +31,7 @@ yarn run electron:build
 
 ## Usage
 ### Install new apps
-- We provide some experimental apps that you can install to your OS. 
+- We provide some experimental apps that you can install to your OS. You should clone the `apps` repo into your desktop.
 
 ```bash
 # go to desktop
@@ -43,16 +41,14 @@ cd ~/Desktop
 git clone https://github.com/danalites/apps.git
 ```
 
-AuTool app will automatically search for `autool-tasks.json` file under `~/Desktop/apps` folder, and load the tasks into the app.
-
-- After loading the tasks, you can start the tasks by clicking the task name in the app.
+- AuTool searches for `autool-tasks.json` file under `~/Desktop/apps` folder, and load the tasks into the app.
 
 <p align="center">
   <img src="imgs/demo-loaded-apps.png" width="600" title="autool">
 </p>
 
 
-## AuTool Scripts
+### Add New Scripts
 - AuTool scripts (i.e.，plugins) are written in YAML format. You can specify the desired actions under `actions` key, and configure the script start-time, hotkey, or executor types under `configs` key, and
 
 - AuTool provides a set of built-in APIs in form of `${TYPE}.${ACTION}(...${ARGS})`. For example, `os.shell` is a built-in API that can execute shell commands.
