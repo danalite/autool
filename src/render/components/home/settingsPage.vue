@@ -32,7 +32,7 @@
         <n-space v-if="subTab == 'accounts'" vertical>
           <n-input-group size="small">
             <n-button secondary :bordered="false" size="small">
-              license
+              {{ $t("settings.accounts.license") }}
             </n-button>
             <n-input
               size="small"
@@ -58,7 +58,7 @@
 
           <n-input-group size="small">
             <n-button secondary :bordered="false" size="small">
-              appHome
+              {{ $t("settings.accounts.appHome") }}
             </n-button>
             <n-input
               size="small"
@@ -80,121 +80,135 @@
             </n-button>
           </n-input-group>
 
+          <div class="locale-changer">
+            <select v-model="$i18n.locale">
+              <option
+                v-for="locale in $i18n.availableLocales"
+                :key="`locale-${locale}`"
+                :value="locale"
+              >
+                {{ locale }}
+              </option>
+            </select>
+
+            {{ $t("hello") }}
+          </div>
+
           <n-space justify="center">
             <n-button @click="toReset"> Reset </n-button>
           </n-space>
         </n-space>
 
         <n-space vertical v-if="subTab == 'servers'">
-          <n-space vertical>
-            Local server
-            <n-input-group size="small">
-              <n-input
-                disabled
-                size="small"
-                placeholder="wss://localhost:5678"
-                type="text"
-                style="width: 350px"
-              />
-              <n-button
-                secondary
-                :bordered="false"
-                :type="isLocalServerActive ? 'success' : 'error'"
-                size="small"
-              >
-                <n-icon v-if="!isLocalServerActive" size="16">
-                  <Refresh />
-                </n-icon>
-                <n-icon v-else size="16">
-                  <Check />
-                </n-icon>
-              </n-button>
-            </n-input-group>
-          </n-space>
+          <n-input-group size="small" :style="{ width: '100%' }">
+            <n-input-group-label size="small">
+              {{ $t("settings.services.localServer") }}
+            </n-input-group-label>
+            <n-input
+              disabled
+              size="small"
+              placeholder="wss://localhost:5678"
+              type="text"
+              :style="{ width: '63%' }"
+            />
+            <n-button
+              secondary
+              :bordered="false"
+              :type="isLocalServerActive ? 'success' : 'error'"
+              size="small"
+            >
+              <n-icon v-if="!isLocalServerActive" size="16">
+                <Refresh />
+              </n-icon>
+              <n-icon v-else size="16">
+                <Check />
+              </n-icon>
+            </n-button>
+          </n-input-group>
 
-          <n-space vertical>
-            Text recognition
-            <n-input-group size="small">
-              <n-input
-                size="small"
-                v-model:value="remoteServer.ocr.url"
-                type="text"
-                style="width: 350px"
-              />
+          <n-input-group size="small">
+            <n-input-group-label size="small">
+              {{ $t("settings.services.remoteOcrServer") }}
+            </n-input-group-label>
+            <n-input
+              size="small"
+              v-model:value="remoteServer.ocr.url"
+              type="text"
+              :style="{ width: '63%' }"
+            />
 
-              <n-button
-                secondary
-                :bordered="false"
-                :type="remoteServer.ocr.valid ? 'success' : 'warning'"
-                size="small"
-                :loading="isTestRunning.ocr"
-                @click="testServer($event, 'ocr')"
-              >
-                <n-icon v-if="!remoteServer.ocr.valid" size="16">
-                  <Refresh />
-                </n-icon>
-                <n-icon v-else size="16">
-                  <Check />
-                </n-icon>
-              </n-button>
-            </n-input-group>
-          </n-space>
+            <n-button
+              secondary
+              :bordered="false"
+              :type="remoteServer.ocr.valid ? 'success' : 'warning'"
+              size="small"
+              :loading="isTestRunning.ocr"
+              @click="testServer($event, 'ocr')"
+            >
+              <n-icon v-if="!remoteServer.ocr.valid" size="16">
+                <Refresh />
+              </n-icon>
+              <n-icon v-else size="16">
+                <Check />
+              </n-icon>
+            </n-button>
+          </n-input-group>
 
-          <n-space vertical>
-            Text parser
-            <n-input-group size="small">
-              <n-input
-                size="small"
-                v-model:value="remoteServer.parser.url"
-                type="text"
-                style="width: 350px"
-              />
+          <n-input-group size="small">
+            <n-input-group-label size="small">
+              {{ $t("settings.services.remoteTextParser") }}
+            </n-input-group-label>
+            <n-input
+              size="small"
+              v-model:value="remoteServer.parser.url"
+              type="text"
+              :style="{ width: '63%' }"
+            />
 
-              <n-button
-                secondary
-                :bordered="false"
-                :type="remoteServer.parser.valid ? 'success' : 'warning'"
-                size="small"
-                :loading="isTestRunning.parser"
-                @click="testServer($event, 'parser')"
-              >
-                <n-icon v-if="!remoteServer.parser.valid" size="16">
-                  <Refresh />
-                </n-icon>
-                <n-icon v-else size="16">
-                  <Check />
-                </n-icon>
-              </n-button>
-            </n-input-group>
-          </n-space>
+            <n-button
+              secondary
+              :bordered="false"
+              :type="remoteServer.parser.valid ? 'success' : 'warning'"
+              size="small"
+              :loading="isTestRunning.parser"
+              @click="testServer($event, 'parser')"
+            >
+              <n-icon v-if="!remoteServer.parser.valid" size="16">
+                <Refresh />
+              </n-icon>
+              <n-icon v-else size="16">
+                <Check />
+              </n-icon>
+            </n-button>
+          </n-input-group>
 
-          <n-space vertical>
-            UI detection
-            <n-input-group size="small">
-              <n-input
-                size="small"
-                v-model:value="remoteServer.ui.url"
-                type="text"
-                style="width: 350px"
-              />
+          <n-input-group size="small">
+            <n-input-group-label size="small">
+              {{ $t("settings.services.remoteUiDetector") }}
+            </n-input-group-label>
+            <n-input
+              size="small"
+              v-model:value="remoteServer.ui.url"
+              type="text"
+              :style="{ width: '63%' }"
+            />
 
-              <n-button
-                secondary
-                :bordered="false"
-                :type="remoteServer.ui.valid ? 'success' : 'warning'"
-                size="small"
-                :loading="isTestRunning.ui"
-                @click="testServer($event, 'ui')"
-              >
-                <n-icon v-if="!remoteServer.ui.valid" size="16">
-                  <Refresh />
-                </n-icon>
-                <n-icon v-else size="16">
-                  <Check />
-                </n-icon>
-              </n-button>
-            </n-input-group>
-          </n-space>
+            <n-button
+              secondary
+              :bordered="false"
+              :type="remoteServer.ui.valid ? 'success' : 'warning'"
+              size="small"
+              :loading="isTestRunning.ui"
+              @click="testServer($event, 'ui')"
+            >
+              <n-icon v-if="!remoteServer.ui.valid" size="16">
+                <Refresh />
+              </n-icon>
+              <n-icon v-else size="16">
+                <Check />
+              </n-icon>
+            </n-button>
+          </n-input-group>
         </n-space>
 
         <n-space vertical v-if="subTab == 'helpers'">
@@ -225,6 +239,7 @@
 import {
   NCard,
   NInputGroup,
+  NInputGroupLabel,
   NLayout,
   NLayoutFooter,
   NLayoutHeader,
@@ -282,6 +297,9 @@ import {
 
 import { appConfig } from "@/utils/main/config";
 import { request } from "@/utils/render/request";
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const emits = defineEmits(["refreshApps"]);
 const message = useMessage();
@@ -314,17 +332,17 @@ function renderIcon(icon) {
 
 const menuOptions = [
   {
-    label: "Accounts",
+    label: () => t("settings.accounts.title"),
     key: "accounts",
     icon: renderIcon(UserCircle),
   },
   {
-    label: "Services",
+    label: () => t("settings.services.title"),
     key: "servers",
     icon: renderIcon(Cloud),
   },
   {
-    label: "Helpers",
+    label: () => t("settings.helpers.title"),
     key: "helpers",
     icon: renderIcon(PictureInPictureOff),
   },
@@ -400,7 +418,6 @@ const onCreate = () => {
   };
 };
 
-
 const restartBackendServer = () => {
   request({
     url: "http://localhost:3000/restart",
@@ -417,7 +434,6 @@ const restartBackendServer = () => {
       message.error(`Error: Backend server restart failed. ${err}`);
     });
 };
-
 </script>
     
 <style scoped>

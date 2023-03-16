@@ -2,17 +2,17 @@
   <img src="imgs/banner.png" height="90" title="autool">
 </p>
 
-[中文README](README-zh.md)
-
-**IMPORTANT**: This repo is 
+[中文](docs/README-zh.md)
 
 # AuTool Scripts
 AuTool is a programming framework to automate your desktop tasks. 
 
-Similar to a desktop version of Greasy Monkey, AuTool makes it easier to bring custom functions to your desktop by providing a a rich set of APIs to help you interact the digital world. Check out our [showcases](#showcases) to see what you can do with AuTool.
+The goal of AuTool is to bring the power of Greasy Monkey to your desktop environment. AuTool provides a rich set of API intrinsics to help you interact the OS and network, and automate your workflow as needed. 
+
+Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
-- Windows 8/10/11 (To be released soon)
+- [Windows 10/11 v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
 - [MacOS 10.15+ v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
 
 ### Build from Source
@@ -29,6 +29,28 @@ yarn run init
 yarn run build-py
 yarn run electron:build
 ```
+
+
+## Usage
+### Install new apps
+- We provide some experimental apps that you can install to your OS. 
+
+```bash
+# go to desktop
+cd ~/Desktop
+
+# clone the apps repo 
+git clone https://github.com/danalites/apps.git
+```
+
+AuTool app will automatically search for `autool-tasks.json` file under `~/Desktop/apps` folder, and load the tasks into the app.
+
+- After loading the tasks, you can start the tasks by clicking the task name in the app.
+
+<p align="center">
+  <img src="imgs/demo-loaded-apps.png" width="600" title="autool">
+</p>
+
 
 ## AuTool Scripts
 - AuTool scripts (i.e.，plugins) are written in YAML format. You can specify the desired actions under `actions` key, and configure the script start-time, hotkey, or executor types under `configs` key, and
@@ -49,27 +71,6 @@ actions:
       - cmd.if( {{ $win.title }} == 'Visual Studio Code' ):
           - os.shell(InputSourceSelector select com.apple.keylayout.US)
 ```
-
-## Usage
-### Install new apps
-- We provide some experimental apps that you can install to your OS. 
-
-```bash
-# go to desktop
-cd ~/Desktop
-
-# clone the apps repo 
-git clone https://github.com/danalites/apps.git
-```
-
-AuTool app will automatically search for `autool-tasks.json` file under `~/Desktop/apps` folder, and load the tasks into the app.
-
-- After loading the tasks, you can start the tasks by clicking the task name in the app.
-
-<p align="center">
-  <img src="imgs/demo-loaded-apps.png" width="500" title="autool">
-</p>
-
 
 ## Documents
 - [Examples](https://danalites.github.io/autoo/docs/basics/apps-macos-display)

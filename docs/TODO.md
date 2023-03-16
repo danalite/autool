@@ -7,7 +7,10 @@
 - [ ] More examples for tutorials app: www.free-api.com, AI service, https://api.aa1.cn/, etc
 
 ## 2023-03
-- [ ] Try out the SuperGlue
+- [x] A FS search plugin in Ws server to return file search results
+- [ ] Add (transient) caption on the screen
+- [x] Add Multi-language support
+- [x] Try out the SuperGlue
 - [ ] Push notification feature (game, stock, todo, etc)
 - [x] TTS demo (Azure and Free APIs)
 - [x] Resume the previously opened windows for popup
@@ -94,7 +97,3 @@
 - [x] Updated the context menu for tray. deprecated old browser menu
 - [x] Finish the control console in TaskSch component
 - [x] Adjust the text length in task list
-
-### Long Term
-- [ ] Paid task running service (ATC, viewing ads, etc)
-- [ ] Solve the memory performance issue. Revamp using Tauri

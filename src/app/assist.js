@@ -49,9 +49,9 @@ export const createAssistWindow = async (userHeader) => {
   assistWin.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   assistWin.setAlwaysOnTop(true, 'floating', 1)
   assistWin.setFocusable(true);
-  // assistWin.webContents.openDevTools()
 
   if (process.env.npm_lifecycle_event === "electron:serve") {
+    assistWin.webContents.openDevTools()
     await assistWin.loadURL('http://localhost:8080/#/assist', { userAgent: userHeader })
 
   } else {

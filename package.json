@@ -1,11 +1,11 @@
 {
   "name": "AuTool",
-  "license": "MIT",
+  "license": "GPLv3",
   "private": true,
   "version": "0.0.1",
   "author": "Danalite",
   "main": "background.js",
-  "description": "Software automation toolkit",
+  "description": "Software automation framework",
   "scripts": {
     "init": "python -m venv pyenv && run-script-os",
     "init:macos": "./pyenv/bin/pip install -r ./backend/requirements.txt",
@@ -33,6 +33,7 @@
     "mitt": "^3.0.0",
     "uiohook-napi": "^1.4.0",
     "vue": "^3.2.13",
+    "vue-i18n": "9",
     "vue-router": "^4.0.3"
   },
   "devDependencies": {

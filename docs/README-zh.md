@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/cover.png" height="90" title="main">
+  <img src="../imgs/banner.png" height="90" title="main">
 </p>
 
 ## AuTool 是什么？

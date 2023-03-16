@@ -213,13 +213,13 @@ const sendMessageToBackend = (msg) => {
 // Task management constructs
 const taskEvents = ref([]);
 const tasksStatusTable = ref([]);
-const backendEventHook = (message) => {
-  const value = message.value;
-  message.stamp = new Date().getTime();
-  taskEvents.value.push({ source: "backend", ...message });
+const backendEventHook = (msg) => {
+  const value = msg.value;
+  msg.stamp = new Date().getTime();
+  taskEvents.value.push({ source: "backend", ...msg });
 
-  const taskId = message.uuid;
-  switch (message.event) {
+  const taskId = msg.uuid;
+  switch (msg.event) {
     case EventType.O_EVENT_TASK_STATUS:
       tasksStatusTable.value = tasksStatusTable.value.map((task) => {
         if (task.id === taskId) {
@@ -227,6 +227,9 @@ const backendEventHook = (message) => {
         }
         return task;
       });
+      if (value.type === "taskError") {
+        message.error(`Error: ${msg.taskName}. Check "Scheduler > Events for details"`, { duration: 6000 });
+      }
       break;
 
     case EventType.O_EVENT_HOOK_REQ:
@@ -234,8 +237,8 @@ const backendEventHook = (message) => {
       ipcRenderer.invoke("to-console", {
         action: "uio-event",
         type: value.type,
-        source: message.taskName,
-        taskId: message.uuid,
+        source: msg.taskName,
+        taskId: msg.uuid,
         options: [value.key],
       });
       break;
@@ -249,7 +252,7 @@ const backendEventHook = (message) => {
         type: "push-notification",
         title: value.title,
         content: value.content,
-        source: message.taskName,
+        source: msg.taskName,
         timeout: value.timeout,
         isPreview: value.isPreview,
       });
@@ -268,7 +271,7 @@ const backendEventHook = (message) => {
             event: EventType.I_EVENT_TASK_REQ,
             source: "Main.UserInput",
             uuid: taskId,
-            taskName: message.taskName,
+            taskName: msg.taskName,
             value: {
               type: "resumeTask",
               selected: JSON.parse(data),
@@ -283,14 +286,14 @@ const backendEventHook = (message) => {
           min: value.min,
           preset: value.preset,
           isPreview: value.isPreview,
-          source: message.taskName,
+          source: msg.taskName,
           callback: callback,
         });
       }
       break;
 
     default:
-      console.log(message.event, message);
+      console.log(msg.event, msg);
       break;
   }
 };

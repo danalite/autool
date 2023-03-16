@@ -44,13 +44,13 @@ export const createMainWindow = async (userHeader) => {
     win.setResizable(false)
   }
 
-  // win.webContents.openDevTools()
   win.on('ready-to-show', () => {
     win.show()
   })
 
   // Load the index.html when not in development
   if (process.env.npm_lifecycle_event === "electron:serve") {
+    win.webContents.openDevTools()
     await win.loadURL('http://localhost:8080/', { userAgent: userHeader })
   } else {
     createProtocol('app')

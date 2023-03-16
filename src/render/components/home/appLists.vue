@@ -42,7 +42,7 @@
             >
               <n-avatar
                 :src="app.icon"
-                size="large"
+                size="medium"
                 style="
                   margin-right: 0px;
                   border-radius: 6px;
@@ -87,19 +87,19 @@
 
       <n-layout content-style="padding: 8px 8px 5px;">
         <div>
-          <n-list
+          <div
             style="padding-top: 2px; padding-bottom: 0px"
-            :show-divider="false"
           >
-            <n-list-item
+            <n-space
               v-for="(task, taskIndex) in displayTasks"
               style="padding-top: 4px; padding-bottom: 4px"
               @mouseover="hoverTaskIndex = taskIndex"
               @mouseleave="hoverTaskIndex = -1"
               @contextmenu="handleContextMenu($event, task)"
+              item-style="width: 100%; max-width: 100%; display: flex;"
               :key="taskIndex"
             >
-              <n-space style="padding-left: 6px" :size="[6, 6]">
+              <n-space style="padding-left: 6px; width:100%" :size="[6, 6]">
                 <n-checkbox
                   style="padding-top: 3px"
                   @click.stop
@@ -121,7 +121,7 @@
                     @click="runTask(task, taskIndex)"
                     style="text-align: left"
                   >
-                    <n-ellipsis style="width: 205px; max-width: 205px">
+                    <n-ellipsis style="width: 100%; max-width: 100%">
                       {{
                         task.relTaskPath.includes("/")
                           ? task.relTaskPath.split("/")[1]
@@ -200,7 +200,7 @@
                   </n-input-group>
                 </n-space>
               </n-space>
-            </n-list-item>
+            </n-space>
             <n-dropdown
               placement="bottom-start"
               trigger="manual"
@@ -211,7 +211,7 @@
               :on-clickoutside="onClickOutside"
               @select="handleTaskAction"
             />
-          </n-list>
+          </div>
         </div>
       </n-layout>
     </n-layout>
@@ -738,7 +738,7 @@ const handleTaskChecked = async (isChecked, task) => {
 
 // Toggle autostart, remote, time, hotkey
 const showSetupModal = ref(false);
-const quickSetupTarget = ref("startTime");
+const quickSetupTarget = ref("startTime");  
 const updateSetupValue = ref("");
 
 const handleToggleProperty = async (task, property) => {
