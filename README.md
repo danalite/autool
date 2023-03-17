@@ -69,7 +69,7 @@ actions:
 ```
 
 ## Documents
-- [Examples](https://danalites.github.io/autoo/docs/basics/apps-macos-display)
+- [Examples](https://danalites.github.io/autool/docs/basics/apps-macos-display)
 
 - API Reference [Under construction]
 
