@@ -34,7 +34,7 @@
           style="margin-top: 80px"
           justify="center"
         >
-          <n-empty :description="`No ${taskSchTab} tasks`"> </n-empty>
+          <n-empty :description="$t('scheduler.active.emptyText')"> </n-empty>
         </n-space>
 
         <n-space v-if="taskSchTab == 'events'" justify="center">
@@ -61,7 +61,7 @@
               <n-space>
                 <n-icon
                   size="20"
-                  v-if="task.options.includes('remote')"
+                  v-if="task.options?.includes('remote')"
                   style="padding-right: 3px"
                 >
                   <Cloud color="#409eff" />
@@ -92,7 +92,7 @@
                 {{ new Date(task.stamp).toLocaleString() }}
               </n-ellipsis>
               <n-button size="tiny" type="error" @click="() => stopTask(task)">
-                Stop
+                {{ $t('apps.common.stop') }}
               </n-button>
             </n-space>
           </n-card>
@@ -109,7 +109,7 @@
               <n-space>
                 <n-icon
                   size="20"
-                  v-if="task.options.includes('remote')"
+                  v-if="task.options?.includes('remote')"
                   style="padding-right: 3px"
                 >
                   <Cloud color="#409eff" />
@@ -140,7 +140,7 @@
                 :duration="getNextRunTime(task, taskIndex)"
                 @finish="() => runTask(task, taskIndex)"
               />
-              <n-button size="tiny" type="error" @click="() => stopTask(task)">
+              <n-button secondary size="tiny" type="error" @click="() => stopTask(task)">
                 Clear
               </n-button>
             </n-space>
@@ -158,7 +158,7 @@
               <n-space>
                 <n-icon
                   size="20"
-                  v-if="task.options.includes('remote')"
+                  v-if="task.options?.includes('remote')"
                   style="padding-right: 3px"
                 >
                   <Cloud color="#409eff" />
@@ -186,11 +186,11 @@
             </n-space>
 
             <n-space justify="center">
-              <n-button type="success" size="tiny">
+              <n-button secondary type="success" size="tiny">
                 {{ task.hotkey }}
               </n-button>
-              <n-button size="tiny" type="error" @click="() => stopTask(task)">
-                Clear
+              <n-button secondary size="tiny" type="error" @click="() => stopTask(task)">
+                {{ $t('apps.common.clear') }}
               </n-button>
             </n-space>
           </n-card>
@@ -206,7 +206,7 @@
               <n-space>
                 <n-icon
                   size="20"
-                  v-if="task.options.includes('remote')"
+                  v-if="task.options?.includes('remote')"
                   style="padding-right: 3px"
                 >
                   <Cloud color="#409eff" />
@@ -237,6 +237,7 @@
                 {{ new Date(task.stamp).toLocaleString() }}
               </n-text>
               <n-button
+                secondary
                 size="tiny"
                 :type="
                   task.status == 'taskFinish'
@@ -321,7 +322,9 @@ import { app, ipcRenderer, shell } from "electron";
 
 import { appConfig } from "@/utils/main/config";
 import { parseCron } from "@/utils/render/parseCron";
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const props = defineProps({
   taskEvents: {
     type: Array,
@@ -379,27 +382,27 @@ function renderIcon(icon, color = "red") {
 
 const menuOptions = [
   {
-    label: "Active",
+    label: () => t("scheduler.active.title"),
     key: "running",
     icon: renderIcon(PlayerPlay, "#409eff"),
   },
   {
-    label: "Later",
+    label: () => t("scheduler.later.title"),
     key: "scheduled",
     icon: renderIcon(Alarm),
   },
   {
-    label: "Hotkeys",
+    label: () => t("scheduler.hotkey.title"),
     key: "hotkeys",
     icon: renderIcon(Keyboard),
   },
   {
-    label: "Stopped",
+    label: () => t("scheduler.stopped.title"),
     key: "stopped",
     icon: renderIcon(PlayerStop),
   },
   {
-    label: "Events",
+    label: () => t("scheduler.events.title"),
     key: "events",
     icon: renderIcon(MailForward),
   },

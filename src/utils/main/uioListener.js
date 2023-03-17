@@ -156,7 +156,7 @@ const isHotKeyComboPressed = (hotKeyStr) => {
       match++
     }
   }
-  // console.log("match", newKeys.map((k) => getKeyByValue(k.keycode)), match)
+  // console.log("match ", targetKeys, newKeys.map((k) => getKeyByValue(k.keycode)), match)
   return match == length
 }
 

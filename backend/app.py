@@ -103,9 +103,9 @@ async def websocket_handler(websocket):
             await loopMain(websocket)
 
 async def check_connections():
-    # Check for active WebSocket connections every 1 minute
+    # Check for active WebSocket connections
     while True:
-        await asyncio.sleep(30)
+        await asyncio.sleep(10)
         if len(active_conns) == 0:
             print("No active connections, exiting...")
             # asyncio.get_event_loop().stop()

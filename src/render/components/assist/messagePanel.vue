@@ -625,8 +625,7 @@ const renderInputText = (command) => {
                   },
                   placeholder:
                     command.placeholders[command.options.indexOf(key)],
-                }),
-                h(NDivider, { dashed: true }),
+                })
               ],
             }
           )

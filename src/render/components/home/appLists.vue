@@ -13,7 +13,7 @@
         style="background-color: #f5f5f5"
       >
         <n-space justify="end">
-          <n-button quaternary size="small" @click="showAddAppModal = true">
+          <n-button quaternary size="small" @click="$refs.myNewAppModal.show()">
             <template #icon>
               <n-icon size="18"><Plus /></n-icon>
             </template>
@@ -55,8 +55,8 @@
                 :style="{
                   marginLeft: '12px',
                   padding: '0px',
-                  width: '130px',
-                  maxWidth: '130px',
+                  width: '125px',
+                  maxWidth: '125px',
                 }"
               >
                 <n-space justify="space-between">
@@ -241,7 +241,7 @@
             type="warning"
             @click="updateSetupValue = ''"
           >
-            Clear
+            {{ $t("apps.common.clear") }}
           </n-button>
         </n-input-group>
 
@@ -271,7 +271,7 @@
             type="warning"
             @click="updateSetupValue = ''"
           >
-            Clear
+            {{ $t("apps.common.clear") }}
           </n-button>
         </n-input-group>
       </n-space>
@@ -299,208 +299,9 @@
     </template>
   </n-modal>
 
-  <n-modal v-model:show="showAddTaskModal" preset="dialog">
-    <template #header>
-      <div style="padding-left: 10px">
-        New task to "{{ props.apps[activeAppIndex].app }}"
-      </div>
-    </template>
-    <div>
-      <n-space vertical style="padding-left: 5px">
-        <n-space justify="center">
-          <n-input-group
-            style="width: 250px; padding-bottom: 10px"
-            size="small"
-          >
-            <n-button size="small" secondary style="padding: 10px 5px 10px"
-              >Name
-            </n-button>
-            <n-input
-              v-model:value="newTaskName"
-              size="small"
-              placeholder="E.g., new-task-name"
-            />
-          </n-input-group>
-        </n-space>
-      </n-space>
-      <n-space justify="center">
-        <n-radio
-          :checked="addTaskType === 'template'"
-          value="template"
-          @change="addTaskType = 'template'"
-        >
-          Task templates
-        </n-radio>
-        <n-radio
-          :checked="addTaskType === 'macro-record'"
-          value="macro-record"
-          @change="addTaskType = 'macro-record'"
-        >
-          Record macro
-        </n-radio>
-      </n-space>
+  <newTaskModal ref="myNewTaskModal" />
+  <newAppModal ref="myNewAppModal"/>
 
-      <n-select
-        v-if="addTaskType === 'template'"
-        placeholder="Select a template"
-        size="small"
-        placement="bottom"
-        v-model:value="selectedTemplate"
-        style="padding-top: 10px; padding-left: 100px; width: 180px"
-        :options="templateOptions"
-        :render-label="renderLabel"
-      />
-
-      <n-checkbox-group
-        v-else
-        v-model:value="macroRecordOptions"
-        style="padding-top: 10px; padding-left: 30px"
-      >
-        <n-space item-style="display: flex;">
-          <n-checkbox
-            disabled
-            checked
-            value="mouse-keys"
-            label="mouse-click and keys"
-          />
-
-          <n-checkbox value="mouse-move" label="mouse-move" />
-          <n-checkbox
-            disabled
-            value="mouse click by image"
-            label="mouse-click-by-image"
-          />
-          <n-checkbox value="delay" label="time delay" />
-        </n-space>
-      </n-checkbox-group>
-    </div>
-    <template #action>
-      <n-space style="margin: 0px">
-        <n-tooltip
-          :style="{ maxWidth: '400px' }"
-          trigger="hover"
-          v-if="addTaskType === 'macro-record'"
-        >
-          <template #trigger>
-            <n-button text type="info" size="tiny">
-              <template #icon>
-                <n-icon>
-                  <Search />
-                </n-icon>
-              </template>
-              how to record macro?
-            </n-button>
-          </template>
-          Start: Shift + Shift
-          <br />
-          Stop&nbsp;: Command + Command
-        </n-tooltip>
-        <n-button size="small" @click="showAddTaskModal = false"
-          >Cancel</n-button
-        >
-        <n-button size="small" type="primary" @click="addNewTask">
-          Add
-        </n-button>
-      </n-space>
-    </template>
-  </n-modal>
-
-  <n-modal v-model:show="showAddAppModal" preset="dialog">
-    <template #header>
-      <div style="padding-left: 10px">New app</div>
-    </template>
-    <div>
-      <n-space justify="center" style="padding-bottom: 10px">
-        <n-radio
-          :checked="addAppType === 'download'"
-          value="download"
-          @change="addAppType = 'download'"
-        >
-          Download
-        </n-radio>
-        <n-radio
-          :checked="addAppType === 'empty'"
-          value="empty"
-          @change="addAppType = 'empty'"
-        >
-          Blank app
-        </n-radio>
-      </n-space>
-      <n-space v-if="addAppType === 'empty'">
-        <n-space>
-          <n-input-group>
-            <n-button size="small" secondary style="padding: 10px 5px 10px">
-              App Name
-            </n-button>
-            <n-input
-              v-model:value="newAppAuthor"
-              style="width: 90px"
-              size="small"
-              placeholder="author"
-            />
-            <n-input
-              v-model:value="newAppName"
-              size="small"
-              style="width: 200px"
-              placeholder="new-app-name"
-            />
-          </n-input-group>
-          <n-input-group>
-            <n-button size="small" secondary style="padding: 10px 5px 10px">
-              App icon
-            </n-button>
-            <n-input
-              v-model:value="newAppIcon"
-              size="small"
-              style="width: 260px"
-              placeholder="URL to image icon"
-            />
-          </n-input-group>
-          <n-space>
-            <n-avatar
-              :bordered="false"
-              :size="28"
-              :src="newAppIcon"
-              fallback-src="https://pngimg.com/d/apple_logo_PNG19689.png"
-              style="display: block; background-color: #ffffff"
-            />
-          </n-space>
-        </n-space>
-      </n-space>
-
-      <n-space v-else>
-        <n-space vertical justify="center">
-          <n-input
-            style="width: 400px"
-            size="small"
-            v-model:value="githubFolderLink"
-            placeholder="https://github.com/danalites/apps/tree/master/macos"
-          />
-
-          <n-space justify="center">
-            <n-button text type="info" size="tiny">
-              <template #icon>
-                <n-icon>
-                  <Search />
-                </n-icon>
-              </template>
-              more FREE apps in store!
-            </n-button>
-          </n-space>
-        </n-space>
-      </n-space>
-    </div>
-    <template #action>
-      <n-space style="margin: 0px">
-        <n-button size="small" @click="showAddAppModal = false"
-          >Cancel</n-button
-        >
-        <n-button size="small" type="primary" @click="addNewApp">
-          Add
-        </n-button>
-      </n-space>
-    </template>
-  </n-modal>
 </template>
 
 <script setup>
@@ -553,8 +354,13 @@ import {
 } from "@vicons/tabler";
 
 import { ipcRenderer, shell } from "electron";
-import { taskTemplates } from "@/utils/render/taskTemplates";
+
+import newAppModal from "./modals/newAppModal";
+import newTaskModal from "./modals/newTaskModal";
+
 import { EventType } from "@/utils/render/eventTypes";
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = defineProps({
   apps: {
@@ -621,17 +427,17 @@ const renderIcon = (icon, attrs) => {
 
 const appOptions = [
   {
-    label: "Edit",
+    label: () => t('apps.app.edit'),
     key: "edit",
     icon: renderIcon(Pencil, { color: "#2685c2" }),
   },
   {
-    label: "New task",
+    label: () => t('apps.app.newTask'),
     key: "new",
     icon: renderIcon(Plus, { color: "#2685c2" }),
   },
   {
-    label: "Update",
+    label: () => t('apps.app.update'),
     key: "update",
     icon: renderIcon(CloudDownload, { color: "green" }),
   },
@@ -640,12 +446,13 @@ const appOptions = [
     key: "d1",
   },
   {
-    label: "Delete",
+    label: () => t('apps.app.delete'),
     key: "delete",
     icon: renderIcon(Trash, { color: "#db2544" }),
   },
 ];
 
+const myNewTaskModal = ref(null);
 const handleAppAction = async (key, app) => {
   if (key === "delete") {
     await ipcRenderer.invoke("to-console", {
@@ -654,21 +461,20 @@ const handleAppAction = async (key, app) => {
     });
     emits("refreshApps", {});
     message.warning(`deleted app ${app.author}/${app.app}`);
+  
   } else if (key === "edit") {
     shell.openExternal(`vscode://file/${app.path}`);
+
   } else if (key == "new") {
-    showAddTaskModal.value = true;
+    let appName = props.apps[activeAppIndex.value].app
+    let appPath = props.apps[activeAppIndex.value].path
+    myNewTaskModal.value.show(appName, appPath);
   }
 };
 
 const taskItemOptions = [
-  // {
-  //   label: "Run",
-  //   key: "run",
-  //   icon: renderIcon(PlayerPlay, { color: "green" }),
-  // },
   {
-    label: "Edit",
+    label: () => t('apps.task.edit'),
     key: "edit",
     icon: renderIcon(Pencil, { color: "#2685c2" }),
   },
@@ -677,12 +483,12 @@ const taskItemOptions = [
     key: "d1",
   },
   {
-    label: () => h("span", {}, "Debug"),
+    label: () => t('apps.task.debug'),
     key: "showLog",
     icon: renderIcon(FileReport, { color: "#FAD02C" }),
   },
   {
-    label: () => h("span", { }, "Delete"),
+    label: () => t('apps.task.delete'),
     key: "delete",
     icon: renderIcon(Trash, { color: "#db2544" }),
   },
@@ -771,108 +577,8 @@ const saveSetupsToFile = async () => {
 };
 
 // Create dialog for new tasks
-const addTaskType = ref("template");
-
 const showAddTaskModal = ref(false);
-const macroRecordOptions = ref(["mouse-keys"]);
-const newTaskName = ref("");
-const selectedTemplate = ref("notification");
 
-const addAppType = ref("download");
-const addNewTask = async () => {
-  if (
-    newTaskName.value === "" ||
-    newTaskName.value.includes("/") ||
-    newTaskName.value.includes("\\") ||
-    newTaskName.value.includes(".")
-  ) {
-    message.error(`Invalid task name \"${newTaskName.value}\"`);
-    return;
-  }
-
-  if (addTaskType.value === "template") {
-    ipcRenderer.invoke("to-console", {
-      action: "create-task",
-      taskName: newTaskName.value,
-      appPath: props.apps[activeAppIndex.value].path,
-      content: taskTemplates[selectedTemplate.value],
-    });
-  } else if (addTaskType.value === "macro-record") {
-    await ipcRenderer.invoke("to-console", {
-      action: "uio-event",
-      type: "macroRecord",
-      options: [...macroRecordOptions.value],
-      source: "console.appLists",
-      appPath: props.apps[activeAppIndex.value].path,
-      taskName: newTaskName.value,
-    });
-  }
-
-  setTimeout(() => {
-    showAddTaskModal.value = false;
-    emits("refreshApps", {});
-  }, 200);
-};
-
-const downloadAppFromGithub = (link) => {
-  if (wsConn === null || wsConn.readyState !== WebSocket.OPEN) {
-    message.warning("Backend disconnected. Failed downloading...");
-    return;
-  }
-  try {
-    wsConn.send(
-      JSON.stringify({
-        event: EventType.I_EVENT_WSS_REQ,
-        action: "download",
-        url: link,
-      })
-    );
-  } catch (e) {
-    console.log(e);
-    message.warning(`Failed downloading ${link}...`);
-  }
-  showModalRef.value = false;
-};
-
-// Add new app
-const githubFolderLink = ref("");
-const showAddAppModal = ref(false);
-const newAppAuthor = ref("");
-const newAppName = ref("");
-const newAppIcon = ref(
-  "https://raw.githubusercontent.com/danalites/autoo/main/imgs/logo.png"
-);
-
-const addNewApp = () => {
-  if (
-    newAppName.value === "" ||
-    newAppName.value.includes("/") ||
-    newAppName.value.includes("\\") ||
-    newAppName.value.includes(".")
-  ) {
-    message.error(`Invalid app name \"${newAppName.value}\"`);
-    return;
-  }
-
-  if (addAppType.value === "download") {
-    if (
-      githubFolderLink.value === "" ||
-      !githubFolderLink.value.startsWith("http")
-    ) {
-      message.warning("Please enter a valid link");
-      return;
-    }
-    downloadAppFromGithub(githubFolderLink.value);
-  } else {
-    ipcRenderer.invoke("to-console", {
-      action: "create-app",
-      appAuthor: newAppAuthor.value,
-      appName: newAppName.value,
-      appIcon: newAppIcon.value,
-    });
-  }
-  showAddAppModal.value = false;
-};
 
 const cronTemplates = [
   {
@@ -890,21 +596,6 @@ const cronTemplates = [
   {
     label: "8am in Feb's first week",
     value: "0 8 1-7 feb *",
-  },
-];
-
-const templateOptions = [
-  {
-    label: "Notification",
-    value: "notification",
-  },
-  {
-    label: "Web Search",
-    value: "web-search",
-  },
-  {
-    label: "Desktop UI",
-    value: "desktop-ui",
   },
 ];
 

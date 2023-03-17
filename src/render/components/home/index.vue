@@ -97,6 +97,8 @@ import { genUUID } from "@/utils/render/taskUtils";
 import { parseCron } from "@/utils/render/parseCron";
 
 import eventBus from "@/utils/render/eventBus";
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 document.title = "AuTool";
 document.getElementsByTagName("html")[0].className = "container";
@@ -463,17 +465,17 @@ const renderIcon = (icon, attrs = {}) => {
 const activeMenuItem = ref("apps");
 const menuOptions = [
   {
-    label: "Apps",
+    label: () => t('apps.title'),
     key: "apps",
     icon: renderIcon(Apps),
   },
   {
-    label: "Scheduler",
+    label: () => t('scheduler.title'),
     key: "scheduler",
     icon: renderIcon(HeartRateMonitor),
   },
   {
-    label: "Settings",
+    label: t('settings.title'),
     key: "settings",
     icon: renderIcon(Settings),
   },

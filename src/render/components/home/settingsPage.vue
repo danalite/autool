@@ -31,9 +31,9 @@
       <n-layout content-style="padding: 15px 25px 5px;">
         <n-space v-if="subTab == 'accounts'" vertical>
           <n-input-group size="small">
-            <n-button secondary :bordered="false" size="small">
+            <n-input-group-label size="small">
               {{ $t("settings.accounts.license") }}
-            </n-button>
+            </n-input-group-label>
             <n-input
               size="small"
               v-model:value="license.key"
@@ -57,9 +57,9 @@
           </n-input-group>
 
           <n-input-group size="small">
-            <n-button secondary :bordered="false" size="small">
+            <n-input-group-label size="small">
               {{ $t("settings.accounts.appHome") }}
-            </n-button>
+            </n-input-group-label>
             <n-input
               size="small"
               v-model:value="appHome"
@@ -80,156 +80,29 @@
             </n-button>
           </n-input-group>
 
-          <div class="locale-changer">
-            <select v-model="$i18n.locale">
-              <option
-                v-for="locale in $i18n.availableLocales"
-                :key="`locale-${locale}`"
-                :value="locale"
-              >
-                {{ locale }}
-              </option>
-            </select>
+          <n-input-group size="small">
+            <n-input-group-label size="small">
+              {{ $t("settings.accounts.language") }}
+            </n-input-group-label>
+            <n-popselect
+              size="small"
+              v-model:value="$i18n.locale"
+              :options="availableLocales"
+            >
+              <n-button size="small">
+                {{ $i18n.locale == "zh" ? "简体中文" : "English" }}
+              </n-button>
+            </n-popselect>
+          </n-input-group>
 
-            {{ $t("hello") }}
-          </div>
-
-          <n-space justify="center">
+          <!-- <n-space justify="center">
             <n-button @click="toReset"> Reset </n-button>
-          </n-space>
+          </n-space> -->
         </n-space>
 
-        <n-space vertical v-if="subTab == 'servers'">
-          <n-input-group size="small" :style="{ width: '100%' }">
-            <n-input-group-label size="small">
-              {{ $t("settings.services.localServer") }}
-            </n-input-group-label>
-            <n-input
-              disabled
-              size="small"
-              placeholder="wss://localhost:5678"
-              type="text"
-              :style="{ width: '63%' }"
-            />
-            <n-button
-              secondary
-              :bordered="false"
-              :type="isLocalServerActive ? 'success' : 'error'"
-              size="small"
-            >
-              <n-icon v-if="!isLocalServerActive" size="16">
-                <Refresh />
-              </n-icon>
-              <n-icon v-else size="16">
-                <Check />
-              </n-icon>
-            </n-button>
-          </n-input-group>
+        <serverLists v-if="subTab == 'servers'" />
+        <helperWindows v-if="subTab == 'helpers'" />
 
-          <n-input-group size="small">
-            <n-input-group-label size="small">
-              {{ $t("settings.services.remoteOcrServer") }}
-            </n-input-group-label>
-            <n-input
-              size="small"
-              v-model:value="remoteServer.ocr.url"
-              type="text"
-              :style="{ width: '63%' }"
-            />
-
-            <n-button
-              secondary
-              :bordered="false"
-              :type="remoteServer.ocr.valid ? 'success' : 'warning'"
-              size="small"
-              :loading="isTestRunning.ocr"
-              @click="testServer($event, 'ocr')"
-            >
-              <n-icon v-if="!remoteServer.ocr.valid" size="16">
-                <Refresh />
-              </n-icon>
-              <n-icon v-else size="16">
-                <Check />
-              </n-icon>
-            </n-button>
-          </n-input-group>
-
-          <n-input-group size="small">
-            <n-input-group-label size="small">
-              {{ $t("settings.services.remoteTextParser") }}
-            </n-input-group-label>
-            <n-input
-              size="small"
-              v-model:value="remoteServer.parser.url"
-              type="text"
-              :style="{ width: '63%' }"
-            />
-
-            <n-button
-              secondary
-              :bordered="false"
-              :type="remoteServer.parser.valid ? 'success' : 'warning'"
-              size="small"
-              :loading="isTestRunning.parser"
-              @click="testServer($event, 'parser')"
-            >
-              <n-icon v-if="!remoteServer.parser.valid" size="16">
-                <Refresh />
-              </n-icon>
-              <n-icon v-else size="16">
-                <Check />
-              </n-icon>
-            </n-button>
-          </n-input-group>
-
-          <n-input-group size="small">
-            <n-input-group-label size="small">
-              {{ $t("settings.services.remoteUiDetector") }}
-            </n-input-group-label>
-            <n-input
-              size="small"
-              v-model:value="remoteServer.ui.url"
-              type="text"
-              :style="{ width: '63%' }"
-            />
-
-            <n-button
-              secondary
-              :bordered="false"
-              :type="remoteServer.ui.valid ? 'success' : 'warning'"
-              size="small"
-              :loading="isTestRunning.ui"
-              @click="testServer($event, 'ui')"
-            >
-              <n-icon v-if="!remoteServer.ui.valid" size="16">
-                <Refresh />
-              </n-icon>
-              <n-icon v-else size="16">
-                <Check />
-              </n-icon>
-            </n-button>
-          </n-input-group>
-        </n-space>
-
-        <n-space vertical v-if="subTab == 'helpers'">
-          <n-dynamic-input v-model:value="customValue" :on-create="onCreate">
-            <template #create-button-default> Add whatever you want </template>
-            <template #default="{ value }">
-              <div style="display: flex; align-items: center; width: 100%">
-                <n-checkbox
-                  v-model:checked="value.isCheck"
-                  style="margin-right: 12px"
-                />
-                <n-input
-                  size="small"
-                  v-model:value="value.label"
-                  style="margin-right: 12px; width: 160px"
-                />
-                <n-input size="small" v-model:value="value.value" type="text" />
-              </div>
-            </template>
-          </n-dynamic-input>
-        </n-space>
       </n-layout>
     </n-layout>
   </n-layout-content>
@@ -241,6 +114,7 @@ import {
   NInputGroup,
   NInputGroupLabel,
   NLayout,
+  NPopselect,
   NLayoutFooter,
   NLayoutHeader,
   NLayoutSider,
@@ -257,6 +131,7 @@ import {
   NInput,
   NButton,
   NMenu,
+  NDivider,
   NTag,
   NBadge,
   NAvatar,
@@ -295,24 +170,23 @@ import {
   PictureInPictureOff,
 } from "@vicons/tabler";
 
-import { appConfig } from "@/utils/main/config";
-import { request } from "@/utils/render/request";
-import { useI18n } from 'vue-i18n'
+import serverLists from "./settingTabs/serverLists.vue";
+import helperWindows from "./settingTabs/helperWindows.vue";
 
-const { t } = useI18n()
+import { appConfig } from "@/utils/main/config";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const emits = defineEmits(["refreshApps"]);
 const message = useMessage();
 
+const availableLocales = [
+  { label: "English", value: "en" },
+  { label: "简体中文", value: "zh" },
+];
+
 const appHome = ref(appConfig.get("appHome"));
 const license = ref(appConfig.get("license"));
-
-const remoteServer = reactive(appConfig.get("remoteServer"));
-const isLocalServerActive = ref(false);
-
-setInterval(() => {
-  isLocalServerActive.value = appConfig.get("isLocalServerActive");
-}, 1000);
 
 const collapsed = ref(appConfig.get("isSettingsMenuCollapsed"));
 const subTab = ref("accounts");
@@ -348,92 +222,11 @@ const menuOptions = [
   },
 ];
 
-const isTestRunning = reactive({
-  ocr: false,
-  ui: false,
-  parser: false,
-});
-
-const testServer = (switchOn, target) => {
-  isTestRunning[target] = true;
-  if (switchOn) {
-    if (remoteServer[target]["url"] == "") {
-      message.error("Please enter server address");
-      isTestRunning[target] = false;
-      return;
-    }
-    // console.log("@@", remoteServer[target]['url'])
-    request({
-      url: remoteServer[target]["url"],
-      method: "GET",
-    })
-      .then((res) => {
-        isTestRunning[target] = false;
-        if (res.status === 200) {
-          message.success(`${target} server is working`);
-          appConfig.set(`remoteServer.${target}.valid`, true);
-          appConfig.set(
-            `remoteServer.${target}.url`,
-            remoteServer[target]["url"]
-          );
-        } else {
-          message.error(`${target} server is not working`);
-        }
-      })
-      .catch((err) => {
-        isTestRunning[target] = false;
-        message.error(`Error: ${target} server invalid. ${err}`);
-      });
-  } else {
-    isTestRunning[target] = false;
-    appConfig.set(`remoteServer.${target}.valid`, false);
-    message.warning(`${target} server turned off`);
-  }
-};
-
 const toReset = () => {
   appConfig.reset();
   message.success("Settings reset to default");
 };
 
-const toggleNotificationPanelPosition = (value) => {
-  // console.log("onpromptPositionChange", value);
-  let position = value ? "top-right" : "top-left";
-  store.setPromptPosition(position);
-};
-
-const customValue = ref([
-  {
-    isCheck: true,
-    label: "Google",
-    value: "https://www.google.com",
-  },
-]);
-
-const onCreate = () => {
-  return {
-    isCheck: false,
-    label: "Google",
-    value: "https://www.google.com",
-  };
-};
-
-const restartBackendServer = () => {
-  request({
-    url: "http://localhost:3000/restart",
-    method: "GET",
-  })
-    .then((res) => {
-      if (res.status === 200) {
-        message.success(`Backend server restarted`);
-      } else {
-        message.error(`Backend server restart failed`);
-      }
-    })
-    .catch((err) => {
-      message.error(`Error: Backend server restart failed. ${err}`);
-    });
-};
 </script>
     
 <style scoped>
