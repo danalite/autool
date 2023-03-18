@@ -1,5 +1,5 @@
-import {promisify} from 'util'
-import {exec} from 'child_process'
+import { promisify } from 'util'
+import { exec } from 'child_process'
 
 const runCommand = promisify(exec)
 
@@ -8,7 +8,7 @@ const execCmd = async (command, powershell) => {
     let option = {
       shell: powershell ? `powershell.exe` : `cmd.exe`,
     }
-    const {stderr, stdout} = await runCommand(command, option)
+    const { stderr, stdout } = await runCommand(command, option)
     if (stderr) {
       return Promise.reject(stderr)
     }
@@ -37,7 +37,7 @@ export const getAuthFromCmd = async () => {
     }
   } catch (err) {
     console.error(`[cmd] `, 'League of Legends progress not start')
-    return {'port': ''}
+    return { 'port': '' }
   }
 }
 

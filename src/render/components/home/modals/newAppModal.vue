@@ -7,7 +7,6 @@
       <n-tabs type="segment">
         <n-tab-pane name="download" :tab="$t('apps.newApp.download')">
           <n-space vertical>
-            
             <n-input-group>
               <n-input-group-label size="small">
                 {{ $t("apps.newApp.appLink") }}
@@ -21,19 +20,21 @@
               />
             </n-input-group>
 
-            <n-input-group>
-              <n-input-group-label size="small">
-                {{ $t("apps.newApp.appExamples") }}
-              </n-input-group-label>
-              <n-select
+            <n-space>
+              <n-button
+                quaternary
                 size="small"
-                @update:value="onSelectApp"
-                v-model:value="selectedApp"
-                :options="options"
-                :render-label="renderLabel"
-                :render-tag="renderSingleSelectTag"
-              />
-            </n-input-group>
+                type="primary"
+                @click="openExternal"
+              >
+                <template #icon>
+                  <n-icon>
+                    <Apps />
+                  </n-icon>
+                </template>
+                {{ $t("apps.newApp.appExamples") }}
+              </n-button>
+            </n-space>
           </n-space>
         </n-tab-pane>
         <n-tab-pane name="blank" :tab="$t('apps.newApp.blank')">
@@ -126,9 +127,10 @@ import {
   useMessage,
   NModal,
   NRadio,
+  NImage,
 } from "naive-ui";
 
-import { ipcRenderer } from "electron";
+import { ipcRenderer, shell } from "electron";
 import { ref, h } from "vue";
 import { Apps } from "@vicons/tabler";
 
@@ -164,7 +166,6 @@ const downloadAppFromGithub = (link) => {
   }
 };
 
-const selectedApp = ref("");
 const addAppType = ref("download");
 const githubFolderLink = ref("");
 
@@ -206,81 +207,9 @@ const addNewApp = () => {
   showAddAppModal.value = false;
 };
 
-const renderLabel = (option) => {
-  return h(
-    "div",
-    {
-      style: {
-        display: "flex",
-        alignItems: "center",
-      },
-    },
-    [
-      h(NAvatar, {
-        src: "https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg",
-        size: "small",
-      }),
-      h(
-        "div",
-        {
-          style: {
-            marginLeft: "12px",
-            padding: "4px 0",
-          },
-        },
-        [
-          h("div", null, [option.label]),
-          h(
-            NText,
-            { depth: 3, tag: "div" },
-            {
-              default: () => "description",
-            }
-          ),
-        ]
-      ),
-    ]
+const openExternal = () => {
+  shell.openExternal(
+    "https://danalites.github.io/autool/docs/basics/apps-macos-display"
   );
-};
-
-const renderSingleSelectTag = ({ option }) => {
-  return h(
-    "div",
-    {
-      style: {
-        display: "flex",
-        alignItems: "center",
-      },
-    },
-    [
-      h(NAvatar, {
-        src: "https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg",
-        size: 24,
-        style: {
-          marginRight: "12px",
-        },
-      }),
-      option.label,
-    ]
-  );
-};
-
-const options = [
-  {
-    label: "07akioni",
-    value: "07akioni",
-  },
-  {
-    label: "08akioni",
-    value: "08akioni",
-  },
-  {
-    label: "09akioni",
-    value: "09akioni",
-  },
-];
-const onSelectApp = (value) => {
-  console.log(value);
-  githubFolderLink.value = value;
 };
 </script>

@@ -1,6 +1,5 @@
 import {
   app,
-  shell,
   dialog,
   systemPreferences,
   BrowserWindow,
@@ -39,10 +38,19 @@ const userHeader = userAgentList[Math.floor((Math.random() * userAgentList.lengt
 let mainWindow;
 let assistWindow;
 
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('autool', process.execPath, [path.resolve(process.argv[1])])
+  }
+} else {
+  app.setAsDefaultProtocolClient('autool')
+}
+
 // Backend PyWebsocket server
 let subPy = null;
 let subPyExited = false
 let isRestartEnabled = false
+let confirmQuit = false
 
 const PY_SRC_FOLDER = "../backend"
 const PY_MODULE = "app.py"
@@ -98,12 +106,32 @@ const startPythonSubprocess = () => {
 
 ipcMain.on('wss-server-restart', (event, arg) => {
   console.log("[ NodeJS ] restarting wss server...")
-  subPy.kill('SIGTERM')  
+  subPy.kill('SIGTERM')
   isRestartEnabled = true
 })
 
 const init = async () => {
   startPythonSubprocess()
+
+  // Electron deep links
+  const gotTheLock = app.requestSingleInstanceLock()
+  if (!gotTheLock) {
+    app.quit()
+  } else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+      // Someone tried to run a second instance, we should focus our window.
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore()
+        mainWindow.focus()
+      }
+      // the commandLine is array of strings in which last element is deep link url
+      // the url str ends with /
+      dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop().slice(0, -1)}`)
+    })
+  }
+  app.on('open-url', (event, url) => {
+    dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
+  })
 
   mainWindow = await createMainWindow(userHeader)
   assistWindow = await createAssistWindow(userHeader)
@@ -123,7 +151,6 @@ const init = async () => {
 
   // Setting up app path and server checking
   await appSetup()
-
   ipcListener(mainWindow, assistWindow)
   mainWindow.webContents.send('start-wss-backend', {})
 }
@@ -159,19 +186,24 @@ app.whenReady().then(async () => {
   });
 
   mainWindow.on('close', (e) => {
-    var choice = dialog.showMessageBoxSync(
-      mainWindow,
-      {
-        type: 'question',
-        buttons: ['Yes', 'No'],
-        title: 'Confirm',
-        message: 'Are you sure you want to quit?'
-      });
+    if (confirmQuit) {
+      return
+    } else {
+      var choice = dialog.showMessageBoxSync(
+        mainWindow,
+        {
+          type: 'question',
+          buttons: ['Yes', 'No'],
+          title: 'Confirm',
+          message: 'Are you sure you want to quit?'
+        });
 
-    e.preventDefault();
-    if (choice == 0) {
-      uioStop()
-      app.quit()
+      e.preventDefault();
+      if (choice == 0) {
+        confirmQuit = true
+        uioStop()
+        app.quit()
+      }
     }
   })
 
@@ -203,8 +235,8 @@ app.whenReady().then(async () => {
 const appSetup = async () => {
   let appHome = appConfig.get('appHome')
   if (appHome === '') {
-    let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
-    appHome = path.join(userPath, 'scripts')
+    // let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
+    // appHome = path.join(userPath, 'scripts')
 
     let user = require("os").userInfo().username
     appHome = `/Users/${user}/Desktop/apps/`

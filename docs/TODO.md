@@ -4,9 +4,10 @@
 - [ ] Click app icon to show documents
 - [ ] Check legality of the task hotkey
 - [ ] Task or app renaming
-- [ ] More examples for tutorials app: www.free-api.com, AI service, https://api.aa1.cn/, etc
 
 ## 2023-03
+- [x] More examples for tutorials app: www.free-api.com, AI service, https://api.aa1.cn/, etc
+- [x] Electron deep link to open the app
 - [x] A FS search plugin in Ws server to return file search results
 - [ ] Add (transient) caption on the screen
 - [x] Add Multi-language support

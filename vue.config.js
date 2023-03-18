@@ -44,11 +44,15 @@ module.exports = defineConfig({
           ]
         },
         nsis: {
-          "runAfterFinish": false,
-          "oneClick": false,
-          "allowToChangeInstallationDirectory": true,
-          "createDesktopShortcut": true
+          runAfterFinish: false,
+          oneClick: false,
+          allowToChangeInstallationDirectory: true,
+          createDesktopShortcut: true
         },
+        protocols: {
+          name: "AuTool",
+          schemes: ["autool"]
+        }
       },
     },
   },

@@ -17,7 +17,7 @@ const EnglishOptions = {
             title: 'New App',
             download: 'Download App',
             blank: 'Empty App',
-            appExamples: 'Example Apps',
+            appExamples: 'Discover and download example apps',
             appName: 'App Name',
             appIcon: 'App Icon',
             appLink: 'App Link',
