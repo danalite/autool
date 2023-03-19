@@ -20,7 +20,7 @@
               />
             </n-input-group>
 
-            <n-space>
+            <n-space justify="center">
               <n-button
                 quaternary
                 size="small"
@@ -133,7 +133,7 @@ import {
 import { ipcRenderer, shell } from "electron";
 import { ref, h } from "vue";
 import { Apps } from "@vicons/tabler";
-
+import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 const message = useMessage();
@@ -153,13 +153,22 @@ const downloadAppFromGithub = (link) => {
     if (wsConn === null) {
       wsConn = new WebSocket("ws://localhost:5678");
     }
-    wsConn.send(
-      JSON.stringify({
-        event: EventType.I_EVENT_WSS_REQ,
-        action: "download",
-        url: link,
-      })
-    );
+    wsConn.onmessage = (event) => {
+      wsConn.close();
+      wsConn = null;
+      // const data = JSON.parse(event.data);
+      message.success(event.data);
+    };
+    wsConn.onopen = (event) => {
+      wsConn.send(
+        JSON.stringify({
+          event: "I_EVENT_WSS_REQ",
+          value: "Download",
+          appUrl: link,
+          appHome: appConfig.get("appHome"),
+        })
+      );
+    };
   } catch (e) {
     console.log(e);
     message.warning(`Failed downloading ${link}...`);
@@ -175,18 +184,7 @@ const newAppIcon = ref(
   "https://raw.githubusercontent.com/danalites/autoo/main/imgs/logo.png"
 );
 
-const disableBuiltInApps = ref(false);
 const addNewApp = () => {
-  if (
-    newAppName.value === "" ||
-    newAppName.value.includes("/") ||
-    newAppName.value.includes("\\") ||
-    newAppName.value.includes(".")
-  ) {
-    message.error(`Invalid app name \"${newAppName.value}\"`);
-    return;
-  }
-
   if (addAppType.value === "download") {
     if (
       githubFolderLink.value === "" ||
@@ -196,7 +194,18 @@ const addNewApp = () => {
       return;
     }
     downloadAppFromGithub(githubFolderLink.value);
+    
   } else {
+    if (
+      newAppName.value === "" ||
+      newAppName.value.includes("/") ||
+      newAppName.value.includes("\\") ||
+      newAppName.value.includes(".")
+    ) {
+      message.error(`Invalid app name \"${newAppName.value}\"`);
+      return;
+    }
+
     ipcRenderer.invoke("to-console", {
       action: "create-app",
       appAuthor: newAppAuthor.value,

@@ -64,29 +64,37 @@
         </n-button>
       </n-popselect>
     </n-input-group>
-
-    <!-- <n-space justify="center">
-            <n-button @click="toReset"> Reset </n-button>
-          </n-space> -->
   </n-space>
 </template>
 
 <script setup>
 import {
   NSpace,
-    NDynamicInput,
-    NCheckbox,
-    NInput,
-    NButton
+  NButton,
+  NIcon,
+  NInputGroup,
+  NInputGroupLabel,
+  NInput,
+  NPopselect,
 } from "naive-ui";
+
 import { ref } from "vue";
+import { ipcRenderer } from "electron";
 import { appConfig } from "@/utils/main/config";
+import { Refresh, Check } from "@vicons/tabler";
+
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
-import { Refresh, Check } from "@vicons/tabler";
+const availableLocales = [
+  { label: "English", value: "en" },
+  { label: "简体中文", value: "zh" },
+];
 
+const onAppHomeChange = async () => {
+  await ipcRenderer.invoke("to-console", { action: "reload-apps" });
+};
+
+const appHome = ref(appConfig.get("appHome"));
+const license = ref(appConfig.get("license"));
 </script>
-
-<style>
-</style>

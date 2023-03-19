@@ -2,6 +2,8 @@ import { app, Menu, nativeImage, Tray, shell, dialog } from "electron";
 import { appConfig } from "@/utils/main/config";
 import pkg from "../../package.json";
 
+let isEditing = false;
+
 // Create a status page (task scheduled or running. notifications etc.)
 export const makeTray = (iconPath, mainWindow, assistWindow) => {
   const icon = nativeImage.createFromPath(iconPath).resize({ width: 20, height: 20 })
@@ -11,17 +13,8 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
 
   const createContextMenu = () =>
     Menu.buildFromTemplate([
-      // {
-      //   label: "Help documents",
-      //   click: () => {
-      //     process.nextTick(() => {
-      //       shell.openExternal("https://github.com/danalites/autoo");
-      //     });
-      //   },
-      // },
-      // { type: "separator" },
       {
-        label: "Main window",
+        label: "Main Console",
         click() {
           mainWindow.show();
           mainWindow.focus();
@@ -43,11 +36,37 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
       },
       { type: "separator" },
       {
-        label: "About AuTool",
+        label: "Hide Canvas",
+        click: () => {
+          if (assistWindow.isVisible()) {
+            assistWindow.hide();
+          } else {
+            assistWindow.show();
+          }
+        },
+      },
+      {
+        label: "Edit Canvas",
+        click: () => {
+          assistWindow.setIgnoreMouseEvents(isEditing);
+          isEditing = !isEditing;
+        }
+      },
+      { type: "separator" },
+      {
+        label: "Help",
+        click: () => {
+          process.nextTick(() => {
+            shell.openExternal("https://github.com/danalites/autool/issues");
+          });
+        },
+      },
+      {
+        label: "About",
         click() {
           dialog.showMessageBox({
-            title: "AuTool copyright © 2021 Danalites LTD",
-            message: "Scalable Software Automation",
+            title: "AuTool copyright © 2023 Danalites LTD",
+            message: "Software Automation Framework",
             detail: `version: ${pkg.version}\n`,
           });
         },
@@ -58,8 +77,8 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
     appIcon.setContextMenu(createContextMenu());
     appIcon.popUpContextMenu();
   });
-  
-  appIcon.on('drop-files', function(event, files) {
+
+  appIcon.on('drop-files', function (event, files) {
     assistWindow.webContents.send('drop-files', files)
   });
 

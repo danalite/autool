@@ -1,11 +1,12 @@
 ## TODOs
-- [ ] Update logging and debugging interface
 - [ ] Add and example to test event bus
 - [ ] Click app icon to show documents
-- [ ] Check legality of the task hotkey
 - [ ] Task or app renaming
 
 ## 2023-03
+- [x] Update logging and debugging interface
+- [x] Restructure the message panel page
+- [x] Improve `window.annotate` to draw on the screen
 - [x] More examples for tutorials app: www.free-api.com, AI service, https://api.aa1.cn/, etc
 - [x] Electron deep link to open the app
 - [x] A FS search plugin in Ws server to return file search results

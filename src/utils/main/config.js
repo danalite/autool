@@ -32,6 +32,27 @@ export const appConfig = new Store({
       'showType': 'running',
     },
     'apps': [],
+    'helperWindowsList': [
+      {
+        'isChecked': true,
+        'label': "ChatGPT",
+        'value': "https://chat.openai.com/",
+      },
+      {
+        'isChecked': true,
+        'label': "TinyWow Toolbox",
+        'value': "https://tinywow.com/",
+      },
+      {
+        'isChecked': true,
+        'label': "Todo Lists",
+        'value': "https://tasks-app-aridsm.netlify.app",
+      },
+      {
+        'isChecked': true,
+        'label': "AuTool Documents",
+        'value': "https://danalites.github.io/autool/",
+      }],
     'isLocalServerActive': false,
     'remoteServer': {
       'ocr': { 'url': 'http://localhost:8866/predict/ocr_system', 'valid': false },

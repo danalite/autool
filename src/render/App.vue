@@ -10,8 +10,8 @@ import { NMessageProvider, NConfigProvider, darkTheme } from "naive-ui";
 
 <style>
 /* @font-face {
-  font-family: "Comfortaa";
-  src: url("assets/fonts/Comfortaa.ttf");
+  font-family: 'Quicksand';
+  src: url("assets/fonts/Quicksand-Medium.ttf");
 } */
 * {
   margin: 0;

@@ -189,6 +189,7 @@ app.whenReady().then(async () => {
     if (confirmQuit) {
       return
     } else {
+      mainWindow.focus()
       var choice = dialog.showMessageBoxSync(
         mainWindow,
         {

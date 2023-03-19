@@ -10,8 +10,9 @@ const ChineseOptions = {
         },
         task: {
             edit: '编辑任务',
-            debug: '调试任务',
+            debug: '任务记录',
             delete: '删除任务',
+            rerun: '重新运行',
         },
         newApp: {
             title: '新建应用',
@@ -38,6 +39,8 @@ const ChineseOptions = {
             ok: '确认',
             clear: '清空',
             stop: '停止',
+            save: '保存',
+            reset: '重置',
         }
     },
     scheduler: {
@@ -65,8 +68,7 @@ const ChineseOptions = {
             title: '用户',
             license: '授权密钥',
             appHome: '插件目录',
-            language: '显示语言',
-            reset: '重置设置',
+            language: '显示语言'
         },
 
         services: {
@@ -79,7 +81,7 @@ const ChineseOptions = {
 
             mediaServer: {
                 title: '图片音频处理',
-                ocrServer: '云端OCR',
+                ocrServer: '文字识别',
                 textParser: '文字解析',
                 uiDetector: '图标识别',
             },
@@ -88,6 +90,8 @@ const ChineseOptions = {
 
         helpers: {
             title: '辅助窗口',
+            placeholderName: '名称',
+            placeholderUrl: '网址',
         }
     },
 }

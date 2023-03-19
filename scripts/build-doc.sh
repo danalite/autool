@@ -15,6 +15,6 @@ git commit -m 'deploy'
 # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git master
 
 # Publish to https://<USERNAME>.github.io/<REPO>
-git push -f git@github.com:danalites/autoo.git master:gh-pages
+git push -f git@github.com:danalites/autool.git master:gh-pages
 
 cd -

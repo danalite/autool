@@ -29,79 +29,9 @@
       </n-layout-sider>
 
       <n-layout content-style="padding: 15px 25px 5px;">
-        <n-space v-if="subTab == 'accounts'" vertical>
-          <n-input-group size="small">
-            <n-input-group-label size="small">
-              {{ $t("settings.accounts.license") }}
-            </n-input-group-label>
-            <n-input
-              size="small"
-              v-model:value="license.key"
-              type="text"
-              style="width: 240px"
-            />
-
-            <n-button
-              secondary
-              :bordered="false"
-              :type="license.valid ? 'success' : 'warning'"
-              size="small"
-            >
-              <n-icon v-if="!license.valid" size="16">
-                <Refresh />
-              </n-icon>
-              <n-icon v-else size="16">
-                <Check />
-              </n-icon>
-            </n-button>
-          </n-input-group>
-
-          <n-input-group size="small">
-            <n-input-group-label size="small">
-              {{ $t("settings.accounts.appHome") }}
-            </n-input-group-label>
-            <n-input
-              size="small"
-              v-model:value="appHome"
-              type="text"
-              style="width: 240px"
-            />
-
-            <n-button
-              secondary
-              @click="onAppHomeChange"
-              :bordered="false"
-              :type="'success'"
-              size="small"
-            >
-              <n-icon size="16">
-                <Refresh />
-              </n-icon>
-            </n-button>
-          </n-input-group>
-
-          <n-input-group size="small">
-            <n-input-group-label size="small">
-              {{ $t("settings.accounts.language") }}
-            </n-input-group-label>
-            <n-popselect
-              size="small"
-              v-model:value="$i18n.locale"
-              :options="availableLocales"
-            >
-              <n-button size="small">
-                {{ $i18n.locale == "zh" ? "简体中文" : "English" }}
-              </n-button>
-            </n-popselect>
-          </n-input-group>
-
-          <!-- <n-space justify="center">
-            <n-button @click="toReset"> Reset </n-button>
-          </n-space> -->
-        </n-space>
-
-        <serverLists v-if="subTab == 'servers'" />
-        <helperWindows v-if="subTab == 'helpers'" />
+        <accounts-mgr v-if="subTab == 'accounts'" />
+        <server-lists v-if="subTab == 'servers'" />
+        <helper-windows v-if="subTab == 'helpers'" />
 
       </n-layout>
     </n-layout>
@@ -172,6 +102,7 @@ import {
 
 import serverLists from "./settingTabs/serverLists.vue";
 import helperWindows from "./settingTabs/helperWindows.vue";
+import accountsMgr from "./settingTabs/accountsMgr.vue";
 
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
@@ -180,24 +111,11 @@ const { t } = useI18n();
 const emits = defineEmits(["refreshApps"]);
 const message = useMessage();
 
-const availableLocales = [
-  { label: "English", value: "en" },
-  { label: "简体中文", value: "zh" },
-];
-
-const appHome = ref(appConfig.get("appHome"));
-const license = ref(appConfig.get("license"));
-
 const collapsed = ref(appConfig.get("isSettingsMenuCollapsed"));
 const subTab = ref("accounts");
 const onMenuCollapse = () => {
   collapsed.value = !collapsed.value;
   appConfig.set("isSettingsMenuCollapsed", collapsed.value);
-};
-
-const onAppHomeChange = () => {
-  appConfig.set("appHome", appHome.value);
-  emits("refreshApps", {});
 };
 
 function renderIcon(icon) {
@@ -222,10 +140,7 @@ const menuOptions = [
   },
 ];
 
-const toReset = () => {
-  appConfig.reset();
-  message.success("Settings reset to default");
-};
+
 
 </script>
     

@@ -1,7 +1,7 @@
 <template>
   <n-notification-provider :placement="promptPosition">
     <div>
-      <messagePanel @togglePromptPlacement="togglePromptPlacement" />
+      <message-panel />
       <n-drawer
         v-model:show="showDrawer"
         content-style="height: 95%; padding: 0px;"
@@ -49,7 +49,7 @@ import {
   NButton,
   NPopselect,
 } from "naive-ui";
-import { PlaylistAdd } from "@vicons/tabler";
+
 import messagePanel from "./messagePanel.vue";
 import { ipcRenderer } from "electron";
 
@@ -63,34 +63,15 @@ document.getElementsByTagName("body")[0].style.height = "100%";
 const promptPosition = ref(appConfig.get("promptPosition"));
 var isMouseClickThrough = true;
 
-const togglePromptPlacement = async () => {
-  const position =
-    promptPosition.value == "top-left" ? "top-right" : "top-left";
-  promptPosition.value = position;
-  appConfig.set("promptPosition", position);
-};
+// const togglePromptPlacement = async () => {
+//   const position =
+//     promptPosition.value == "top-left" ? "top-right" : "top-left";
+//   promptPosition.value = position;
+//   appConfig.set("promptPosition", position);
+// };
 
+const options = ref([]);
 const selectType = ref("https://www.google.com/");
-
-// TODO: use options defined by users
-const options = [
-  {
-    label: "ChatGPT Plus",
-    value: "https://chat.openai.com/",
-  },
-  {
-    label: "TinyWow Toolbox",
-    value: "https://tinywow.com/",
-  },
-  {
-    label: "Todo Lists",
-    value: "https://tasks-app-aridsm.netlify.app",
-  },
-  {
-    label: "AuTool Documents",
-    value: "https://danalites.github.io/autoo/",
-  },
-];
 
 onMounted(() => {
   setTimeout(() => {
@@ -133,6 +114,7 @@ ipcRenderer.on("toggle-helper-drawer", (event, arg) => {
       showDrawer.value = false;
     });
   } else {
+    options.value = appConfig.get("helperWindowsList").filter((item) => item.isCheck)
     showDrawer.value = true;
   }
 });

@@ -10,8 +10,9 @@ const EnglishOptions = {
         },
         task: {
             edit: 'Edit Task',
-            debug: 'Debug',
-            delete: 'Delete',
+            debug: 'Open logs',
+            delete: 'Delete Task',
+            rerun: 'Rerun',
         },
         newApp: {
             title: 'New App',
@@ -35,7 +36,11 @@ const EnglishOptions = {
         },
         common: {
             cancel: 'Cancel',
-            ok: 'Confirm',
+            ok: 'Submit',
+            clear: 'Clear',
+            stop: 'Stop',
+            save: 'Save',
+            reset: 'Reset',
         }
     },
     scheduler: {
@@ -63,8 +68,7 @@ const EnglishOptions = {
             title: 'Accounts',
             license: 'License',
             appHome: 'App Home',
-            language: 'Language',
-            reset: 'Reset Settings',
+            language: 'Language'
         },
 
         services: {
@@ -86,6 +90,8 @@ const EnglishOptions = {
 
         helpers: {
             title: 'Helpers',
+            placeholderName: 'Name',
+            placeholderUrl: 'URL',
         }
     },
 }

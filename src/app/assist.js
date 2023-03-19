@@ -6,7 +6,7 @@ export const createAssistWindow = async (userHeader) => {
   const currentScreen = screen.getPrimaryDisplay()['size']
   appConfig.set('assistWinSize', currentScreen)
   const assistWin = new BrowserWindow({
-    title: 'toolAssist',
+    title: 'autoolAssist',
     frame: false,
     transparent: true,
     // closable: false,

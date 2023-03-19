@@ -250,8 +250,8 @@
               >
                 {{
                   task.status == "taskFinish" || task.status == "stopped"
-                    ? "rerun"
-                    : "debug"
+                    ? $t("apps.task.rerun")
+                    : $t("apps.task.debug")
                 }}
               </n-button>
             </n-space>
@@ -518,6 +518,12 @@ const runTask = (task, index) => {
   let newTask = { ...task, startTime: null, hotkey: null };
   emits("runTask", newTask);
 };
+
+// Open the log file of a task
+const openLog = (task) => {
+  console.log(task)
+};
+
 </script>
   
 <style scoped>
