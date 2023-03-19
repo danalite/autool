@@ -1,6 +1,6 @@
+[中文](docs/README-zh.md)
 <p align="center">
   <img src="imgs/banner.png" height="90" title="autool">
-  [中文](docs/README-zh.md)
 </p>
 
 # AuTool Scripts
@@ -14,27 +14,9 @@ AuTool provides a rich set of API intrinsics to help you interact the OS and net
 - [Windows 10/11 v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
 - [MacOS 10.15+ v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
 
-<details>
-  <summary>Build from Source</summary>
-  
-```bash
-git clone https://github.com/danalites/autool.git
-cd autool
-
-# Install dependencies and build 
-yarn run init
-
-# Package python deps and electron app
-yarn run build-py
-yarn run electron:build
-```
-
-</details>
-
 
 ## Usage
-- Install the free apps from our document page: [https://autool.readthedocs.io/en/latest/](https://autool.readthedocs.io/en/latest/)
-
+- Install the free apps from our [example script page](https://danalites.github.io/autool/docs/basics/apps-macos-display/).
 - AuTool searches for `autool-tasks.json` file under `$HOME/Desktop/apps` folder, and loads the tasks into the GUI window.
 
 <p align="center">
@@ -63,7 +45,6 @@ actions:
 
 ## Documents
 - [Examples](https://danalites.github.io/autool/docs/basics/apps-macos-display)
-
 - API Reference [Under construction]
 
 
