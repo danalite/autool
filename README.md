@@ -54,4 +54,4 @@ Contributions are welcome! To contribute, please fork this repository, create a 
 ## License
 AuTool is released under GPL v3.0 license. This license allows people to use, copy, distribute, and modify software, but only if they agree to distribute any modifications they make under the same license and not use the software for commercial purposes. See [LICENSE](LICENSE) for more details.
 
-**FOR PERSONAL USAGE ONLY.**. All the rights are reserved by DanaLites LTD (SG).
+**FOR PERSONAL USAGE ONLY**. For any commercial use, please contact support@autool.site. The intellectual property of this product is protected by patents, and any unauthorized use will be subject to legal liability. All the rights are reserved by DanaLites Tech LTD (SG).
