@@ -29,11 +29,7 @@
       </n-layout-sider>
 
       <n-layout content-style="padding: 15px 25px 5px;">
-        <n-space
-          v-if="showEmptyIcon"
-          style="margin-top: 80px"
-          justify="center"
-        >
+        <n-space v-if="showEmptyIcon" style="margin-top: 80px" justify="center">
           <n-empty :description="$t('scheduler.active.emptyText')"> </n-empty>
         </n-space>
 
@@ -70,7 +66,11 @@
                   <DevicesPc style="color: #409eff" />
                 </n-icon>
 
-                <n-button :text="true" size="small" @click="openLog(task)">
+                <n-button
+                  :text="true"
+                  size="small"
+                  @click="openTask(task.taskPath)"
+                >
                   <n-ellipsis style="max-width: 155px">
                     {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
                   </n-ellipsis>
@@ -92,7 +92,7 @@
                 {{ new Date(task.stamp).toLocaleString() }}
               </n-ellipsis>
               <n-button size="tiny" type="error" @click="() => stopTask(task)">
-                {{ $t('apps.common.stop') }}
+                {{ $t("apps.common.stop") }}
               </n-button>
             </n-space>
           </n-card>
@@ -120,7 +120,7 @@
 
                 <n-button :text="true" size="small">
                   <n-ellipsis style="max-width: 155px">
-                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }} 
+                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
                   </n-ellipsis>
                 </n-button>
               </n-space>
@@ -140,7 +140,12 @@
                 :duration="getNextRunTime(task, taskIndex)"
                 @finish="() => runTask(task, taskIndex)"
               />
-              <n-button secondary size="tiny" type="error" @click="() => stopTask(task)">
+              <n-button
+                secondary
+                size="tiny"
+                type="error"
+                @click="() => stopTask(task)"
+              >
                 Clear
               </n-button>
             </n-space>
@@ -189,8 +194,13 @@
               <n-button secondary type="success" size="tiny">
                 {{ task.hotkey }}
               </n-button>
-              <n-button secondary size="tiny" type="error" @click="() => stopTask(task)">
-                {{ $t('apps.common.clear') }}
+              <n-button
+                secondary
+                size="tiny"
+                type="error"
+                @click="() => stopTask(task)"
+              >
+                {{ $t("apps.common.clear") }}
               </n-button>
             </n-space>
           </n-card>
@@ -215,7 +225,11 @@
                   <DevicesPc style="color: #409eff" />
                 </n-icon>
 
-                <n-button :text="true" size="small" @click="openLog(task)">
+                <n-button
+                  :text="true"
+                  size="small"
+                  @click="openTask(task.taskPath)"
+                >
                   <n-ellipsis style="max-width: 155px; width: 155px">
                     {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
                   </n-ellipsis>
@@ -246,7 +260,7 @@
                     ? 'warning'
                     : 'error'
                 "
-                @click="() => openLog(task)"
+                @click="() => quickAction(task)"
               >
                 {{
                   task.status == "taskFinish" || task.status == "stopped"
@@ -322,9 +336,9 @@ import { app, ipcRenderer, shell } from "electron";
 
 import { appConfig } from "@/utils/main/config";
 import { parseCron } from "@/utils/render/parseCron";
-import { useI18n } from 'vue-i18n'
+import { useI18n } from "vue-i18n";
 
-const { t } = useI18n()
+const { t } = useI18n();
 const props = defineProps({
   taskEvents: {
     type: Array,
@@ -443,7 +457,6 @@ const eventItems = computed(() => {
   return events;
 });
 
-
 const showEmptyIcon = computed(() => {
   if (taskSchTab.value === "running") {
     return runningTasks.value.length === 0;
@@ -460,7 +473,9 @@ const showEmptyIcon = computed(() => {
 
 const runningTasks = computed(() => {
   let running = props.tasksStatusTable.filter((t) => t.status === "running");
-  running.sort(function (a, b) { return b.stamp - a.stamp })
+  running.sort(function (a, b) {
+    return b.stamp - a.stamp;
+  });
   return running;
 });
 
@@ -479,7 +494,9 @@ const scheduledTasks = computed(() => {
   let scheduled = props.tasksStatusTable.filter(
     (t) => t.status === "scheduled"
   );
-  scheduled.sort(function (a, b) { return b.stamp - a.stamp })
+  scheduled.sort(function (a, b) {
+    return b.stamp - a.stamp;
+  });
   if (scheduled.length > 20) {
     scheduled = scheduled.slice(0, 20);
   }
@@ -495,7 +512,9 @@ const stoppedTasks = computed(() => {
       t.status === "taskFinish" ||
       t.status === "stopped"
   );
-  stopped.sort(function (a, b) { return b.stamp - a.stamp })
+  stopped.sort(function (a, b) {
+    return b.stamp - a.stamp;
+  });
   if (stopped.length > 30) {
     stopped = stopped.slice(0, 30);
   }
@@ -513,17 +532,27 @@ const stopTask = (task) => {
 // When a scheduled task is ready to run
 const runTask = (task, index) => {
   if (task.startTime) {
-    scheduledTasks.value[index].nextDates.shift()
+    scheduledTasks.value[index].nextDates.shift();
   }
   let newTask = { ...task, startTime: null, hotkey: null };
   emits("runTask", newTask);
 };
 
 // Open the log file of a task
-const openLog = (task) => {
-  console.log(task)
+const quickAction = (task) => {
+  if (task.status == "taskFinish" || task.status == "stopped") {
+    let newTask = { relTaskPath: task.taskName, absTaskPath: task.taskPath };
+    emits("runTask", newTask);
+  } else {
+    let shortName = task.taskName.split(pathSeparator.value).slice(-1)[0];
+    let logPath = appConfig.get("logPath") + shortName + ".txt";
+    shell.openExternal(`vscode://file/${logPath}`);
+  }
 };
 
+const openTask = (taskPath) => {
+  shell.openExternal(`vscode://file/${taskPath}`);
+};
 </script>
   
 <style scoped>

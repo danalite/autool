@@ -4,16 +4,21 @@
 - [ ] Task or app renaming
 
 ## 2023-03
+- [ ] Add example: app filtering amazon deals
+- [ ] Add example: app usage tour of openVPN (one-at-a-time mode)
+- [x] Add window status listener in main process (for adaptive annotation)
+- [ ] Websocket push notification feature (game, stock, todo, etc)
+- [x] Add RSS Subscription section in the settings panel
+- [x] Think about how to interact and adjust window annotation
+- [x] Use app directory instead of desktop/app by default
 - [x] Update logging and debugging interface
 - [x] Restructure the message panel page
 - [x] Improve `window.annotate` to draw on the screen
 - [x] More examples for tutorials app: www.free-api.com, AI service, https://api.aa1.cn/, etc
 - [x] Electron deep link to open the app
 - [x] A FS search plugin in Ws server to return file search results
-- [ ] Add (transient) caption on the screen
 - [x] Add Multi-language support
 - [x] Try out the SuperGlue
-- [ ] Push notification feature (game, stock, todo, etc)
 - [x] TTS demo (Azure and Free APIs)
 - [x] Resume the previously opened windows for popup
 - [x] Add python server restart function

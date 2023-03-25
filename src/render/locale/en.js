@@ -92,6 +92,14 @@ const EnglishOptions = {
             title: 'Helpers',
             placeholderName: 'Name',
             placeholderUrl: 'URL',
+        },
+
+        subscriptions: {
+            title: 'Subscriptions',
+        },
+
+        envs: {
+            title: 'Environments',
         }
     },
 }

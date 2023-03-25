@@ -8,7 +8,6 @@ import {
 
 const axios = require('axios')
 
-// import { kill } from './utils/main/subprocessUtils'
 import { uioStop } from './utils/main/uioListener'
 import { appConfig, userAgentList } from './utils/main/config'
 
@@ -19,10 +18,13 @@ import {
   makeTray
 } from "./app";
 
-import { execFile, spawn, exec } from "child_process"
+import { execFile, spawn } from "child_process"
 import { loadApps } from './utils/main/queryTasks';
 import { uioStartup } from "./utils/main/uioListener";
+import { protocolHandler } from './utils/main/protocolHandler';
+import { monitorWindowChange } from './utils/main/windowWatcher';
 
+var fs = require('fs');
 const Store = require("electron-store")
 Store.initRenderer()
 
@@ -126,11 +128,15 @@ const init = async () => {
       }
       // the commandLine is array of strings in which last element is deep link url
       // the url str ends with /
-      dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop().slice(0, -1)}`)
+      // dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop().slice(0, -1)}`)
+
+      let url = commandLine.pop().slice(0, -1)
+      protocolHandler(url, mainWindow)
     })
   }
   app.on('open-url', (event, url) => {
-    dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
+    // dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
+    protocolHandler(url, mainWindow)
   })
 
   mainWindow = await createMainWindow(userHeader)
@@ -148,6 +154,7 @@ const init = async () => {
 
   uioStartup(assistWindow)
   makeTray(iconPath, mainWindow, assistWindow)
+  monitorWindowChange(assistWindow)
 
   // Setting up app path and server checking
   await appSetup()
@@ -235,14 +242,26 @@ app.whenReady().then(async () => {
 // Setup before launching GUI window
 const appSetup = async () => {
   let appHome = appConfig.get('appHome')
-  if (appHome === '') {
-    // let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
-    // appHome = path.join(userPath, 'scripts')
+  let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
 
-    let user = require("os").userInfo().username
-    appHome = `/Users/${user}/Desktop/apps/`
+  // Set to local apps folder by default
+  if (appHome === '') {
+    appHome = path.join(userPath, 'scripts')
+    // let user = require("os").userInfo().username
+    // appHome = `/Users/${user}/Desktop/apps/`
+    if (!fs.existsSync(appHome)){
+      fs.mkdirSync(appHome, { recursive: true });
+    }
     appConfig.set('appHome', appHome)
   }
+
+  let logPath = path.join(userPath, 'logs')
+  if (!fs.existsSync(logPath)){
+    fs.mkdirSync(logPath, { recursive: true });
+  }
+  appConfig.set('logPath', logPath + path.sep)
+  console.log("[ NodeJS ] appHome: ", appHome)
+  console.log("[ NodeJS ] logPath: ", logPath)
 
   // Validate license 
   const license = appConfig.get('license')

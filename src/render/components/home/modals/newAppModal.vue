@@ -135,6 +135,7 @@ import { ref, h } from "vue";
 import { Apps } from "@vicons/tabler";
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
+
 const { t } = useI18n();
 const message = useMessage();
 
@@ -221,4 +222,9 @@ const openExternal = () => {
     "https://danalites.github.io/autool/docs/basics/apps-macos-display"
   );
 };
+
+ipcRenderer.on("download", (event, data) => {
+  githubFolderLink.value = data;
+  downloadAppFromGithub(data);
+});
 </script>

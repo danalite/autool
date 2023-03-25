@@ -97,8 +97,8 @@ import { genUUID } from "@/utils/render/taskUtils";
 import { parseCron } from "@/utils/render/parseCron";
 
 import eventBus from "@/utils/render/eventBus";
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 document.title = "AuTool";
 document.getElementsByTagName("html")[0].className = "container";
@@ -127,7 +127,9 @@ function setupWsConn() {
       message.error("wsConn error", JSON.stringify(e), { duration: 8000 });
     };
   } catch (e) {
-    message.error("wsConn error in setup", JSON.stringify(e), { duration: 8000 });
+    message.error("wsConn error in setup", JSON.stringify(e), {
+      duration: 8000,
+    });
   }
 }
 
@@ -152,13 +154,12 @@ onMounted(() => {
     }, 800);
   });
 
-
   setInterval(() => {
     let status = false;
     if (wsConn !== null) {
       if (wsConn.readyState === WebSocket.OPEN) {
         status = true;
-      } 
+      }
     }
     appConfig.set("isLocalServerActive", status);
     if (status === false) {
@@ -168,8 +169,7 @@ onMounted(() => {
       } else {
         failureCount++;
       }
-    } 
-
+    }
   }, 1000);
 
   ipcRenderer.on("to-backend", (event, data) => {
@@ -205,16 +205,42 @@ onMounted(() => {
 
 const sendMessageToBackend = (msg) => {
   try {
-      wsConn.send(JSON.stringify(msg));
+    wsConn.send(JSON.stringify(msg));
   } catch (e) {
     wsConn = null;
     message.error("wsConn error", JSON.stringify(e), { duration: 8000 });
   }
 };
 
+const ProcessTarget = Object.freeze({
+  AssistWindow: 0,
+  MainWindow: 1,
+  Backend: 2,
+  MainProcess: 3,
+});
+
+// Proxy message to backend, assist-window, or node process
+const proxyMsg = (target, msg) => {
+  switch (target) {
+    case ProcessTarget.MainProcess:
+      ipcRenderer.invoke("to-console", msg);
+      break;
+    case ProcessTarget.AssistWindow:
+      ipcRenderer.invoke("to-assist", msg);
+      break;
+    case ProcessTarget.MainWindow:
+      ipcRenderer.invoke("to-main", msg);
+      break;
+    case ProcessTarget.Backend:
+      sendMessageToBackend(msg);
+      break;
+  }
+};
+
 // Task management constructs
 const taskEvents = ref([]);
 const tasksStatusTable = ref([]);
+
 const backendEventHook = (msg) => {
   const value = msg.value;
   msg.stamp = new Date().getTime();
@@ -222,6 +248,7 @@ const backendEventHook = (msg) => {
 
   const taskId = msg.uuid;
   switch (msg.event) {
+    // 1. Update task status in GUI
     case EventType.O_EVENT_TASK_STATUS:
       tasksStatusTable.value = tasksStatusTable.value.map((task) => {
         if (task.id === taskId) {
@@ -230,12 +257,16 @@ const backendEventHook = (msg) => {
         return task;
       });
       if (value.type === "taskError") {
-        message.error(`Error: ${msg.taskName}. Check "Scheduler > Events for details"`, { duration: 6000 });
+        message.error(
+          `Error: ${msg.taskName}. Check "Scheduler > Events for details"`,
+          { duration: 6000 }
+        );
       }
       break;
 
     case EventType.O_EVENT_HOOK_REQ:
-      // keyWait or event.on(__KEY...)
+      // blocking (keyWait) 
+      // non-blocking: event.on(__KEY__, configs)
       ipcRenderer.invoke("to-console", {
         action: "uio-event",
         type: value.type,
@@ -245,51 +276,44 @@ const backendEventHook = (msg) => {
       });
       break;
 
+    // Non-blocking: send to assist window
     case EventType.O_EVENT_WINDOW_REQ:
-      console.log("O_EVENT_WINDOW_REQ", value);
-      break;
-
     case EventType.O_EVENT_USER_NOTIFY:
       ipcRenderer.send("to-assist-window", {
-        type: "push-notification",
-        title: value.title,
-        content: value.content,
         source: msg.taskName,
-        timeout: value.timeout,
-        isPreview: value.isPreview,
+        ...value,
       });
       break;
 
     case EventType.O_EVENT_USER_INPUT:
-      // TODO: Type: "area"
-      //      Waiting for callback from uioListener
-      if (value.type === "area") {
-      } else {
-        // Type: "select", "text", "upload"
-        //      Waiting for callback from assist window
-        let callback = `callback-${taskId}`;
-        ipcRenderer.once(callback, (event, data) => {
-          sendMessageToBackend({
-            event: EventType.I_EVENT_TASK_REQ,
-            source: "Main.UserInput",
-            uuid: taskId,
-            taskName: msg.taskName,
-            value: {
-              type: "resumeTask",
-              selected: JSON.parse(data),
-            },
-          });
+      // Blocking: waiting for user input
+      let callback = `callback-${taskId}`;
+      ipcRenderer.once(callback, (event, data) => {
+        sendMessageToBackend({
+          event: EventType.I_EVENT_TASK_REQ,
+          uuid: taskId,
+          taskName: msg.taskName,
+          value: {
+            type: "resumeTask",
+            selected: JSON.parse(data),
+          },
         });
-        ipcRenderer.send("to-assist-window", {
-          type: value.type,
-          title: value.title,
-          options: value.options,
-          max: value.max,
-          min: value.min,
-          preset: value.preset,
-          isPreview: value.isPreview,
+      });
+
+      // wait for mouse action trigger from uioListener
+      if (value.type === "area") {
+        ipcRenderer.send("to-console", {
           source: msg.taskName,
           callback: callback,
+          ...value,
+        });
+
+      } else {
+        // wait for action from popup window (input/select option)
+        ipcRenderer.send("to-assist-window", {
+          source: msg.taskName,
+          callback: callback,
+          ...value,
         });
       }
       break;
@@ -465,17 +489,17 @@ const renderIcon = (icon, attrs = {}) => {
 const activeMenuItem = ref("apps");
 const menuOptions = [
   {
-    label: () => t('apps.title'),
+    label: () => t("apps.title"),
     key: "apps",
     icon: renderIcon(Apps),
   },
   {
-    label: () => t('scheduler.title'),
+    label: () => t("scheduler.title"),
     key: "scheduler",
     icon: renderIcon(HeartRateMonitor),
   },
   {
-    label: t('settings.title'),
+    label: t("settings.title"),
     key: "settings",
     icon: renderIcon(Settings),
   },

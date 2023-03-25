@@ -32,6 +32,8 @@
         <accounts-mgr v-if="subTab == 'accounts'" />
         <server-lists v-if="subTab == 'servers'" />
         <helper-windows v-if="subTab == 'helpers'" />
+        <subscriptions v-if="subTab == 'subscriptions'" />
+        <env-variables v-if="subTab == 'envs'" />
 
       </n-layout>
     </n-layout>
@@ -97,12 +99,16 @@ import {
   PlayerStop,
   Refresh,
   Check,
+  Rss,
   PictureInPictureOff,
+  Variable
 } from "@vicons/tabler";
 
 import serverLists from "./settingTabs/serverLists.vue";
 import helperWindows from "./settingTabs/helperWindows.vue";
 import accountsMgr from "./settingTabs/accountsMgr.vue";
+import subscriptions from "./settingTabs/subscriptions.vue";
+import envVariables from "./settingTabs/envVariables.vue";
 
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
@@ -137,6 +143,16 @@ const menuOptions = [
     label: () => t("settings.helpers.title"),
     key: "helpers",
     icon: renderIcon(PictureInPictureOff),
+  },
+  {
+    label: () => t("settings.subscriptions.title"),
+    key: "subscriptions",
+    icon: renderIcon(Rss),
+  },
+  {
+    label: () => t("settings.envs.title"),
+    key: "envs",
+    icon: renderIcon(Variable),
   },
 ];
 

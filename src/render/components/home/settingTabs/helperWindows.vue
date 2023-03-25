@@ -1,6 +1,7 @@
 <template>
   <n-space vertical>
     <n-dynamic-input
+      show-sort-button
       v-model:value="customValue"
       :on-create="onCreate"
       item-style="margin-bottom: 5px"

@@ -318,9 +318,8 @@ export const registerUioEvent = (assistWindow, event) => {
     if (isMacroRecording) {
       assistWindow.webContents.send('assist-win-push', {
         type: "push-notification",
-        title: 'WARNING: NO stacked macro recording!',
+        title: 'WARNING: macro recording!',
         content: 'Please finish the current recording first.',
-        source: 'console.uiohook',
         timeout: 15
       })
       return
@@ -330,7 +329,6 @@ export const registerUioEvent = (assistWindow, event) => {
         type: "push-notification",
         title: "Macro recorder ready!",
         content: "Press \"Shift+Shift\" to start\n \"Command+Command\" to stop\n\nThis window will disappear when you start.",
-        source: event.source,
       })
 
       // Wait for start key (Shift + Shift)
@@ -370,14 +368,7 @@ export const registerUioEvent = (assistWindow, event) => {
           console.log("@@", "stop recording macro")
           isMacroRecording = false
           assistWindow.restore()
-
-          assistWindow.webContents.send('assist-win-push', {
-            type: "push-notification",
-            title: 'Macro recording finished',
-            content: 'Check it in mainWin!',
-            source: 'console.uiohook',
-            timeout: 15
-          })
+          shell.beep()
 
           // clear and reset MAT
           keyboardActionTable.splice(0, keyboardActionTable.length)

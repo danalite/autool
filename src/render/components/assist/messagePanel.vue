@@ -1,26 +1,26 @@
 <template>
   <div :width="canvasWidth" :height="canvasHeight">
     <n-tooltip
-      v-for="(marker, index) in activeAnnotations"
+      v-for="(marker, index) in activeAnnotationsShow"
       :key="index"
       trigger="hover"
     >
       <template #trigger>
         <div
-          v-if="marker.type === 'rect'"
+          v-if="marker.kind === 'rect'"
           :style="{
             border: `2px solid #D9554F`,
-            width: marker.width,
-            height: marker.height,
+            width: String(marker.width) + 'px',
+            height: String(marker.height) + 'px',
             position: 'absolute',
-            left: marker.x,
-            top: marker.y,
+            left: String(marker.absX) + 'px',
+            top: String(marker.absY) + 'px',
           }"
         >
           <n-button
-            @mouseover="closeMarker(index)"
-            @mouseleave="leaveMarker(index)"
-            @mouseenter="overMarker(index)"
+            @mouseover="closeMarker(marker.label)"
+            @mouseleave="leaveMarker(marker.label)"
+            @mouseenter="overMarker(marker.label)"
             size="small"
             text
           >
@@ -37,15 +37,15 @@
           v-else
           :style="{
             position: 'absolute',
-            left: marker.x,
-            top: marker.y,
+            left: String(marker.absX) + 'px',
+            top: String(marker.absY) + 'px',
           }"
         >
           <n-space>
             <n-button
-              @mouseover="closeMarker(index)"
-              @mouseleave="leaveMarker(index)"
-              @mouseenter="overMarker(index)"
+              @mouseover="closeMarker(marker.label)"
+              @mouseleave="leaveMarker(marker.label)"
+              @mouseenter="overMarker(marker.label)"
               size="small"
               text
             >
@@ -64,14 +64,13 @@
                 border-radius: 5px;
                 padding: 5px 10px 5px 10px;
               "
-              type="secondary"
             >
-              {{ marker.content }}
+              {{ marker.content }} {{ marker.absX }} {{ marker.absY }}
             </n-text>
           </n-space>
         </div>
       </template>
-      {{ marker.label }}
+      {{ marker.kind === "rect" ? marker.content : marker.label }}
     </n-tooltip>
 
     <card-upload-files ref="cardFileUploadRef" />
@@ -111,7 +110,7 @@ import {
 
 import { Select, Mail, FileImport, ExternalLink, Copy } from "@vicons/tabler";
 
-import { h, ref, onMounted } from "vue";
+import { h, ref, computed, reactive } from "vue";
 import { appConfig } from "@/utils/main/config";
 
 import cardUploadFiles from "./cards/cardUploadFiles.vue";
@@ -124,6 +123,22 @@ const notification = useNotification();
 let assistWinSize = appConfig.get("assistWinSize");
 const canvasWidth = ref(assistWinSize.width);
 const canvasHeight = ref(assistWinSize.height);
+
+const activeAnnotationsShow = computed(() => {
+  return activeAnnotations.value
+    .filter((item) => item.show)
+    .map((item) => {
+      if (item.scope !== null) {
+        item.absX = item.x + activeWin.bounds.x;
+        item.absY = item.y + activeWin.bounds.y;
+      } else {
+        item.absX = item.x;
+        item.absY = item.y;
+      }
+      // console.log(item.absX, item.absY);
+      return item;
+    });
+});
 
 // Input-text request
 const inputText = ref([]);
@@ -195,191 +210,100 @@ const createTextInput = (command) => {
   });
 };
 
-const deleteAutoRune = () => {
-  if (appConfig.has(`autoRune.${currentChamp.value}`)) {
-    appConfig.delete(`autoRune.${currentChamp.value}`);
-    isAutoRune.value = 0;
-  }
-};
-
 // Ref handles to sub-components
 const cardFileUploadRef = ref(null);
 const cardTabsRef = ref(null);
 const cardSelectCarouselRef = ref(null);
 const cardSelectCheckboxRef = ref(null);
 
+let activeWin = reactive({
+  processId: null,
+  name: null,
+  bounds: { x: 0, y: 0, width: 0, height: 0 },
+});
+
+ipcRenderer.on("window-change", (event, win) => {
+  activeWin.processId = win.processId;
+  activeWin.name = win.name;
+  activeWin.bounds = win.bounds;
+  activeAnnotations.value = activeAnnotations.value.map((item) => {
+    if (item.scope !== null) {
+      item.show = item.scope.owner === activeWin.name;
+    } else {
+      item.show = true;
+    }
+    return item;
+  });
+});
+
+const activeAnnotations = ref([]);
+
+
+const drawWinAnnotations = (msg) => {
+  msg.show = true;
+  console.log(msg, "annotation");
+
+  // Annotations attached to a specific window
+  if (msg.scope.window !== null) {
+    activeAnnotations.value.push(msg);
+  } else {
+    // clear annotations in msg.scope
+  }
+
+  if (msg.duration) {
+    setTimeout(() => {
+      activeAnnotations.value = activeAnnotations.value.filter(
+        (item) => item.label !== msg.label
+      );
+    }, msg.duration * 1000);
+  }
+};
+
 ipcRenderer.on("assist-win-push", (event, message) => {
   let messageType = message.type;
   switch (messageType) {
+    case "window-annotate":
+      drawWinAnnotations(message);
+      break;
+
     case "select":
-      createSelectOptions({
-        title: message.title,
-        source: message.source,
-        options: message.options,
-        max: message.max,
-        min: message.min,
-        preset: message.preset,
-        timeout: message.timeout,
-        isPreview: message.isPreview,
-        callback: message.callback,
-      });
+      cardSelectCheckboxRef.value.enqueue(message);
       break;
 
     case "text":
-      createTextInput({
-        title: message.title,
-        source: message.source,
-        options: message.options,
-        placeholders: message.preset,
-        callback: message.callback,
-      });
       break;
 
     case "push-notification":
-      createNotification({
-        title: message.title,
-        content: message.content,
-        source: message.source,
-        timeout: message.timeout,
-        isPreview: message.isPreview,
-      });
       break;
 
     case "upload":
-      cardFileUploadRef.value.enqueue({
-        title: message.title,
-        source: message.source,
-        max: message.max,
-        allowDir: message.directory,
-        callback: message.callback,
-      });
+      cardFileUploadRef.value.enqueue(message);
       break;
+
     default:
       console.log("[ ERROR ] unknown message type", message);
       break;
   }
 });
 
-onMounted(() => {
-  setTimeout(() => {
-    // createNotification({
-    //   title: "AuTool started",
-    //   content: ["Aren't you excited?", "Click me to copy text"],
-    //   timeout: 60,
-    //   source: "console.MsgPanel",
-    // });
-    cardFileUploadRef.value.enqueue({
-      title: "sss",
-      source: "dsads",
-      max: 5,
-      allowDir: true,
-      callback: "dsadsa",
-    });
-
-    cardTabsRef.value.enqueue({
-      title: "ssss",
-      source: "dsads",
-      max: 5,
-      allowDir: true,
-      callback: "dsadsa",
-    });
-
-    cardSelectCarouselRef.value.enqueue({
-      title: "ssss",
-      source: "dsads",
-      max: 5,
-      options: [
-        {
-          label: "sdsd",
-          value:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png",
-        },
-        {
-          label: "sdsd",
-          value:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png",
-        },
-        {
-          label: "sdsd",
-          value:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png",
-        },
-      ],
-      callback: "dsadsa",
-    });
-
-    cardSelectCheckboxRef.value.enqueue({
-      title: "ssss",
-      source: "dsads",
-      max: 5,
-      options: [
-        {
-          label: "sdsd",
-          value:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png",
-        },
-        {
-          label: "sdsd",
-          value:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png",
-        },
-        {
-          label: "sdsd",
-          value:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png",
-        },
-      ],
-      callback: "dsadsa",
-    });
-  }, 1000);
-});
-
-const activeAnnotations = ref([
-  {
-    label: "Some tips",
-    type: "rect",
-    x: "0px",
-    y: "0px",
-    width: "100px",
-    height: "100px",
-    color: "#ff0000",
-  },
-  {
-    label: "Some tips XXX",
-    type: "rect",
-    x: "600px",
-    y: "200px",
-    width: "600px",
-    height: "100px",
-    color: "#ff0000",
-  },
-  {
-    label: "Some tips XXX",
-    type: "text",
-    x: "400px",
-    y: "100px",
-    content: "Some tips AAA ~~~~~~~",
-    size: "20px",
-    color: "#ff0000",
-  },
-]);
-
-var activeMarkerIndex = -1;
-const overMarker = (index) => {
-  activeMarkerIndex = index;
+var activeMarkerLabel = "";
+const overMarker = (label) => {
+  activeMarkerLabel = label;
 };
 
-const closeMarker = (index) => {
+const closeMarker = (label) => {
   setTimeout(() => {
-    if (activeMarkerIndex === index) {
-      activeAnnotations.value.splice(index, 1);
-      activeMarkerIndex = -1;
+    if (activeMarkerLabel === label) {
+      activeAnnotations.value = activeAnnotations.value.filter(
+        (item) => item.label !== label
+      );
+      activeMarkerLabel = "";
     }
   }, 800);
 };
 
 const leaveMarker = (index) => {
-  activeMarkerIndex = -1;
+  activeMarkerLabel = "";
 };
 </script>
 

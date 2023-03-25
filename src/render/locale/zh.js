@@ -92,6 +92,14 @@ const ChineseOptions = {
             title: '辅助窗口',
             placeholderName: '名称',
             placeholderUrl: '网址',
+        },
+
+        subscriptions: {
+            title: '消息订阅'
+        },
+
+        envs: {
+            title: '环境变量',
         }
     },
 }

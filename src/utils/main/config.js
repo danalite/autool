@@ -19,6 +19,7 @@ export const appConfig = new Store({
     'promptPosition': 'top-right',
     'autoRune': {},
     'appHome': '',
+    'logPath': '',
     'license': {
       'key': 'A-384DE2-821F87EF-AA2833W',
       'valid': false,

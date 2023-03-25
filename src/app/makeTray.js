@@ -18,7 +18,6 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         click() {
           mainWindow.show();
           mainWindow.focus();
-          // shell.beep()
         },
       },
       {
