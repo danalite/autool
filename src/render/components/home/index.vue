@@ -300,7 +300,7 @@ const backendEventHook = (msg) => {
         });
       });
 
-      // wait for mouse action trigger from uioListener
+      // Wait for mouse action trigger from uioListener
       if (value.type === "area") {
         ipcRenderer.send("to-console", {
           source: msg.taskName,
@@ -309,7 +309,7 @@ const backendEventHook = (msg) => {
         });
 
       } else {
-        // wait for action from popup window (input/select option)
+        // Wait for user input (input/select option)
         ipcRenderer.send("to-assist-window", {
           source: msg.taskName,
           callback: callback,

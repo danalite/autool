@@ -317,7 +317,7 @@ export const registerUioEvent = (assistWindow, event) => {
   if (event.type == "macroRecord") {
     if (isMacroRecording) {
       assistWindow.webContents.send('assist-win-push', {
-        type: "push-notification",
+        type: "user-notify",
         title: 'WARNING: macro recording!',
         content: 'Please finish the current recording first.',
         timeout: 15
@@ -326,7 +326,7 @@ export const registerUioEvent = (assistWindow, event) => {
 
     } else {
       assistWindow.webContents.send('assist-win-push', {
-        type: "push-notification",
+        type: "user-notify",
         title: "Macro recorder ready!",
         content: "Press \"Shift+Shift\" to start\n \"Command+Command\" to stop\n\nThis window will disappear when you start.",
       })

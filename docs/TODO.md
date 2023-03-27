@@ -4,6 +4,7 @@
 - [ ] Task or app renaming
 
 ## 2023-03
+- [ ] Add dynamic input type (search file or folder in FS)
 - [ ] Add example: app filtering amazon deals
 - [ ] Add example: app usage tour of openVPN (one-at-a-time mode)
 - [x] Add window status listener in main process (for adaptive annotation)

@@ -73,10 +73,8 @@
       {{ marker.kind === "rect" ? marker.content : marker.label }}
     </n-tooltip>
 
-    <card-upload-files ref="cardFileUploadRef" />
-    <card-tabs ref="cardTabsRef" />
-    <card-select-carousel ref="cardSelectCarouselRef" />
-    <card-select-checkbox ref="cardSelectCheckboxRef" />
+    <mod-user-notification ref="modUserNotificationRef" />
+    <mod-user-input ref="modUserInputRef" />
   </div>
 </template>
 
@@ -108,17 +106,15 @@ import {
   NCheckbox,
 } from "naive-ui";
 
-import { Select, Mail, FileImport, ExternalLink, Copy } from "@vicons/tabler";
-
 import { h, ref, computed, reactive } from "vue";
 import { appConfig } from "@/utils/main/config";
 
-import cardUploadFiles from "./cards/cardUploadFiles.vue";
-import cardTabs from "./cards/cardTabs.vue";
-import cardSelectCarousel from "./cards/cardSelectCarousel.vue";
-import cardSelectCheckbox from "./cards/cardSelectCheckbox.vue";
-
-const notification = useNotification();
+// import cardUploadFiles from "./cards/cardUploadFiles.vue";
+// import cardTabs from "./cards/cardTabs.vue";
+// import cardSelectCarousel from "./cards/cardSelectCarousel.vue";
+// import cardSelectCheckbox from "./cards/cardSelectCheckbox.vue";
+import modUserNotification from "./cards/modUserNotification.vue";
+import modUserInput from "./cards/modUserInput.vue";
 
 let assistWinSize = appConfig.get("assistWinSize");
 const canvasWidth = ref(assistWinSize.width);
@@ -127,6 +123,24 @@ const canvasHeight = ref(assistWinSize.height);
 const activeAnnotationsShow = computed(() => {
   return activeAnnotations.value
     .filter((item) => item.show)
+    .filter((item) => {
+      let toShow = true;
+      if (item.after !== undefined) {
+        toShow = item.after.every((label) =>
+          closedMarkers.value.includes(label)
+        );
+      }
+      // console.log(item.label, toShow, "@@@", item.after);
+      if (item.duration && item.after !== undefined && toShow) {
+        setTimeout(() => {
+          activeAnnotations.value = activeAnnotations.value.filter(
+            (i) => i.label !== item.label
+          );
+          closedMarkers.value.push(item.label);
+        }, item.duration * 1000);
+      }
+      return toShow;
+    })
     .map((item) => {
       if (item.scope !== null) {
         item.absX = item.x + activeWin.bounds.x;
@@ -140,81 +154,10 @@ const activeAnnotationsShow = computed(() => {
     });
 });
 
-// Input-text request
-const inputText = ref([]);
-const renderInputText = (command) => {
-  inputText.value = Array(command.options.length).fill("");
-  return h(
-    NSpace,
-    { style: { "margin-top": "5px", "margin-bottom": "2px" } },
-    {
-      default: () =>
-        command.options.map((key) =>
-          h(
-            NSpace,
-            { style: {}, vertical: true },
-            {
-              default: () => [
-                h(NButton, { text: true }, { default: () => key }),
-                h(NInput, {
-                  size: "small",
-                  onInput: (e) => {
-                    inputText.value[command.options.indexOf(key)] = e;
-                  },
-                  placeholder:
-                    command.placeholders[command.options.indexOf(key)],
-                }),
-              ],
-            }
-          )
-        ),
-    }
-  );
-};
-
-const createTextInput = (command) => {
-  let title = command.title ? command.title : "Input required";
-  let nRef = notification.create({
-    title: title,
-    content: () => renderInputText(command),
-    meta: `task (${command.source})`,
-    avatar: () =>
-      h(
-        NIcon,
-        { color: "green" },
-        {
-          default: () => h(Select),
-        }
-      ),
-    action: () =>
-      h(
-        NButton,
-        {
-          size: "small",
-          type: "success",
-          tertiary: true,
-          onClick: () => {
-            nRef.destroy();
-          },
-        },
-        {
-          default: () => h("span", { style: {} }, "Submit"),
-        }
-      ),
-    onAfterLeave: () => {
-      ipcRenderer.send("event-to-main-win", {
-        callback: command.callback,
-        data: JSON.stringify(inputText.value),
-      });
-    },
-  });
-};
 
 // Ref handles to sub-components
-const cardFileUploadRef = ref(null);
-const cardTabsRef = ref(null);
-const cardSelectCarouselRef = ref(null);
-const cardSelectCheckboxRef = ref(null);
+const modUserNotificationRef = ref(null);
+const modUserInputRef = ref(null);
 
 let activeWin = reactive({
   processId: null,
@@ -227,6 +170,7 @@ ipcRenderer.on("window-change", (event, win) => {
   activeWin.name = win.name;
   activeWin.bounds = win.bounds;
   activeAnnotations.value = activeAnnotations.value.map((item) => {
+    // console.log(item.scope, activeWin.name);
     if (item.scope !== null) {
       item.show = item.scope.owner === activeWin.name;
     } else {
@@ -234,54 +178,29 @@ ipcRenderer.on("window-change", (event, win) => {
     }
     return item;
   });
+  // console.log(activeAnnotations.value, activeAnnotationsShow.value);
 });
 
 const activeAnnotations = ref([]);
-
-
-const drawWinAnnotations = (msg) => {
-  msg.show = true;
-  console.log(msg, "annotation");
-
-  // Annotations attached to a specific window
-  if (msg.scope.window !== null) {
-    activeAnnotations.value.push(msg);
-  } else {
-    // clear annotations in msg.scope
-  }
-
-  if (msg.duration) {
-    setTimeout(() => {
-      activeAnnotations.value = activeAnnotations.value.filter(
-        (item) => item.label !== msg.label
-      );
-    }, msg.duration * 1000);
-  }
-};
+const closedMarkers = ref([]);
 
 ipcRenderer.on("assist-win-push", (event, message) => {
   let messageType = message.type;
   switch (messageType) {
     case "window-annotate":
-      drawWinAnnotations(message);
+      activeAnnotations.value.push(message);
       break;
 
-    case "select":
-      cardSelectCheckboxRef.value.enqueue(message);
+    case "user-notify":
+      modUserNotificationRef.value.enqueue(message);
       break;
-
-    case "text":
-      break;
-
-    case "push-notification":
-      break;
-
-    case "upload":
-      cardFileUploadRef.value.enqueue(message);
+    
+    case "user-input":
+      modUserInputRef.value.enqueue(message);
       break;
 
     default:
-      console.log("[ ERROR ] unknown message type", message);
+      console.log("[ ERROR ] invalid type", message.type, message);
       break;
   }
 });
@@ -298,6 +217,7 @@ const closeMarker = (label) => {
         (item) => item.label !== label
       );
       activeMarkerLabel = "";
+      closedMarkers.value.push(label);
     }
   }, 800);
 };
@@ -308,12 +228,6 @@ const leaveMarker = (index) => {
 </script>
 
 <style scoped>
-.n-notification-container
-  .n-notification
-  .n-notification-main
-  .n-notification-main__content {
-  margin: 2px, 0px, 0px;
-}
 .n-card {
   margin: 15px;
   border-radius: 10px;
