@@ -8,8 +8,6 @@ import {
   NImage,
   NInput,
   NInputGroup,
-  NInputGroupLabel,
-  NAutoComplete,
   NButton,
   NAvatar,
   NSwitch,
@@ -32,18 +30,24 @@ import { h, reactive, ref, computed } from "vue";
 import { ipcRenderer, shell } from "electron";
 
 import { handleCopyImg } from "@/utils/render/msgRenders";
-import { ExternalLink, Search } from "@vicons/tabler";
+import { ExternalLink, Checkbox } from "@vicons/tabler";
 import queryResults from "./queryResults.vue";
 
 const notification = useNotification();
 const retValues = reactive({});
+let nRef = null;
 
-const renderCheckbox = (content) => {
+const renderTitle = (title) => {
   return h(
     NSpace,
-    { style: { "margin-top": "5px", "margin-bottom": "2px" } },
+    {},
     {
       default: () => [
+        h(
+          NIcon,
+          { size: 16, color: "#0e7a0d" },
+          { default: () => h(Checkbox) }
+        ),
         h(
           NText,
           {
@@ -55,9 +59,21 @@ const renderCheckbox = (content) => {
             },
           },
           {
-            default: () => content.label,
+            default: () => title,
           }
         ),
+      ],
+    }
+  );
+};
+
+const renderCheckbox = (content) => {
+  return h(
+    NSpace,
+    { style: { "margin-top": "5px", "margin-bottom": "2px" } },
+    {
+      default: () => [
+        renderTitle(content.label),
         h(
           NCheckboxGroup,
           {
@@ -99,16 +115,13 @@ const renderCheckbox = (content) => {
 
 const renderTextInput = (content) => {
   return h(
-    NInputGroup,
-    { size: "medium" },
+    NSpace,
+    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" }},
     {
       default: () => [
-        h(
-          NInputGroupLabel,
-          { style: { "font-size": "14px" }, size: "small" },
-          { default: () => content.label }
-        ),
+        renderTitle(content.label),
         h(NInput, {
+          style: { "font-size": "14px", "width": "200px" },
           onUpdateValue: (value) => {
             retValues[content.key] = value;
           },
@@ -127,20 +140,7 @@ const renderCarousel = (content) => {
     { style: { "margin-top": "5px", "margin-bottom": "2px" } },
     {
       default: () => [
-        h(
-          NText,
-          {
-            style: {
-              "font-size": "14px",
-              "line-height": "0px",
-              color: "#3a4dbf",
-              "font-family": '"Lucida Console", "Courier New", monospace',
-            },
-          },
-          {
-            default: () => content.label,
-          }
-        ),
+        renderTitle(content.label),
         h(
           NCarousel,
           {
@@ -233,20 +233,7 @@ const renderSingleSelect = (content) => {
     { style: { "margin-top": "5px", "margin-bottom": "2px" } },
     {
       default: () => [
-        h(
-          NText,
-          {
-            style: {
-              "font-size": "14px",
-              "line-height": "0px",
-              color: "#3a4dbf",
-              "font-family": '"Lucida Console", "Courier New", monospace',
-            },
-          },
-          {
-            default: () => content.label,
-          }
-        ),
+        renderTitle(content.label),
         h(
           NSelect,
           {
@@ -328,26 +315,10 @@ const dynamicOptions = computed(() => {
 const renderDynamicInput = (content) => {
   return h(
     NSpace,
-    {},
+    { vertical: true },
     {
       default: () => [
-        h(NSpace, { }, { default: () => [
-          h(NIcon, { size: 16 }, { default: () => h(Search) }),
-          h(
-          NText,
-          {
-            style: {
-              "font-size": "14px",
-              "line-height": "0px",
-              color: "#3a4dbf",
-              "font-family": '"Lucida Console", "Courier New", monospace',
-            },
-          },
-          {
-            default: () => content.label,
-          }
-        ),
-        ] }),
+        renderTitle(content.label),
         h(
           NInputGroup,
           { size: "small" },
@@ -359,7 +330,6 @@ const renderDynamicInput = (content) => {
                 round: true,
                 style: { "font-size": "14px" },
                 onUpdateValue: (value) => {
-                  retValues[content.key] = value;
                   if (value == "") {
                     rawOptions.value = [];
                     return;
@@ -377,9 +347,29 @@ const renderDynamicInput = (content) => {
             ],
           }
         ),
-        // TODO: dynamically shaped list to show search results
-        // h(NText, {}, { default: () => JSON.stringify(dynamicOptions.value) }),
-        h(queryResults, { options: dynamicOptions.value }),
+
+        // Equivalent to <query-results :queryResults={queryResults} />
+        h(queryResults, {
+          options: dynamicOptions.value,
+          onCustomEvent: (data) => {
+            if (retValues[content.key] == null) {
+              retValues[content.key] = [];
+            }
+
+            console.log("Custom event triggered", data);
+            // Specially quick path for app launcher
+            if (content.max == 1) {
+              retValues[content.key] = data;
+              if (content.instantQuit) {
+                nRef.destroy();
+              }
+            } else {
+              if (retValues[content.key].indexOf(data) == -1) {
+                retValues[content.key].push(data);
+              }
+            }
+          },
+        }),
       ],
     }
   );
@@ -388,23 +378,10 @@ const renderDynamicInput = (content) => {
 const renderUpload = (content) => {
   return h(
     NSpace,
-    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" }},
+    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
     {
       default: () => [
-        h(
-          NText,
-          {
-            style: {
-              "font-size": "14px",
-              "line-height": "0px",
-              color: "#3a4dbf",
-              "font-family": '"Lucida Console", "Courier New", monospace',
-            },
-          },
-          {
-            default: () => content.label,
-          }
-        ),
+        renderTitle(content.label),
         h(
           NUpload,
           {
@@ -418,7 +395,8 @@ const renderUpload = (content) => {
             },
           },
           {
-            default: () => h(NButton, { size: "small" }, { default: () => "Upload" }),
+            default: () =>
+              h(NButton, { size: "small" }, { default: () => "Upload" }),
           }
         ),
       ],
@@ -504,7 +482,7 @@ const enqueue = (message) => {
   traverse(message.content, process);
   console.log("waiting for...", retValues);
 
-  let nRef = notification.create({
+  nRef = notification.create({
     title: () => h("span", message.title),
     description: () => "task: " + message.source,
 
