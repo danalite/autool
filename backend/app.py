@@ -97,6 +97,10 @@ async def websocket_handler(websocket):
 
         elif worker == "MainLoop":
             await loopMain(websocket)
+        
+        elif worker == "Search":
+            await websocket.send(json.dumps(
+                [{"label": "O_EVENT_WSS_RESP", "value": "XXX"}, {"label": "O_EVENT_WASS_RESP", "value": "XXXY"}, {"label": "O_EVENSS_RESP", "value": "XXXY"}, {"label": "O_EVENT_WASSssd_RESP", "value": "XXXY"}, {"label": "O_EVENT_ffsWASS_RESP", "value": "XXXY"}]))
 
 
 async def check_connections():

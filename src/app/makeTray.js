@@ -77,10 +77,6 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
     appIcon.popUpContextMenu();
   });
 
-  appIcon.on('drop-files', function (event, files) {
-    assistWindow.webContents.send('drop-files', files)
-  });
-
   appIcon.setContextMenu(createContextMenu());
 
 }

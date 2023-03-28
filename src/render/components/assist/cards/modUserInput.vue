@@ -19,6 +19,7 @@ import {
   NTabs,
   NSelect,
   NIcon,
+  NUpload,
   NTabPane,
   NList,
   NListItem,
@@ -27,11 +28,12 @@ import {
   useNotification,
 } from "naive-ui";
 
-import { h, reactive, ref } from "vue";
+import { h, reactive, ref, computed } from "vue";
 import { ipcRenderer, shell } from "electron";
 
 import { handleCopyImg } from "@/utils/render/msgRenders";
-import { ExternalLink } from "@vicons/tabler";
+import { ExternalLink, Search } from "@vicons/tabler";
+import queryResults from "./queryResults.vue";
 
 const notification = useNotification();
 const retValues = reactive({});
@@ -290,7 +292,7 @@ const renderList = (content) => {
   );
 };
 
-function querySearch(query, params) {
+function querySearch(query, searchType, params) {
   return new Promise(function (resolve, reject) {
     var server = new WebSocket("ws://localhost:5678");
     server.onopen = function () {
@@ -299,6 +301,7 @@ function querySearch(query, params) {
           event: "I_EVENT_WSS_REQ",
           value: "Search",
           query: query,
+          searchType: searchType,
           params: params,
         })
       );
@@ -308,15 +311,84 @@ function querySearch(query, params) {
     };
     server.onmessage = function (e) {
       resolve(e.data);
+      server.close();
     };
   });
 }
 
-const dynamicOptions = ref([]);
+const rawOptions = ref([]);
+const dynamicOptions = computed(() => {
+  return rawOptions.value.map((item) => {
+    return {
+      label: item.label,
+      value: item.value,
+    };
+  });
+});
 const renderDynamicInput = (content) => {
   return h(
     NSpace,
     {},
+    {
+      default: () => [
+        h(NSpace, { }, { default: () => [
+          h(NIcon, { size: 16 }, { default: () => h(Search) }),
+          h(
+          NText,
+          {
+            style: {
+              "font-size": "14px",
+              "line-height": "0px",
+              color: "#3a4dbf",
+              "font-family": '"Lucida Console", "Courier New", monospace',
+            },
+          },
+          {
+            default: () => content.label,
+          }
+        ),
+        ] }),
+        h(
+          NInputGroup,
+          { size: "small" },
+          {
+            default: () => [
+              h(NInput, {
+                placeholder: "Search",
+                size: "small",
+                round: true,
+                style: { "font-size": "14px" },
+                onUpdateValue: (value) => {
+                  retValues[content.key] = value;
+                  if (value == "") {
+                    rawOptions.value = [];
+                    return;
+                  }
+                  querySearch(value, content.search, content.params)
+                    .then(function (data) {
+                      rawOptions.value = JSON.parse(data);
+                      // console.log("[ INFO ] querySearch ", rawOptions.value);
+                    })
+                    .catch(function (err) {
+                      console.log("[ ERROR ] querySearch ", err);
+                    });
+                },
+              }),
+            ],
+          }
+        ),
+        // TODO: dynamically shaped list to show search results
+        // h(NText, {}, { default: () => JSON.stringify(dynamicOptions.value) }),
+        h(queryResults, { options: dynamicOptions.value }),
+      ],
+    }
+  );
+};
+
+const renderUpload = (content) => {
+  return h(
+    NSpace,
+    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" }},
     {
       default: () => [
         h(
@@ -333,20 +405,22 @@ const renderDynamicInput = (content) => {
             default: () => content.label,
           }
         ),
-        h(NAutoComplete, {
-          onUpdateValue: (value) => {
-            querySearch(value, content.params)
-              .then(function (data) {
-                dynamicOptions.value = JSON.parse(data);
-              })
-              .catch(function (err) {
-                console.log("[ ERROR ] querySearch ", err);
-              });
+        h(
+          NUpload,
+          {
+            defaultFileList: [],
+            listType: "image",
+            onChange: (event) => {
+              const { file, fileList } = event;
+              // fileListRef.value = fileList;
+              console.log("[ INFO ] onChange ", fileList);
+              retValues[content.key] = fileList.map((item) => item.file.path);
+            },
           },
-          options: dynamicOptions,
-          size: "small",
-          style: { "font-size": "14px" },
-        }),
+          {
+            default: () => h(NButton, { size: "small" }, { default: () => "Upload" }),
+          }
+        ),
       ],
     }
   );
@@ -374,6 +448,9 @@ const renderContent = (content) => {
     // dynamic inputs (search files, HTTP requests, etc.)
     case "dynamic":
       return renderDynamicInput(content);
+
+    case "upload":
+      return renderUpload(content);
 
     case "text":
       return renderTextInput(content);
