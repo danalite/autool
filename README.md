@@ -4,9 +4,9 @@
 </p>
 
 # AuTool Scripts
-AuTool is a programming framework to automate your desktop tasks; it is designed to bring the power of Greasy Monkey to your desktop environment.
+AuTool is a scripting language that brings the power of Greasy Monkey to your desktop environment. 
 
-AuTool provides a rich set of API intrinsics to help you interact the OS and network, and automate your workflow as needed. Check out our [showcases](#showcases) to see what you can do with AuTool.
+AuTool provides a rich set of APIs to help you interact with your operating system and network; you can use these APIs to automate your workflow with ease. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
 **Note**: AuTool is still in alpha stage. We are working to refine the functions. Please stay tuned for the updates.

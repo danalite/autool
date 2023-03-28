@@ -5,8 +5,8 @@
 
 ## 2023-03
 - [x] Add dynamic input type (search file or folder in FS)
-- [ ] Add example: app filtering amazon deals
-- [ ] Add example: app usage tour of openVPN (one-at-a-time mode)
+- [ ] Example: app filtering AMZ/smzdm/arxiv events
+- [ ] Example: app usage tour of openVPN (one-at-a-time mode)
 - [x] Add window status listener in main process (for adaptive annotation)
 - [ ] Websocket push notification feature (game, stock, todo, etc)
 - [x] Add RSS Subscription section in the settings panel
