@@ -1,7 +1,16 @@
-[中文](docs/README-zh.md)
-<p align="center">
-  <img src="imgs/banner.png" height="90" title="autool">
-</p>
+English | [简体中文](docs/README-zh.md)
+
+<div align="center">
+  <img src="imgs/banner.png" height="100" title="autool">
+</div>
+
+<div align= "center">
+ <a href="https://github.com/danalite/autool/releases">
+    <img alt="release" src="https://img.shields.io/github/package-json/v/danalite/autool?style=for-the-badge&logo=github" />
+ </a>
+ <img alt="release" src="https://img.shields.io/github/downloads/danalite/autool/total?style=for-the-badge&logo=github" />
+  <img alt="star" src="https://img.shields.io/github/stars/danalite/autool?style=for-the-badge&logo=github">
+</div>
 
 # AuTool Scripts
 AuTool is a scripting language that brings the power of Greasy Monkey to your desktop environment. 
