@@ -44,7 +44,7 @@ module.exports = defineConfig({
           ]
         },
         linux: {
-          icon: "public/icons/",
+          icon: "./imgs/logo.png",
           publish: ["github"],
           target: ["deb"]
         },
