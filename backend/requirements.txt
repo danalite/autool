@@ -1,4 +1,4 @@
 tinyaes==1.0.3
 pyinstaller==4.10
 py-rust-search==0.0.1
-git+ssh://github.com/danalite/libauto.git#egg=libauto
+git+ssh://git@github.com/danalite/libauto.git#egg=libauto
