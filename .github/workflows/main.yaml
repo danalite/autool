@@ -1,0 +1,42 @@
+name: build-and-release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    tags:
+      - v*
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        python-version: [39]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      - name: Install dependencies
+        run: |
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+          yarn install
+          yarn global add @vue/cli
+          yarn run clean
+          yarn run init
+          yarn run build-py
+          yarn run electron:build -p always
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}

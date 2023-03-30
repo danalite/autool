@@ -52,7 +52,8 @@ module.exports = defineConfig({
         protocols: {
           name: "AuTool",
           schemes: ["autool"]
-        }
+        },
+        publish: ['github']
       },
     },
   },

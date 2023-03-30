@@ -116,12 +116,12 @@ const renderCheckbox = (content) => {
 const renderTextInput = (content) => {
   return h(
     NSpace,
-    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" }},
+    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
     {
       default: () => [
         renderTitle(content.label),
         h(NInput, {
-          style: { "font-size": "14px", "width": "200px" },
+          style: { "font-size": "14px" },
           onUpdateValue: (value) => {
             retValues[content.key] = value;
           },
@@ -286,9 +286,8 @@ function querySearch(query, searchType, params) {
       server.send(
         JSON.stringify({
           event: "I_EVENT_WSS_REQ",
-          value: "Search",
+          value: `Search${searchType}`,
           query: query,
-          searchType: searchType,
           params: params,
         })
       );
@@ -306,13 +305,13 @@ function querySearch(query, searchType, params) {
 const rawOptions = ref([]);
 const dynamicOptions = computed(() => {
   return rawOptions.value.map((item) => {
-    return {
-      label: item.label,
-      value: item.value,
-    };
+    return {...item};
   });
 });
 const renderDynamicInput = (content) => {
+  if (retValues[content.key] == null) {
+    retValues[content.key] = [];
+  }
   return h(
     NSpace,
     { vertical: true },
@@ -328,7 +327,7 @@ const renderDynamicInput = (content) => {
                 placeholder: "Search",
                 size: "small",
                 round: true,
-                style: { "font-size": "14px" },
+                style: { "font-size": "14px", width: "250px" },
                 onUpdateValue: (value) => {
                   if (value == "") {
                     rawOptions.value = [];
@@ -351,12 +350,9 @@ const renderDynamicInput = (content) => {
         // Equivalent to <query-results :queryResults={queryResults} />
         h(queryResults, {
           options: dynamicOptions.value,
+          style: { "width": "300px" },
           onCustomEvent: (data) => {
-            if (retValues[content.key] == null) {
-              retValues[content.key] = [];
-            }
-
-            console.log("Custom event triggered", data);
+            // console.log("Custom event triggered", data);
             // Specially quick path for app launcher
             if (content.max == 1) {
               retValues[content.key] = data;
@@ -364,10 +360,23 @@ const renderDynamicInput = (content) => {
                 nRef.destroy();
               }
             } else {
-              if (retValues[content.key].indexOf(data) == -1) {
-                retValues[content.key].push(data);
+              let item = {
+                id: data.value,
+                name: data.value
+              };
+              if (retValues[content.key].every((i) => i.id !== item.id)) {
+                retValues[content.key].push(item);
               }
             }
+          },
+        }),
+        h(NUpload, {
+          listType: "image",
+          style: { "width": "300px" },
+          fileList: retValues[content.key],
+          onUpdateFileList: (value) => {
+            // console.log("[ INFO ] onUpdateChange ", value);
+            retValues[content.key] = value;
           },
         }),
       ],

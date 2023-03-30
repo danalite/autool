@@ -1,9 +1,11 @@
+import os
 import json
 import asyncio
 import random
 
 import websockets
 from libauto import new_task_sch, download
+from py_rust_search import get_similar_files
 
 # Manage application states
 active_conns = dict()
@@ -52,13 +54,7 @@ async def loopMain(websocket):
             else:
                 userEvent.cancel()
 
-            if backendEvent in done:
-                events = backendEvent.result()
-                # print("(O_Event)", events)
-                for event in events:
-                    await websocket.send(json.dumps(event))
-
-            elif backendEvent.done():
+            if (backendEvent in done) or backendEvent.done():
                 events = backendEvent.result()
                 # print("(O_Event)", events)
                 for event in events:
@@ -97,10 +93,11 @@ async def websocket_handler(websocket):
 
         elif worker == "MainLoop":
             await loopMain(websocket)
-        
-        elif worker == "Search":
-            await websocket.send(json.dumps(
-                [{"label": "O_EVENT_WSS_RESP", "value": "XXX"}, {"label": "O_EVENT_WASS_RESP", "value": "XXXY"}, {"label": "O_EVENSS_RESP", "value": "XXXY"}, {"label": "O_EVENT_WASSssd_RESP", "value": "XXXY"}, {"label": "O_EVENT_ffsWASS_RESP", "value": "XXXY"}]))
+
+        elif worker == "SearchFile":
+            q = [{"label": _.split(os.sep)[-1], "value": _, "ext": os.path.splitext(_)[-1]} for _ in get_similar_files(
+                message["query"], message["params"]["location"])]
+            await websocket.send(json.dumps(q))
 
 
 async def check_connections():

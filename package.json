@@ -1,11 +1,11 @@
 {
   "name": "AuTool",
-  "license": "GPLv3",
+  "license": "GPL v3",
   "private": true,
   "version": "0.0.1",
-  "author": "Danalite",
+  "author": "Danalite LTD",
   "main": "background.js",
-  "description": "Software automation framework",
+  "description": "Scripting language for automation",
   "scripts": {
     "init": "python -m venv pyenv && run-script-os",
     "init:macos": "./pyenv/bin/pip install -r ./backend/requirements.txt",
