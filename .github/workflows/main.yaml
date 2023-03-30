@@ -31,7 +31,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
           yarn install
           yarn global add @vue/cli
           yarn run clean
