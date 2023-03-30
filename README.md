@@ -11,12 +11,12 @@ AuTool provides a rich set of APIs to help you interact with your operating syst
 ## Installation
 **Note**: AuTool is still in alpha stage. We are working to refine the functions. Please stay tuned for the updates.
 
-- [Windows 10/11 v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
-- [MacOS 10.15+ v0.0.1-alpha](https://github.com/danalites/autool/releases/tag/v0.01)
+- [Windows 10/11 v0.0.1-alpha](https://github.com/danalite/autool/releases/tag/v0.01)
+- [MacOS 10.15+ v0.0.1-alpha](https://github.com/danalite/autool/releases/tag/v0.01)
 
 
 ## Usage
-- Install the free apps from our [example script page](https://danalites.github.io/autool/docs/basics/apps-macos-display/).
+- Install the free apps from our [example script page](https://danalite.github.io/autool/docs/basics/apps-macos-display/).
 - AuTool searches for `autool-tasks.json` file under `$HOME/Desktop/apps` folder, and loads the tasks into the GUI window.
 
 <p align="center">
@@ -44,7 +44,7 @@ actions:
 ```
 
 ## Documents
-- [Examples](https://danalites.github.io/autool/docs/basics/apps-macos-display)
+- [Examples](https://danalite.github.io/autool/docs/basics/apps-macos-display)
 - API Reference [Under construction]
 
 
@@ -54,4 +54,4 @@ Contributions are welcome! To contribute, please fork this repository, create a 
 ## License
 AuTool is released under GPL v3.0 license. This license allows people to use, copy, distribute, and modify software, but only if they agree to distribute any modifications they make under the same license and not use the software for commercial purposes. See [LICENSE](LICENSE) for more details.
 
-**FOR PERSONAL USAGE ONLY**. For any commercial use, please contact support@autool.site. The intellectual property of this product is protected by patents, and any unauthorized use will be subject to legal liability. All the rights are reserved by DanaLites Tech LTD (SG).
+**FOR PERSONAL USAGE ONLY**. For any commercial use, please contact support@autool.site. The intellectual property of this product is protected by patents, and any unauthorized use will be subject to legal liability. All the rights are reserved by DanaLite Tech LTD (SG).
