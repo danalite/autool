@@ -43,6 +43,11 @@ module.exports = defineConfig({
             "portable"
           ]
         },
+        linux: {
+          icon: "public/icons/",
+          publish: ["github"],
+          target: ["deb"]
+        },
         nsis: {
           runAfterFinish: false,
           oneClick: false,
