@@ -5,19 +5,23 @@ English | [简体中文](docs/README-zh.md)
 </div>
 
 <div align="center" style="padding-top: 10px">
+ <a href="https://github.com/danalite/autool/actions">
+  <img alt="build" src="https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=for-the-badge">
+ </a>
+ &nbsp;
  <a href="https://github.com/danalite/autool/releases">
   <img alt="release" src="https://img.shields.io/github/downloads/danalite/autool/total?style=for-the-badge&logo=github" />
  </a>
  &nbsp;
- <a href="https://github.com/danalite/autool/actions">
-  <img alt="build" src="https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=for-the-badge">
+ <a href="https://discord.gg/P3t2SvQaZp">
+  <img alt="discord" src="https://dcbadge.vercel.app/api/server/P3t2SvQaZp" />
  </a>
 </div>
 
 # AuTool Scripts
 AuTool is a scripting language that brings the power of Greasy Monkey to your desktop environment. 
 
-AuTool provides a rich set of APIs to help you interact with your operating system and network; you can use these APIs to automate your workflow with ease. Check out our [showcases](#showcases) to see what you can do with AuTool.
+AuTool provides a rich set of APIs to help you interact with your operating system and network, which can be used to automate your workflow with ease. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
 **Note**: AuTool is still in alpha stage. We are working to refine the functions. Please stay tuned for the updates.
@@ -63,6 +67,4 @@ actions:
 Contributions are welcome! To contribute, please fork this repository, create a branch for your changes, and submit a pull request. Before submitting a pull request, please make sure that your changes are fully tested and that they adhere to the contributing guidelines.
 
 ## License
-AuTool is released under GPL v3.0 license. This license allows people to use, copy, distribute, and modify software, but only if they agree to distribute any modifications they make under the same license and not use the software for commercial purposes. See [LICENSE](LICENSE) for more details.
-
-**FOR PERSONAL USAGE ONLY**. For any commercial use, please contact support@autool.site. The intellectual property of this product is protected by patents, and any unauthorized use will be subject to legal liability. All the rights are reserved by DanaLite Tech LTD (SG).
+**FOR PERSONAL USAGE ONLY**. AuTool is released under [GPL v3.0 license](LICENSE). For any commercial use, please contact support@autool.site. The intellectual property of this product is protected by patents, and any unauthorized use will be subject to legal liability. All the rights are reserved by DanaLite Tech LTD (SG).
