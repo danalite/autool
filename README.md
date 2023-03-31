@@ -1,4 +1,4 @@
-<img src="imgs/banner.png" height=""/> Scripting Language for Workflow Automation
+<img src="imgs/banner.png" height="50"/> Scripting Language for Workflow Automation
 ==============================================
 [Documentation](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
 
