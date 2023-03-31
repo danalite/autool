@@ -1,34 +1,18 @@
-English | [简体中文](docs/README-zh.md)
+<img src="imgs/banner.png" height=""/> Scripting Language for Workflow Automation
+==============================================
+[Documentation](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
 
-<div align="center">
-  <img src="imgs/banner.png" height="100" title="autool">
-</div>
+[![Build Status](https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=for-the-badge)](https://github.com/danalite/autool/actions)
+[![Downloads](https://img.shields.io/github/downloads/danalite/autool/total?style=for-the-badge&logo=github)](https://github.com/danalite/autool/releases)
+[![Community](https://img.shields.io/badge/Community-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/P3t2SvQaZp)
 
-<div align="center" style="padding-top: 10px">
- <a href="https://github.com/danalite/autool/actions">
-  <img alt="build" src="https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=for-the-badge">
- </a>
- &nbsp;
- <a href="https://github.com/danalite/autool/releases">
-  <img alt="release" src="https://img.shields.io/github/downloads/danalite/autool/total?style=for-the-badge&logo=github" />
- </a>
- &nbsp;
- <a href="https://discord.gg/P3t2SvQaZp">
-  <img alt="discord" src="https://dcbadge.vercel.app/api/server/P3t2SvQaZp" />
- </a>
-</div>
-
-# AuTool Scripts
-AuTool is a scripting language that brings the power of Greasy Monkey to your desktop environment. 
-
-AuTool provides a rich set of APIs to help you interact with your operating system and network, which can be used to automate your workflow with ease. Check out our [showcases](#showcases) to see what you can do with AuTool.
+AuTool is a scripting language that brings the power of Greasy Monkey to your desktop environment; it provides a rich set of APIs to help you interact with your operating system and network, which can be used to automate your workflow with ease. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
 ## Installation
 **Note**: AuTool is still in alpha stage. We are working to refine the functions. Please stay tuned for the updates.
 
 - [Windows 10/11 v0.0.1-alpha](https://github.com/danalite/autool/releases/tag/v0.01)
 - [MacOS 10.15+ v0.0.1-alpha](https://github.com/danalite/autool/releases/tag/v0.01)
-
 
 ## Usage
 - Install the free apps from our [example script page](https://danalite.github.io/autool/docs/basics/apps-macos-display/).
