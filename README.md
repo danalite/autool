@@ -4,12 +4,14 @@ English | [简体中文](docs/README-zh.md)
   <img src="imgs/banner.png" height="100" title="autool">
 </div>
 
-<div align= "center">
+<div align="center" style="padding-top: 10px">
  <a href="https://github.com/danalite/autool/releases">
-    <img alt="release" src="https://img.shields.io/github/package-json/v/danalite/autool?style=for-the-badge&logo=github" />
+  <img alt="release" src="https://img.shields.io/github/downloads/danalite/autool/total?style=for-the-badge&logo=github" />
  </a>
- <img alt="release" src="https://img.shields.io/github/downloads/danalite/autool/total?style=for-the-badge&logo=github" />
-  <img alt="star" src="https://img.shields.io/github/stars/danalite/autool?style=for-the-badge&logo=github">
+ &nbsp;
+ <a href="https://github.com/danalite/autool/actions">
+  <img alt="build" src="https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=for-the-badge">
+ </a>
 </div>
 
 # AuTool Scripts
