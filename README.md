@@ -1,6 +1,8 @@
-<img src="imgs/banner.png" height="80"/>
- 
-Scripting Language for Workflow Automation
+<p align="center">
+  <img src="./imgs/banner.png" height="90" title="main">
+</p>
+
+AuTool - Workflow Automation
 ==============================================
 [Documentation](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
 
@@ -10,11 +12,10 @@ Scripting Language for Workflow Automation
 
 AuTool is a scripting language that brings the power of Greasy Monkey to your desktop environment; it provides a rich set of APIs to help you interact with your operating system and network, which can be used to automate your workflow with ease. Check out our [showcases](#showcases) to see what you can do with AuTool.
 
-## Installation
+## Install
 **Note**: AuTool is still in alpha stage. We are working to refine the functions. Please stay tuned for the updates.
-
-- [Windows 10/11 v0.0.1-alpha](https://github.com/danalite/autool/releases/tag/v0.01)
-- [MacOS 10.15+ v0.0.1-alpha](https://github.com/danalite/autool/releases/tag/v0.01)
+- [Windows installer (portable)](https://github.com/danalite/autool/releases/tag/v0.01)
+- [MacOS installer (DMG)](https://github.com/danalite/autool/releases/tag/v0.01)
 
 ## Usage
 - Install the free apps from our [example script page](https://danalite.github.io/autool/docs/basics/apps-macos-display/).
