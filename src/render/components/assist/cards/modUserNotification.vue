@@ -5,7 +5,6 @@
 <script setup>
 import {
   NSpace,
-  NImage,
   NButton,
   NAvatar,
   NText,
@@ -22,26 +21,40 @@ import {
 import { h, ref } from "vue";
 import { ipcRenderer, shell } from "electron";
 import { handleCopyImg } from "@/utils/render/msgRenders";
-import { ExternalLink } from "@vicons/tabler";
+import { ExternalLink, Bookmarks } from "@vicons/tabler";
 
 const notification = useNotification();
 const renderText = (content) => {
   return h(
-    NButton,
+    NSpace,
+    {},
     {
-      text: true,
-      style: {
-        "font-size": "14px",
-        "line-height": "0px",
-        "margin-left": "10px",
-        "color": "#3a4dbf",
-        "font-family": '"Lucida Console", "Courier New", monospace',
-      },
-      onClick: () => {
-        navigator.clipboard.writeText(content.content);
-      },
-    },
-    { default: () => content.label }
+      default: () => [
+        h(
+          NIcon,
+          { size: 16, color: "#0e7a0d" },
+          { default: () => h(Bookmarks) }
+        ),
+        h(
+          NButton,
+          {
+            text: true,
+            style: {
+              "font-size": "15px",
+              "line-height": "0px",
+              color: "#3a4dbf",
+              "font-family": '"Lucida Console", "Courier New", monospace',
+            },
+            onClick: () => {
+              navigator.clipboard.writeText(content.content);
+            },
+          },
+          {
+            default: () => content.label,
+          }
+        ),
+      ],
+    }
   );
 };
 
@@ -52,7 +65,7 @@ const renderCarousel = (content) => {
       effect: "card",
       "prev-slide-style": "transform: translateX(-150%) translateZ(-800px);",
       "next-slide-style": "transform: translateX(50%) translateZ(-800px);",
-      style: { height: "180px", padding: "10px 0px" },
+      style: { height: "180px", width: "290px" },
       "show-dots": false,
     },
     {
@@ -63,7 +76,7 @@ const renderCarousel = (content) => {
             { style: { width: "70%" } },
             {
               default: () => [
-                h(NImage, {
+                h("img", {
                   src: item,
                   onClick: () => handleCopyImg(item),
                   height: "180",
@@ -106,7 +119,7 @@ const renderList = (content) => {
     {
       bordered: false,
       showDivider: true,
-      hoverable: true,
+      // hoverable: true,
       // clickable: true,
     },
     {
@@ -116,8 +129,8 @@ const renderList = (content) => {
             NListItem,
             {
               style: {
-                "padding-top": "5px",
-                "padding-bottom": "5px",
+                "padding-top": "10px",
+                "padding-bottom": "10px",
               },
             },
             {
@@ -145,6 +158,28 @@ const renderContent = (content) => {
     case "tabs":
       return renderTabs(content);
 
+    case "audio":
+      return h(
+        "audio",
+        {
+          src: content.source,
+          controls: true,
+          style: { width: "80%", maxHeight: "30px"},
+        },
+        { default: () => "Your browser does not support the audio element." }
+      );
+
+    case "video":
+      return h(
+        "video",
+        {
+          src: content.source,
+          controls: true,
+          style: { width: "90%", maxHeight: "320px" },
+        },
+        { default: () => "Your browser does not support the video element." }
+      );
+
     case "carousel":
       return renderCarousel(content);
 
@@ -170,7 +205,7 @@ const renderTabs = (content) => {
             NTabPane,
             { name: item.tab, tab: item.tab },
             {
-              default: () =>renderContent(item) 
+              default: () => renderContent(item),
             }
           );
         }),

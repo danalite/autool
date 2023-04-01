@@ -106,13 +106,9 @@ import {
   NCheckbox,
 } from "naive-ui";
 
-import { h, ref, computed, reactive } from "vue";
+import { ref, computed, reactive } from "vue";
 import { appConfig } from "@/utils/main/config";
 
-// import cardUploadFiles from "./cards/cardUploadFiles.vue";
-// import cardTabs from "./cards/cardTabs.vue";
-// import cardSelectCarousel from "./cards/cardSelectCarousel.vue";
-// import cardSelectCheckbox from "./cards/cardSelectCheckbox.vue";
 import modUserNotification from "./cards/modUserNotification.vue";
 import modUserInput from "./cards/modUserInput.vue";
 

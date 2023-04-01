@@ -46,7 +46,6 @@
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "@vue/eslint-config-standard": "^6.1.0",
-    "animate.css": "^4.1.1",
     "axios": "^0.27.2",
     "electron": "^21.0.1",
     "electron-devtools-installer": "^3.1.0",

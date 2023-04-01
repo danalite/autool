@@ -1,14 +1,20 @@
 ## TODOs
-- [ ] Add and example to test event bus
 - [ ] Click app icon to show documents
 - [ ] Task or app renaming
 
+## 2023-04
+- [ ] Better support for event bus/subtasks
+- [x] Support audio and video types in assist window
+
 ## 2023-03
-- [x] Add dynamic input type (search file or folder in FS)
-- [ ] Example: app filtering AMZ/smzdm/arxiv events
+- [x] (cancelled) Merge `user.input` and `user.notify` into `user.prompt`
+- [x] Example: minimal clipboard manager
+- [x] Example: password manager based on `pass` command
+- [ ] Example: app filtering AMZ/smzdm/arxiv events (i.e., event bus)
 - [ ] Example: app usage tour of openVPN (one-at-a-time mode)
+- [x] Add dynamic input type (search file or folder in FS)
 - [x] Add window status listener in main process (for adaptive annotation)
-- [ ] Websocket push notification feature (game, stock, todo, etc)
+- [x] Websocket push notification feature (game, stock, todo, etc)
 - [x] Add RSS Subscription section in the settings panel
 - [x] Think about how to interact and adjust window annotation
 - [x] Use app directory instead of desktop/app by default

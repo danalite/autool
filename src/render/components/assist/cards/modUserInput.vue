@@ -5,7 +5,6 @@
 <script setup>
 import {
   NSpace,
-  NImage,
   NInput,
   NInputGroup,
   NButton,
@@ -15,7 +14,8 @@ import {
   NCheckbox,
   NText,
   NTabs,
-  NSelect,
+  NGrid,
+  NGridItem,
   NIcon,
   NUpload,
   NTabPane,
@@ -52,7 +52,7 @@ const renderTitle = (title) => {
           NText,
           {
             style: {
-              "font-size": "14px",
+              "font-size": "15px",
               "line-height": "0px",
               color: "#3a4dbf",
               "font-family": '"Lucida Console", "Courier New", monospace',
@@ -68,9 +68,23 @@ const renderTitle = (title) => {
 };
 
 const renderCheckbox = (content) => {
+  const options = content.content.map((item) => {
+    // if item is of type string, convert it to object
+    if (typeof item === "string") {
+      return {
+        label: item,
+        value: item,
+      };
+    } else {
+      return {
+        label: item.label,
+        value: item.value,
+      };
+    }
+  });
   return h(
     NSpace,
-    { style: { "margin-top": "5px", "margin-bottom": "2px" } },
+    { vertical: true },
     {
       default: () => [
         renderTitle(content.label),
@@ -79,7 +93,11 @@ const renderCheckbox = (content) => {
           {
             onUpdateValue: (value) => {
               retValues[content.key] = value;
+              if (content.instantQuit && content.max === 1) {
+                nRef.destroy();
+              }
             },
+            style: { "margin-left": "30px" },
             defaultValue: content.preset,
             max: content.max,
             min: content.min,
@@ -87,21 +105,45 @@ const renderCheckbox = (content) => {
           {
             default: () =>
               h(
-                NSpace,
+                NGrid,
                 {
-                  style: { "margin-top": "5px", "margin-bottom": "2px" },
-                  itemStyle: "display: flex;",
+                  yGap: 8,
+                  cols: 1,
                 },
                 {
                   default: () =>
-                    content.content.map((option) =>
+                    options.map((option) =>
                       h(
-                        NCheckbox,
+                        NGridItem,
                         {
-                          label: option.label,
-                          value: option.value,
+                          span: 1,
                         },
-                        {}
+                        {
+                          default: () =>
+                            h(
+                              NCheckbox,
+                              {
+                                label: option.label,
+                                value: option.value,
+                              },
+                              {
+                                default: () =>
+                                  h(
+                                    NText,
+                                    {
+                                      style: {
+                                        "font-size": "14px",
+                                        "line-height": "0px",
+                                        color: "#3a4dbf",
+                                        "font-family":
+                                          '"Lucida Console", "Courier New", monospace',
+                                      },
+                                    },
+                                    { default: () => option.label }
+                                  ),
+                              }
+                            ),
+                        }
                       )
                     ),
                 }
@@ -120,21 +162,34 @@ const renderTextInput = (content) => {
     {
       default: () => [
         renderTitle(content.label),
-        h(NInput, {
-          style: { "font-size": "14px" },
-          onUpdateValue: (value) => {
-            retValues[content.key] = value;
-          },
-          size: "small",
-          placeholder: content.placeholder,
-          style: { "font-size": "14px" },
-        }),
+        content.key != null
+          ? h(NInput, {
+              style: { "font-size": "14px" },
+              onUpdateValue: (value) => {
+                retValues[content.key] = value;
+              },
+              size: "small",
+              placeholder: content.placeholder,
+              style: { "font-size": "14px" },
+            })
+          : null,
       ],
     }
   );
 };
 
 const renderCarousel = (content) => {
+  const options = content.content.map((item) => {
+    // if item is of type string, convert it to object
+    if (typeof item === "string") {
+      return {
+        label: item,
+        value: item,
+      };
+    } else {
+      return item;
+    }
+  });
   return h(
     NSpace,
     { style: { "margin-top": "5px", "margin-bottom": "2px" } },
@@ -149,18 +204,18 @@ const renderCarousel = (content) => {
               "transform: translateX(-150%) translateZ(-800px);",
             "next-slide-style":
               "transform: translateX(50%) translateZ(-800px);",
-            style: { height: "180px", padding: "10px 0px" },
+            style: { height: "180px", width: "290px" },
             "show-dots": false,
           },
           {
             default: () =>
-              content.content.map((item) => {
+              options.map((item) => {
                 return h(
                   NCarouselItem,
-                  { style: { width: "70%" } },
+                  { style: { width: "75%" } },
                   {
                     default: () => [
-                      h(NImage, {
+                      h("img", {
                         src: item.value,
                         onClick: () => handleCopyImg(item.value),
                         height: "180",
@@ -189,63 +244,39 @@ const renderCarousel = (content) => {
                             ),
                         }
                       ),
-                      h(
-                        NSwitch,
-                        {
-                          round: false,
-                          style: {
-                            position: "absolute",
-                            bottom: "8px",
-                            left: "8px",
-                          },
-                          onUpdateValue: (value) => {
-                            if (retValues[content.key] == null) {
-                              retValues[content.key] = [];
+                      content.key != null
+                        ? h(
+                            NSwitch,
+                            {
+                              round: false,
+                              style: {
+                                position: "absolute",
+                                bottom: "8px",
+                                left: "8px",
+                              },
+                              onUpdateValue: (value) => {
+                                if (retValues[content.key] == null) {
+                                  retValues[content.key] = [];
+                                }
+                                if (value) {
+                                  retValues[content.key].push(item);
+                                } else {
+                                  retValues[content.key].splice(
+                                    retValues[content.key].indexOf(item),
+                                    1
+                                  );
+                                }
+                              },
+                            },
+                            {
+                              default: () => null,
                             }
-                            if (value) {
-                              retValues[content.key].push(item);
-                            } else {
-                              retValues[content.key].splice(
-                                retValues[content.key].indexOf(item),
-                                1
-                              );
-                            }
-                          },
-                        },
-                        {
-                          default: () => null,
-                        }
-                      ),
+                          )
+                        : null,
                     ],
                   }
                 );
               }),
-          }
-        ),
-      ],
-    }
-  );
-};
-
-const renderSingleSelect = (content) => {
-  return h(
-    NSpace,
-    { style: { "margin-top": "5px", "margin-bottom": "2px" } },
-    {
-      default: () => [
-        renderTitle(content.label),
-        h(
-          NSelect,
-          {
-            onUpdateValue: (value) => {
-              retValues[content.key] = value;
-            },
-            options: content.content,
-            size: "small",
-            style: { "font-size": "14px" },
-          },
-          {
-            default: () => {},
           }
         ),
       ],
@@ -305,7 +336,7 @@ function querySearch(query, searchType, params) {
 const rawOptions = ref([]);
 const dynamicOptions = computed(() => {
   return rawOptions.value.map((item) => {
-    return {...item};
+    return { ...item };
   });
 });
 const renderDynamicInput = (content) => {
@@ -350,7 +381,7 @@ const renderDynamicInput = (content) => {
         // Equivalent to <query-results :queryResults={queryResults} />
         h(queryResults, {
           options: dynamicOptions.value,
-          style: { "width": "300px" },
+          style: { width: "300px" },
           onCustomEvent: (data) => {
             // console.log("Custom event triggered", data);
             // Specially quick path for app launcher
@@ -361,10 +392,11 @@ const renderDynamicInput = (content) => {
               }
             } else {
               let item = {
-                id: data.value,
-                name: data.value
+                id: data.label,
+                name: data.value,
+                status: "finished",
               };
-              if (retValues[content.key].every((i) => i.id !== item.id)) {
+              if (retValues[content.key].every((i) => i.name !== item.name)) {
                 retValues[content.key].push(item);
               }
             }
@@ -372,7 +404,7 @@ const renderDynamicInput = (content) => {
         }),
         h(NUpload, {
           listType: "image",
-          style: { "width": "300px" },
+          style: { width: "300px" },
           fileList: retValues[content.key],
           onUpdateFileList: (value) => {
             // console.log("[ INFO ] onUpdateChange ", value);
@@ -425,11 +457,7 @@ const renderContent = (content) => {
       if (content.imagePreview == true) {
         return renderCarousel(content);
       } else {
-        if (content.max > 1) {
-          return renderCheckbox(content);
-        } else {
-          return renderSingleSelect(content);
-        }
+        return renderCheckbox(content);
       }
 
     // dynamic inputs (search files, HTTP requests, etc.)
@@ -455,19 +483,27 @@ const renderContent = (content) => {
 const renderTabs = (content) => {
   // console.log("renderTabs", content);
   return h(
-    NTabs,
-    { type: "card" },
+    NSpace,
+    { vertical: true },
     {
-      default: () =>
-        content.content.map((item) => {
-          return h(
-            NTabPane,
-            { name: item.tab, tab: item.tab },
-            {
-              default: () => renderContent(item),
-            }
-          );
-        }),
+      default: () => [
+        h(
+          NTabs,
+          { type: "card" },
+          {
+            default: () =>
+              content.content.map((item) => {
+                return h(
+                  NTabPane,
+                  { name: item.tab, tab: item.tab },
+                  {
+                    default: () => renderContent(item),
+                  }
+                );
+              }),
+          }
+        ),
+      ],
     }
   );
 };
@@ -488,8 +524,9 @@ function traverse(o, func) {
 }
 
 const enqueue = (message) => {
+  Object.assign(retValues, {});
   traverse(message.content, process);
-  console.log("waiting for...", retValues);
+  // console.log("waiting for...", retValues);
 
   nRef = notification.create({
     title: () => h("span", message.title),
@@ -523,10 +560,13 @@ const enqueue = (message) => {
         },
       }),
     onAfterLeave: () => {
-      ipcRenderer.send("event-to-main-win", {
-        callback: message.callback,
-        data: JSON.stringify(retValues),
-      });
+      // Only send back if there is any input keys specified
+      if (Object.keys(retValues).length > 0) {
+        ipcRenderer.send("event-to-main-win", {
+          callback: message.callback,
+          data: JSON.stringify(retValues),
+        });
+      }
     },
   });
 };
