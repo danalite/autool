@@ -3,15 +3,18 @@
 - [ ] Task or app renaming
 
 ## 2023-04
-- [ ] Better support for event bus/subtasks
+- [ ] Release v0.02
+- [ ] Support for deep-link downloads
+- [ ] Support number type in assist window
+- [ ] Example: app filtering AMZ/smzdm/arxiv events (i.e., event bus)
+- [ ] Example: app usage tour of openVPN (one-at-a-time mode)
+- [ ] Update the task scheduling interface (using `NThing` instead of `NCard`)
 - [x] Support audio and video types in assist window
 
 ## 2023-03
 - [x] (cancelled) Merge `user.input` and `user.notify` into `user.prompt`
 - [x] Example: minimal clipboard manager
 - [x] Example: password manager based on `pass` command
-- [ ] Example: app filtering AMZ/smzdm/arxiv events (i.e., event bus)
-- [ ] Example: app usage tour of openVPN (one-at-a-time mode)
 - [x] Add dynamic input type (search file or folder in FS)
 - [x] Add window status listener in main process (for adaptive annotation)
 - [x] Websocket push notification feature (game, stock, todo, etc)
