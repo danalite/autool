@@ -20,7 +20,7 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 After installing AuTool, you can open it and start installing the scripts. Find the scripts you want to install from the
 
 ## Example Scripts
-- [https://img.shields.io/badge/File--Searcher-download-green?logo=github&style=flat-square](autool://download?url=): Search files in target folder. The searched results can be fed into downstream scripts (e.g., open it, or upload it to cloud storage or email)
+- ![https://img.shields.io/badge/File--Searcher-download-green?logo=github&style=flat-square](autool://download?url=https://github.com/danalite/autool-script-examples/tree/master/danalites/MacOS-Display): Search files in target folder. The searched results can be fed into downstream scripts (e.g., open it, or upload it to cloud storage or email)
 
 - More example scripts can be found in the [AuTool Script Example Repo](https://github.com/danalite/autool-script-examples)
 
