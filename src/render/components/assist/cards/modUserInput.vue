@@ -6,6 +6,7 @@
 import {
   NSpace,
   NInput,
+  NInputNumber,
   NInputGroup,
   NButton,
   NAvatar,
@@ -445,6 +446,26 @@ const renderUpload = (content) => {
   );
 };
 
+const renderNumberInput = (content) => {
+  return h(
+    NSpace,
+    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
+    {
+      default: () => [
+        renderTitle(content.label),
+        h(NInputNumber, {
+          placeholder: content.default,
+          size: "small",
+          style: { "font-size": "14px", width: "250px" },
+          onUpdateValue: (value) => {
+            retValues[content.key] = value;
+          },
+        }),
+      ],
+    }
+  );
+};
+
 const renderContent = (content) => {
   switch (content.type) {
     case "list":
@@ -469,6 +490,9 @@ const renderContent = (content) => {
 
     case "text":
       return renderTextInput(content);
+
+    case "number":
+      return renderNumberInput(content);
 
     default:
       console.log("[ ERROR ] Unknown content type", content.type);

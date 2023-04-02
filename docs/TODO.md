@@ -5,10 +5,10 @@
 ## 2023-04
 - [ ] Release v0.02
 - [ ] Support for deep-link downloads
-- [ ] Support number type in assist window
+- [x] Support number type in assist window
 - [ ] Example: app filtering AMZ/smzdm/arxiv events (i.e., event bus)
 - [ ] Example: app usage tour of openVPN (one-at-a-time mode)
-- [ ] Update the task scheduling interface (using `NThing` instead of `NCard`)
+- [x] (cancelled) Update the task scheduling interface (using `NThing` instead of `NCard`)
 - [x] Support audio and video types in assist window
 
 ## 2023-03

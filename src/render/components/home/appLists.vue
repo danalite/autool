@@ -87,10 +87,11 @@
 
       <n-layout content-style="padding: 8px 8px 5px;">
         <div>
-          <div
+          <n-list
+            :show-divider="false"
             style="padding-top: 2px; padding-bottom: 0px"
           >
-            <n-space
+            <n-list-item
               v-for="(task, taskIndex) in displayTasks"
               style="padding-top: 4px; padding-bottom: 4px"
               @mouseover="hoverTaskIndex = taskIndex"
@@ -200,7 +201,7 @@
                   </n-input-group>
                 </n-space>
               </n-space>
-            </n-space>
+            </n-list-item>
             <n-dropdown
               placement="bottom-start"
               trigger="manual"
@@ -211,7 +212,7 @@
               :on-clickoutside="onClickOutside"
               @select="handleTaskAction"
             />
-          </div>
+          </n-list>
         </div>
       </n-layout>
     </n-layout>
