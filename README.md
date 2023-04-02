@@ -4,7 +4,7 @@
 
 AuTool Software Automation
 ==============================================
-[Documentation](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
+[Website](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=flat-square)](https://github.com/danalite/autool/actions)
 [![Downloads](https://img.shields.io/github/downloads/danalite/autool/total?style=flat-square&logo=github)](https://github.com/danalite/autool/releases)
@@ -13,29 +13,30 @@ AuTool Software Automation
 AuTool is a scripting language that brings the power of Greasy Monkey to your desktop environment. It provides a rich set of APIs to help you interact with operating system and network, which can be used to automate your workflow with ease. 
 
 ## Install AuTool
-**Note**: AuTool is still in alpha stage. We are working to refine the functions. Please stay tuned for the updates.
-- [Windows](https://github.com/danalite/autool/releases/tag/v0.01)
-- [MacOS](https://github.com/danalite/autool/releases/tag/v0.01)
+- Download and install AuTool app from the following links:
+- [Windows](https://github.com/danalite/autool/releases/latest/download/autool-win.exe)
 
-After installing AuTool, you can open it and start installing the scripts. Find the scripts you want to install from the
+- Install the AuTool app using link above, and import the scripts that you want to use following the instructions below.
 
-## Example Scripts: Mini-Tools
-[![Mini-Tools](https://img.shields.io/badge/Mini--Tools-download-green?logo=github&style=flat-square)](autool://download?url=https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools) is a bundle of AuTool scripts with the following functions:
+<p align="center">
+  <img src="./imgs/example.png" width="650" title="demo">
+</p>
+
+## Example: Mini-Tools
+<a href="autool://download?url=github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools">
+ <img src="https://img.shields.io/badge/Mini--Tools-download-green?logo=github&style=flat-square" title="demo">
+</a>
+
+*Mini-Tools* is a bundle of AuTool scripts with the following functions. You can download the bundle from the link above after opening AuTool app.
 
 - [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): to search files in target folder. The searched results can be fed into downstream scripts (e.g., open the files, or upload to cloud storage)
 
 - [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): a GUI wrapper of [pass](https://www.passwordstore.org/) to generate passwords, copy passwords to clipboard, and upload passwords to cloud storage.
 
 - [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): TBA
-- 
+
 - More example scripts can be found in the [AuTool Script Example Repo](https://github.com/danalite/autool-script-examples)
 
-## Usage
-- Please install the AuTool app from the  
-
-<p align="center">
-  <img src="./imgs/example.png" width="650" title="demo">
-</p>
 
 ## AuTool Scripts
 - Each AuTool script/plugin is a YAML text file. You can specify your own action sequence in it. As followed is a simple AuTool script to change keyboard when active window is changed.
