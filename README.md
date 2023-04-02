@@ -14,11 +14,12 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 
 ## Install AuTool
 - Download and install AuTool app from the following links:
+
 [![WinExe](https://img.shields.io/badge/Win.exe-download-green?logo=windows&style=flat-square)](https://github.com/danalite/autool/releases)
 [![MacOS](https://img.shields.io/badge/MacOS.dmg-download-green?logo=apple&style=flat-square)](https://github.com/danalite/autool/releases)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu.deb-download-green?logo=ubuntu&style=flat-square)](https://github.com/danalite/autool/releases)
 
-- Install the AuTool app using link above, and you are ready to go! Install example scripts from [our website](https://danalite.github.io/autool/) to get started. You will then see the installed scripts in AuTool task manager, and you can click task to run/schedule it.
+- Install the AuTool app using link above, and you are ready to go! Install example scripts from [our website](https://danalite.github.io/autool/) to get started. You will then see the installed scripts in AuTool task manager, and you can click task to run.
 
 <p align="center">
   <img src="./imgs/example.png" width="650" title="demo">
