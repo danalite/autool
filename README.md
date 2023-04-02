@@ -4,7 +4,7 @@
 
 AuTool Software Automation
 ==============================================
-[Website](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
+[Documents](https://danalite.github.io/autool/) | [API manual](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=flat-square)](https://github.com/danalite/autool/actions)
 [![Downloads](https://img.shields.io/github/downloads/danalite/autool/total?style=flat-square&logo=github)](https://github.com/danalite/autool/releases)
@@ -14,18 +14,18 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 
 ## Install AuTool
 - Download and install AuTool app from the following links:
-- [Windows](https://github.com/danalite/autool/releases/latest/download/autool-win.exe)
+[![WinExe](https://img.shields.io/badge/Win.exe-download-green?logo=windows&style=flat-square)](https://github.com/danalite/autool/releases)
+[![MacOS](https://img.shields.io/badge/MacOS.dmg-download-green?logo=apple&style=flat-square)](https://github.com/danalite/autool/releases)
+[![Ubuntu](https://img.shields.io/badge/Ubuntu.deb-download-green?logo=ubuntu&style=flat-square)](https://github.com/danalite/autool/releases)
 
-- Install the AuTool app using link above, and import the scripts that you want to use following the instructions below.
+- Install the AuTool app using link above, and you are ready to go! Install example scripts from [our website](https://danalite.github.io/autool/) to get started. You will then see the installed scripts in AuTool task manager, and you can click task to run/schedule it.
 
 <p align="center">
   <img src="./imgs/example.png" width="650" title="demo">
 </p>
 
 ## Example: Mini-Tools
-<a href="autool://download?url=github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools">
- <img src="https://img.shields.io/badge/Mini--Tools-download-green?logo=github&style=flat-square" title="demo">
-</a>
+[![Mini-Tools](https://img.shields.io/badge/Mini--Tools-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
 
 *Mini-Tools* is a bundle of AuTool scripts with the following functions. You can download the bundle from the link above after opening AuTool app.
 
@@ -33,10 +33,11 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 
 - [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): a GUI wrapper of [pass](https://www.passwordstore.org/) to generate passwords, copy passwords to clipboard, and upload passwords to cloud storage.
 
-- [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): TBA
+- [Clipboard Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): TBA
 
-- More example scripts can be found in the [AuTool Script Example Repo](https://github.com/danalite/autool-script-examples)
+- [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): TBA
 
+- [Anki Vocabulary Helpers](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): TBA
 
 ## AuTool Scripts
 - Each AuTool script/plugin is a YAML text file. You can specify your own action sequence in it. As followed is a simple AuTool script to change keyboard when active window is changed.
@@ -52,10 +53,6 @@ actions:
       - cmd.if( {{ $e.type == "image" }} ):
           - os.shell(xclip -selection clipboard -t image/png -o > /tmp/clipboard.png)
 ```
-
-## Documents
-- [Examples](https://danalite.github.io/autool/docs/basics/apps-macos-display)
-- API Reference [Under construction]
 
 ## Contributing
 Contributions are welcome! To contribute, please fork this repository, create a branch for your changes, and submit a pull request. Before submitting a pull request, please make sure that your changes are fully tested and that they adhere to the contributing guidelines.
