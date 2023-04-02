@@ -19,9 +19,15 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 
 After installing AuTool, you can open it and start installing the scripts. Find the scripts you want to install from the
 
-## Example Scripts
-- ![https://img.shields.io/badge/File--Searcher-download-green?logo=github&style=flat-square](autool://download?url=https://github.com/danalite/autool-script-examples/tree/master/danalites/MacOS-Display): Search files in target folder. The searched results can be fed into downstream scripts (e.g., open it, or upload it to cloud storage or email)
+## Example Scripts: Mini-Tools
+[![Mini-Tools](https://img.shields.io/badge/Mini--Tools-download-green?logo=github&style=flat-square)](autool://download?url=https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools) is a bundle of AuTool scripts with the following functions:
 
+- [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): to search files in target folder. The searched results can be fed into downstream scripts (e.g., open the files, or upload to cloud storage)
+
+- [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): a GUI wrapper of [pass](https://www.passwordstore.org/) to generate passwords, copy passwords to clipboard, and upload passwords to cloud storage.
+
+- [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): TBA
+- 
 - More example scripts can be found in the [AuTool Script Example Repo](https://github.com/danalite/autool-script-examples)
 
 ## Usage
