@@ -2,9 +2,7 @@
   <img src="./imgs/banner.png" height="90" title="main">
 </p>
 
-AuTool Software Automation
-==============================================
-[Documents](https://danalite.github.io/autool/) | [API manual](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
+[Documents](https://danalite.github.io/autool/) | [APIs](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=flat-square)](https://github.com/danalite/autool/actions)
 [![Downloads](https://img.shields.io/github/downloads/danalite/autool/total?style=flat-square&logo=github)](https://github.com/danalite/autool/releases)
@@ -22,23 +20,31 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 - Install the AuTool app using link above, and you are ready to go! Install example scripts from [our website](https://danalite.github.io/autool/) to get started. You will then see the installed scripts in AuTool task manager, and you can click task to run.
 
 <p align="center">
-  <img src="./imgs/example.png" width="650" title="demo">
+  <img src="./imgs/example.png" width="100%" title="AuTool">
 </p>
 
-## Example: Mini-Tools
+## Example AuTool Scripts
 [![Mini-Tools](https://img.shields.io/badge/Mini--Tools-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
 
 *Mini-Tools* is a bundle of AuTool scripts with the following functions. You can download the bundle from the link above after opening AuTool app.
 
-- [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): to search files in target folder. The searched results can be fed into downstream scripts (e.g., open the files, or upload to cloud storage)
+- [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): to search files in target folder. The searched results can be fed into downstream scripts (e.g., open the files, or upload to cloud storage)
 
-- [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): a GUI wrapper of [pass](https://www.passwordstore.org/) to generate passwords, copy passwords to clipboard, and upload passwords to cloud storage.
+![File Search](./imgs/demo-file-searcher.gif)
 
-- [Clipboard Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): TBA
+- [ ] [Clipboard Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): 
 
-- [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): TBA
+- [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): a GUI wrapper of [pass](https://www.passwordstore.org/) to generate passwords, copy passwords to clipboard, and upload passwords to cloud storage.
 
-- [Anki Vocabulary Helpers](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): TBA
+- [x] [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): a GUI wrapper of `ffmpeg` that helps you convert MOVs to GIFs with selected frame rate and quality (you can modify the script to support other formats)
+
+- [ ] Amazon Deals: Gather hot deals from cloud deal monitor and keep you informed (you can filter based on discount rates and keywords as you need)
+
+- [x] [Daily Vocabulary](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): memorize new words with [AnkiConnect](https://foosoft.net/projects/anki-connect/), chatGPT (to generate sentence/dialog from new words), and TTS (to generate audios)
+
+- [x] [Watch Tiktok videos](): to watch random videos from Tiktok. You can also specify the keywords to filter the videos.
+
+- [ ] Personal finance with Beancount: add expense or incomes in popup window, and save to local Beancount file. It can be visualized with [Fava](https://beancount.github.io/fava/).
 
 ## AuTool Scripts
 - Each AuTool script/plugin is a YAML text file. You can specify your own action sequence in it. As followed is a simple AuTool script to change keyboard when active window is changed.

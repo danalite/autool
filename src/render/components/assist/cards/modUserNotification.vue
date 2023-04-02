@@ -164,7 +164,8 @@ const renderContent = (content) => {
         {
           src: content.source,
           controls: true,
-          style: { width: "80%", maxHeight: "30px"},
+          volume: content.volume || 0.5,
+          style: { width: "90%", maxHeight: "30px"},
         },
         { default: () => "Your browser does not support the audio element." }
       );
@@ -175,6 +176,7 @@ const renderContent = (content) => {
         {
           src: content.source,
           controls: true,
+          volume: content.volume || 0.5,
           style: { width: "90%", maxHeight: "320px" },
         },
         { default: () => "Your browser does not support the video element." }

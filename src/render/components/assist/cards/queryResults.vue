@@ -3,7 +3,7 @@
     <n-scrollbar style="max-height: 280px">
       <n-list-item
         v-for="option in props.options"
-        :key="option.value"
+        :key="option.label"
         :style="{
           padding: '0px',
           margin: '0px',
@@ -13,13 +13,20 @@
       >
         <div style="display: flex; align-items: center">
           <n-image
-            width="35"
-            :src="createImgUrl(option.ext)"
+            :width="option.width || 35"
+            :src="option.src || createImgUrl(option.ext)"
             preview-disabled
           />
           <div style="margin-left: 12px; padding: 4px 0">
             <div>{{ option.label }}</div>
-            <n-text depth="3" tag="div">description</n-text>
+            <n-text
+              depth="3"
+              tag="div"
+              :class="{
+                emphasis: option.description != undefined,
+              }"
+              >{{ option.description || "description" }}</n-text
+            >
           </div>
         </div>
       </n-list-item>
@@ -30,6 +37,8 @@
 <script setup>
 import { h } from "vue";
 import { NImage, NText, NList, NListItem, NScrollbar } from "naive-ui";
+import { shell } from "electron";
+import { Emphasis } from "@vicons/tabler";
 
 const props = defineProps({
   options: {
@@ -70,5 +79,14 @@ const createImgUrl = (ext) => {
 const emits = defineEmits(["customEvent"]);
 const clickItem = (option) => {
   emits("customEvent", option);
+  if (option.link) {
+    shell.openExternal(option.link);
+  }
 };
 </script>
+
+<style scoped>
+.emphasis {
+  color: #df4040;
+}
+</style>

@@ -156,13 +156,15 @@ const renderCheckbox = (content) => {
   );
 };
 
-const renderTextInput = (content) => {
+const renderText = (content) => {
   return h(
     NSpace,
     { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
     {
       default: () => [
         renderTitle(content.label),
+
+        // Text input or a simple paragraph
         content.key != null
           ? h(NInput, {
               style: { "font-size": "14px" },
@@ -173,7 +175,18 @@ const renderTextInput = (content) => {
               placeholder: content.placeholder,
               style: { "font-size": "14px" },
             })
-          : null,
+          : h(
+              NText,
+              {
+                style: {
+                  "font-size": "14px",
+                  "line-height": "0px",
+                  "font-family":
+                    '"Lucida Console", "Courier New", monospace',
+                },
+              },
+              { default: () => content.content }
+            ),
       ],
     }
   );
@@ -432,13 +445,13 @@ const renderUpload = (content) => {
             onChange: (event) => {
               const { file, fileList } = event;
               // fileListRef.value = fileList;
-              console.log("[ INFO ] onChange ", fileList);
+              console.log("[ INFO ] onChange ", JSON.stringify(fileList));
               retValues[content.key] = fileList.map((item) => item.file.path);
             },
           },
           {
             default: () =>
-              h(NButton, { size: "small" }, { default: () => "Upload" }),
+              h(NButton, { size: "small" }, { default: () => "Select" }),
           }
         ),
       ],
@@ -466,10 +479,37 @@ const renderNumberInput = (content) => {
   );
 };
 
+const renderImageList = (content) => {
+  const options = content.content.map((item) => {
+    return {
+      ...item,
+      width: 100
+    };
+  });
+  return h(
+    NSpace, 
+    { vertical : true },
+    {
+      default: () => [
+        renderTitle(content.label),
+        h(queryResults, {
+          options: options,
+          style: { width: "290px" }
+        }),
+      ]
+    }
+  );
+};
+
 const renderContent = (content) => {
   switch (content.type) {
     case "list":
-      return renderList(content);
+      console.log("@@@", content)
+      if (content.imagePreview == true) {
+        return renderImageList(content);
+      } else {
+        return renderList(content);
+      }
 
     case "tabs":
       return renderTabs(content);
@@ -489,11 +529,35 @@ const renderContent = (content) => {
       return renderUpload(content);
 
     case "text":
-      return renderTextInput(content);
+      return renderText(content);
 
     case "number":
       return renderNumberInput(content);
 
+    case "audio":
+      return h(
+        "audio",
+        {
+          src: content.source,
+          controls: true,
+          volume: content.volume || 0.5,
+          style: { width: "90%", maxHeight: "30px"},
+        },
+        { default: () => "Your browser does not support the audio element." }
+      );
+
+    case "video":
+      return h(
+        "video",
+        {
+          src: content.source,
+          controls: true,
+          volume: content.volume || 0.5,
+          style: { width: "90%", maxHeight: "320px" },
+        },
+        { default: () => "Your browser does not support the video element." }
+      );
+    
     default:
       console.log("[ ERROR ] Unknown content type", content.type);
       return h(

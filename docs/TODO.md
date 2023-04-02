@@ -4,6 +4,7 @@
 
 ## 2023-04
 - [ ] Release v0.02
+- [ ] Update documents (bind to the autool.site domain)
 - [ ] Support for deep-link downloads
 - [x] Support number type in assist window
 - [ ] Example: app filtering AMZ/smzdm/arxiv events (i.e., event bus)
