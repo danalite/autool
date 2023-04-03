@@ -17,7 +17,7 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 [![MacOS](https://img.shields.io/badge/MacOS.dmg-download-green?logo=apple&style=flat-square)](https://github.com/danalite/autool/releases)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu.deb-download-green?logo=ubuntu&style=flat-square)](https://github.com/danalite/autool/releases)
 
-- Install the AuTool app using link above, and you are ready to go! Install example scripts from [our website](https://danalite.github.io/autool/) to get started. You will then see the installed scripts in AuTool task manager, and you can click task to run.
+- After installing the AuTool, download scripts from [our website](https://danalite.github.io/autool/) to import the features. The downloaded scripts are shown in AuTool task manager, which is ready to run by click.
 
 <p align="center">
   <img src="./imgs/example.png" width="100%" title="AuTool">
@@ -26,30 +26,31 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 ## Example AuTool Scripts
 [![Mini-Tools](https://img.shields.io/badge/Mini--Tools-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
 
-We create a AuTool script bundle named *Mini-Tools* to get you started. You can download the bundle from the link above after opening AuTool app.
+We provide *Mini-Tools*, an AuTool script bundle as an example to get you started. It can be downloaded by clicking the icon above. *Mini-Tools* includes the following scripts:
 
-- [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): Click the *File-Searcher* button to start the task. You will be promoted to enter the keywords to search in the popup window, and you can click the result to open the file. 
+- [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): Click the *File-Searcher* button and enter keywords to search in the popup window. 
 
-![File Search](./imgs/demo-file-searcher.gif)
+<img src="./imgs/demo-file-searcher.gif" width="80%" title="FileSearch">
 
-- [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): this script is based on [*pass*](https://www.passwordstore.org/). After starting the task, you can choose to generate passwords, copy existing passwords to clipboard, or import passwords.
+- [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): this script allows you to generate passwords, copy existing passwords to clipboard, or import passwords; developed based on [*`pass`*](https://www.passwordstore.org/).
 
-- [x] [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): this script is based on [*ffmpeg*](https://ffmpeg.org/). It prompts you to select MOV videos and convert them into GIFs for you. You can modify the script to support other formats.
+<img src="./imgs/demo-password-manager.gif" width="80%" title="PasswordManager">
 
-- [x] [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): Gather hot deals from cloud deal monitor and keep you informed. 
+- [x] [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): select MOVs and convert into GIFs; developed based on [*`ffmpeg`*](https://ffmpeg.org/).
 
-- [x] [Daily Vocabulary](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): a tiny script that prompts vocabulary refreshers to you at a scheduled time, based on [*AnkiConnect*](https://foosoft.net/projects/anki-connect/) and GPT4. 
+<img src="./imgs/demo-format-converter.gif" width="80%" title="FormatConverter">
 
-![Daily Vocabulary](./imgs/demo-daily-vocabulary.gif)
+- [x] [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): Gather hot deals from cloud monitor and keep you informed. 
 
-- [x] [Watch Tiktok](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/) a tiny script that scrapes Tiktok videos from internet and plays them in a popup window. You can modify the script to support other video sites. 
+<img src="./imgs/demo-amazon-deals.gif" width="80%" title="AmazonDeals">
 
-![Watch Tiktok](./imgs/demo-watch-tiktok.gif)
+- [x] [Daily Vocabulary](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): show vocabulary flashcards with example sentence and audio; developed on [*`AnkiConnect`*](https://foosoft.net/projects/anki-connect/) and OpenAI GPT APIs. 
 
-- [ ] Personal finance with Beancount: add expense or incomes in popup window, and save to local Beancount file. It can be visualized with [Fava](https://beancount.github.io/fava/).
+<img src="./imgs/demo-daily-vocabulary.gif" width="80%" title="DailyVocabulary">
 
-- [ ] [Clipboard Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): 
+- [x] [Watch Tiktok](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): scrapes Tiktok videos from internet and displays them in a popup window. 
 
+<img src="./imgs/demo-watch-tiktok.gif" width="80%" title="WatchTiktok">
 
 ## Write Your Own Scripts
 - Each AuTool script is a YAML text file which contains a sequence of actions. As followed is a simple AuTool script to run a shell command when the clipboard changes:
