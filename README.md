@@ -28,29 +28,34 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 
 We provide *Mini-Tools*, an AuTool script bundle as an example to get you started. It can be downloaded by clicking the icon above. *Mini-Tools* includes the following scripts:
 
-- [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): Click the *File-Searcher* button and enter keywords to search in the popup window. 
+- [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): enter keywords to search and open a file or folder.
 
-<img src="./imgs/demo-file-searcher.gif" width="80%" title="FileSearch">
+<img src="./imgs/demo-file-searcher.gif" width="100%" title="FileSearch">
 
-- [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): this script allows you to generate passwords, copy existing passwords to clipboard, or import passwords; developed based on [*`pass`*](https://www.passwordstore.org/).
+- [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): generate a new password, copy existing passwords to clipboard, or import passwords. based on [*`pass`*](https://www.passwordstore.org/).
 
-<img src="./imgs/demo-password-manager.gif" width="80%" title="PasswordManager">
+<p align="center">
+  <img src="./imgs/demo-password-manager.gif" width="90%" title="PasswordManager">
+</p>
 
-- [x] [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): select MOVs and convert into GIFs; developed based on [*`ffmpeg`*](https://ffmpeg.org/).
+- [x] [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): convert MOVs into GIFs. based on [*`ffmpeg`*](https://ffmpeg.org/).
 
-<img src="./imgs/demo-format-converter.gif" width="80%" title="FormatConverter">
+<p align="center">
+  <img src="./imgs/demo-format-converter.gif" width="90%" title="FormatConverter">
+</p>
 
 - [x] [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): Gather hot deals from cloud monitor and keep you informed. 
 
-<img src="./imgs/demo-amazon-deals.gif" width="80%" title="AmazonDeals">
+<p align="center">
+  <img src="./imgs/demo-amazon-deals.gif" width="90%" title="AmazonDeals">
+</p>
 
-- [x] [Daily Vocabulary](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): show vocabulary flashcards with example sentence and audio; developed on [*`AnkiConnect`*](https://foosoft.net/projects/anki-connect/) and OpenAI GPT APIs. 
+- [x] [Daily Vocabulary](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): show vocabulary flashcards with example sentence and audio. based on [*`AnkiConnect`*](https://foosoft.net/projects/anki-connect/) and ChatGPT. 
 
-<img src="./imgs/demo-daily-vocabulary.gif" width="80%" title="DailyVocabulary">
+<p align="center">
+  <img src="./imgs/demo-daily-vocabulary.gif" width="90%" title="DailyVocabulary">
+</p>
 
-- [x] [Watch Tiktok](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): scrapes Tiktok videos from internet and displays them in a popup window. 
-
-<img src="./imgs/demo-watch-tiktok.gif" width="80%" title="WatchTiktok">
 
 ## Write Your Own Scripts
 - Each AuTool script is a YAML text file which contains a sequence of actions. As followed is a simple AuTool script to run a shell command when the clipboard changes:
