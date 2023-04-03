@@ -7,7 +7,7 @@
 - [ ] Update documents (bind to the autool.site domain)
 - [ ] Support for deep-link downloads
 - [x] Support number type in assist window
-- [ ] Example: app filtering AMZ/smzdm/arxiv events (i.e., event bus)
+- [x] Example: app filtering AMZ/smzdm/arxiv events (i.e., event bus)
 - [ ] Example: app usage tour of openVPN (one-at-a-time mode)
 - [x] (cancelled) Update the task scheduling interface (using `NThing` instead of `NCard`)
 - [x] Support audio and video types in assist window
