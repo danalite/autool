@@ -30,7 +30,9 @@ We provide *Mini-Tools*, an AuTool script bundle as an example to get you starte
 
 - [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): enter keywords to search and open files or folders.
 
-<img src="./demos/demo-file-searcher.gif" width="95%" title="FileSearch">
+<p align="center">
+  <img src="./demos/demo-file-searcher.gif" width="95%" title="FileSearch">
+</p>
 
 - [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): generate a new password or copy existing passwords to clipboard (based on [*`pass`*](https://www.passwordstore.org/)).
 
