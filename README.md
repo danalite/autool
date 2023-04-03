@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./imgs/banner.png" height="90" title="main">
+  <img src="./demos/banner.png" height="95" title="main">
 </p>
 
 [Documents](https://danalite.github.io/autool/) | [APIs](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
@@ -20,7 +20,7 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 - After installing the AuTool, download scripts from [our website](https://danalite.github.io/autool/) to import the features. The downloaded scripts are shown in AuTool task manager, which is ready to run by click.
 
 <p align="center">
-  <img src="./imgs/example.png" width="100%" title="AuTool">
+  <img src="./demos/example.png" width="100%" title="AuTool">
 </p>
 
 ## Example AuTool Scripts
@@ -28,34 +28,33 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 
 We provide *Mini-Tools*, an AuTool script bundle as an example to get you started. It can be downloaded by clicking the icon above. *Mini-Tools* includes the following scripts:
 
-- [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): enter keywords to search and open a file or folder.
+- [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): enter keywords to search and open files or folders.
 
-<img src="./imgs/demo-file-searcher.gif" width="100%" title="FileSearch">
+<img src="./demos/demo-file-searcher.gif" width="95%" title="FileSearch">
 
-- [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): generate a new password, copy existing passwords to clipboard, or import passwords. based on [*`pass`*](https://www.passwordstore.org/).
+- [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): generate a new password or copy existing passwords to clipboard (based on [*`pass`*](https://www.passwordstore.org/)).
 
 <p align="center">
-  <img src="./imgs/demo-password-manager.gif" width="90%" title="PasswordManager">
+  <img src="./demos/demo-password-manager.gif" width="95%" title="PasswordManager">
 </p>
 
-- [x] [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): convert MOVs into GIFs. based on [*`ffmpeg`*](https://ffmpeg.org/).
+- [x] [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): convert MOVs into GIFs (based on [*`ffmpeg`*](https://ffmpeg.org/)).
 
 <p align="center">
-  <img src="./imgs/demo-format-converter.gif" width="90%" title="FormatConverter">
+  <img src="./demos/demo-format-converter.gif" width="95%" title="FormatConverter">
 </p>
 
 - [x] [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): Gather hot deals from cloud monitor and keep you informed. 
 
 <p align="center">
-  <img src="./imgs/demo-amazon-deals.gif" width="90%" title="AmazonDeals">
+  <img src="./demos/demo-amazon-deals.gif" width="95%" title="AmazonDeals">
 </p>
 
-- [x] [Daily Vocabulary](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): show vocabulary flashcards with example sentence and audio. based on [*`AnkiConnect`*](https://foosoft.net/projects/anki-connect/) and ChatGPT. 
+- [x] [Daily Vocabulary](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): flashcards with example and audio (based on [*`AnkiConnect`*](https://foosoft.net/projects/anki-connect/) and ChatGPT). 
 
 <p align="center">
-  <img src="./imgs/demo-daily-vocabulary.gif" width="90%" title="DailyVocabulary">
+  <img src="./demos/demo-daily-vocabulary.gif" width="95%" title="DailyVocabulary">
 </p>
-
 
 ## Write Your Own Scripts
 - Each AuTool script is a YAML text file which contains a sequence of actions. As followed is a simple AuTool script to run a shell command when the clipboard changes:
