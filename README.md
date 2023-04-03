@@ -26,28 +26,33 @@ AuTool is a scripting language that brings the power of Greasy Monkey to your de
 ## Example AuTool Scripts
 [![Mini-Tools](https://img.shields.io/badge/Mini--Tools-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
 
-*Mini-Tools* is a bundle of AuTool scripts with the following functions. You can download the bundle from the link above after opening AuTool app.
+We create a AuTool script bundle named *Mini-Tools* to get you started. You can download the bundle from the link above after opening AuTool app.
 
-- [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): to search files in target folder. The searched results can be fed into downstream scripts (e.g., open the files, or upload to cloud storage)
+- [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): Click the *File-Searcher* button to start the task. You will be promoted to enter the keywords to search in the popup window, and you can click the result to open the file. 
 
 ![File Search](./imgs/demo-file-searcher.gif)
 
-- [ ] [Clipboard Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): 
+- [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): this script is based on [*pass*](https://www.passwordstore.org/). After starting the task, you can choose to generate passwords, copy existing passwords to clipboard, or import passwords.
 
-- [x] [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): a GUI wrapper of [pass](https://www.passwordstore.org/) to generate passwords, copy passwords to clipboard, and upload passwords to cloud storage.
+- [x] [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): this script is based on [*ffmpeg*](https://ffmpeg.org/). It prompts you to select MOV videos and convert them into GIFs for you. You can modify the script to support other formats.
 
-- [x] [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): a GUI wrapper of `ffmpeg` that helps you convert MOVs to GIFs with selected frame rate and quality (you can modify the script to support other formats)
+- [x] [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): Gather hot deals from cloud deal monitor and keep you informed. 
 
-- [ ] Amazon Deals: Gather hot deals from cloud deal monitor and keep you informed (you can filter based on discount rates and keywords as you need)
+- [x] [Daily Vocabulary](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): a tiny script that prompts vocabulary refreshers to you at a scheduled time, based on [*AnkiConnect*](https://foosoft.net/projects/anki-connect/) and GPT4. 
 
-- [x] [Daily Vocabulary](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): memorize new words with [AnkiConnect](https://foosoft.net/projects/anki-connect/), chatGPT (to generate sentence/dialog from new words), and TTS (to generate audios)
+![Daily Vocabulary](./imgs/demo-daily-vocabulary.gif)
 
-- [x] [Watch Tiktok videos](): to watch random videos from Tiktok. You can also specify the keywords to filter the videos.
+- [x] [Watch Tiktok](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/) a tiny script that scrapes Tiktok videos from internet and plays them in a popup window. You can modify the script to support other video sites. 
+
+![Watch Tiktok](./imgs/demo-watch-tiktok.gif)
 
 - [ ] Personal finance with Beancount: add expense or incomes in popup window, and save to local Beancount file. It can be visualized with [Fava](https://beancount.github.io/fava/).
 
-## AuTool Scripts
-- Each AuTool script/plugin is a YAML text file. You can specify your own action sequence in it. As followed is a simple AuTool script to change keyboard when active window is changed.
+- [ ] [Clipboard Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): 
+
+
+## Write Your Own Scripts
+- Each AuTool script is a YAML text file which contains a sequence of actions. As followed is a simple AuTool script to run a shell command when the clipboard changes:
 
 ```yaml
 task: clipboard-monitor
