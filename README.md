@@ -8,10 +8,10 @@
 [![Downloads](https://img.shields.io/github/downloads/danalite/autool/total?style=flat-square&logo=github)](https://github.com/danalite/autool/releases)
 [![Community](https://img.shields.io/badge/Community-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/P3t2SvQaZp)
 
-AuTool is a scripting/glue language that brings the power of Greasy Monkey to your desktop environment. It can be used to:
-- Automate repetitive tasks (e.g., keyboard, mouse, or network requests)
-- Build pretty GUI for any command-line apps
-- Combine different software components to create custom workflow
+AuTool is a scripting/glue language that brings the power of Tampermonkey to your desktop environment. It can be used to:
+- Automate repetitive tasks, e.g., keyboard, mouse, or network requests
+- Build pretty GUI for any command-line apps with ease
+- Combine software components to create custom workflow
 
 ## Install AuTool
 - Download and install AuTool app from the following links:
@@ -26,12 +26,12 @@ AuTool is a scripting/glue language that brings the power of Greasy Monkey to yo
   <img src="./demos/example.png" width="100%" title="AuTool">
 </p>
 
-- Note: you can click on the rabbit icon before *`AuTool`* logo to collapse the window into a taskbar. All checked scripts are shown in the taskbar, and you can click the name to run the script.
+- Note: you can click on the rabbit icon on the top to collapse the window into a taskbar. All checked scripts are shown in the taskbar, and you can click to run the script.
 
 ## Example AuTool Scripts
-[![Mini-Tools](https://img.shields.io/badge/Mini--Tools-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
+[![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
 
-We provide *Mini-Tools*, an AuTool script bundle as an example to get you started. It can be downloaded by clicking the icon above. *Mini-Tools* includes the following scripts:
+Here is a few AuTool example scripts to get you started and get a taste on what AuTool can help you with. The scripts can be downloaded by clicking the icon above.
 
 - [x] [File Search](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): enter keywords to search and open files or folders.
 
