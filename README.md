@@ -8,9 +8,9 @@
 [![Downloads](https://img.shields.io/github/downloads/danalite/autool/total?style=flat-square&logo=github)](https://github.com/danalite/autool/releases)
 [![Community](https://img.shields.io/badge/Community-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/P3t2SvQaZp)
 
-AuTool is a scripting/glue language that brings the power of Tampermonkey to your desktop environment. AuTool was initially created as an enhancement to AutoHotkey, with the purpose of supporting event-driven async programming, improving user interactivity, and ensuring platform agnosticism. It can be used to:
+AuTool is a scripting/glue language that brings the power of Tampermonkey to your desktop environment. AuTool was initially developed as an enhancement to AutoHotkey, with the purpose of supporting event-driven async programming, improving user interactivity, and ensuring platform agnosticism. It can be used to:
 
-- Automate repetitive tasks, e.g., keyboard, mouse, or network requests
+- Automate repetitive tasks in parallel, e.g., keyboard, mouse, or network requests
 - Build pretty GUI for any command-line apps with ease
 - Combine software components to create your custom workflow
 
@@ -28,14 +28,14 @@ AuTool is a scripting/glue language that brings the power of Tampermonkey to you
 </p>
 
 ### Usage
-- **Install scripts**: you can download an app (i.e., a collection of scripts) by clicking the "+" icon and entering a GitHub folder link. For example, you can enter https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display.
+- **Install scripts**: click the `+` icon and enter a GitHub folder link that contains a `autool-tasks.json`, such as https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display.
 
-- **Taskbar**: you can minimize the window into a taskbar by clicking on the rabbit icon at the top. The taskbar will display all checked scripts, and you can run any script by clicking on it.
+- **Taskbar**: minimize the window into a taskbar by clicking on the rabbit icon at the top. The taskbar will display all checked scripts, and you can run any script by clicking on it.
 
-- **Script-defined dialog**: AuTool simplifies the creation of GUIs that interact with end-users. For example, its GUI in the following example (which resembles a system notification popup window) is created from a JSON description provided in the script. Check out the source code: [link](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/Password-Manager/Password-Manager.yaml)
+- **Dialog**: a dialog is similar to a system notification and is designed to interact with end-users. Dialogs are defined using JSON descriptions from user scripts. You can refer to [this example]((https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/Password-Manager/Password-Manager.yaml)) to learn how to create a dialog:
 
 <p align="center">
-  <img src="./demos/demo-daily-vocabulary.gif" width="85%" title="FileSearch">
+  <img src="./demos/demo-daily-vocabulary.gif" width="85%" title="Dialog">
 </p>
 
 ## Example AuTool Scripts
