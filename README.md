@@ -8,7 +8,7 @@
 [![Downloads](https://img.shields.io/github/downloads/danalite/autool/total?style=flat-square&logo=github)](https://github.com/danalite/autool/releases)
 [![Community](https://img.shields.io/badge/Community-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/P3t2SvQaZp)
 
-AuTool is a scripting/glue language that brings the power of Tampermonkey to your desktop environment. AuTool was initially developed to achieve three goals: enable AutoHotkey to support event-driven programming, enhance user interactivity, and ensure its platform agnosticism. It can be used to:
+AuTool is a scripting/glue language that brings the power of Tampermonkey to your desktop environment. AuTool was initially created as an enhancement to AutoHotkey, with the purpose of supporting event-driven async programming, improving user interactivity, and ensuring platform agnosticism. It can be used to:
 
 - Automate repetitive tasks, e.g., keyboard, mouse, or network requests
 - Build pretty GUI for any command-line apps with ease
@@ -32,7 +32,7 @@ AuTool is a scripting/glue language that brings the power of Tampermonkey to you
 
 - **Taskbar**: you can minimize the window into a taskbar by clicking on the rabbit icon at the top. The taskbar will display all checked scripts, and you can run any script by clicking on it.
 
-- **User Dialog**: AuTool simplifies the creation of GUIs that interact with end-users. For example, its GUI in the following example (which resembles a system notification popup window) is created from a JSON description provided by the user. Check out the script source code: [link](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/Password-Manager/Password-Manager.yaml)
+- **Script-defined dialog**: AuTool simplifies the creation of GUIs that interact with end-users. For example, its GUI in the following example (which resembles a system notification popup window) is created from a JSON description provided in the script. Check out the source code: [link](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/Password-Manager/Password-Manager.yaml)
 
 <p align="center">
   <img src="./demos/demo-daily-vocabulary.gif" width="85%" title="FileSearch">
@@ -46,7 +46,7 @@ Here is a few AuTool example scripts to get you started and get a taste on what 
 - [Quick search and open files](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): enter keywords to search and open files or folders.
 - [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): generate a new password or copy existing passwords to clipboard.
 - [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): convert MOVs into GIFs or other formats.
-- [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): Gather hot deals from cloud monitor and keep you informed. 
+- [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): gather hot deals from cloud monitor and keep you informed. 
 - [Vocabulary flashcards](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): flashcards with example and audio. 
 
 ## Write Your Own Scripts
