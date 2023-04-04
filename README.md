@@ -32,11 +32,10 @@ AuTool is a scripting/glue language that brings the power of Tampermonkey to you
 
 - **Taskbar**: you can minimize the window into a taskbar by clicking on the rabbit icon at the top. The taskbar will display all checked scripts, and you can run any script by clicking on it.
 
-- **User Dialog**: AuTool simplifies the creation of visually attractive GUIs that interact with end-users. For example, its GUI in the following example follows the system notification style and is generated from a user-provided JSON description. Example script source code: [link](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipbo
-ard-Manager)
+- **User Dialog**: AuTool simplifies the creation of GUIs that interact with end-users. For example, its GUI in the following example (which resembles a system notification popup window) is created from a JSON description provided by the user. Check out the script source code: [link](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/Password-Manager/Password-Manager.yaml)
 
 <p align="center">
-  <img src="./demos/demo-daily-vocabulary.gif" width="95%" title="FileSearch">
+  <img src="./demos/demo-daily-vocabulary.gif" width="85%" title="FileSearch">
 </p>
 
 ## Example AuTool Scripts
