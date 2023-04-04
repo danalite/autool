@@ -38,16 +38,16 @@ We aim to make AuTool a desktop version of Tampermonkey, featuring lightweight a
 
 Install new scripts            |  Taskbar
 :-------------------------:|:-------------------------:
-<img src="./demos/demo-new-task.gif" width=450 title="new"> |  <img src="./demos/demo-taskbar.gif" width=450  title="taskbar">
+<img src="./demos/demo-new-task.gif" width=390 title="new"> |  <img src="./demos/demo-taskbar.gif" width=390  title="taskbar">
 
 ### Interact with Script
 - *Pop-up dialog*: an AuTool script may ask for user input by displaying a pop-up dialog. The dialog can be used to collect user input, or to display information to the user.
 
-- *Screen annotations*: an AuTool script can draw annotations on the screen with purpose of guiding users to use a software. 
+- *Screen annotations*: an AuTool script can draw annotations on the window with purpose of guiding users to use a software. Annotations will not interfere with the user's interaction with the software. 
 
 Pop-up dialog             |  Screen annotation
 :-------------------------:|:-------------------------:
-<img src="./demos/demo-daily-vocabulary.gif" width=450 title="dialog"> |  <img src="./demos/demo-annotation.gif" width=450  title="annotation">
+<img src="./demos/demo-daily-vocabulary.gif" width=390 title="dialog"> | <img src="./demos/demo-annotation.gif" width=390  title="annotation">
 
 ## Example AuTool Scripts
 [![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
