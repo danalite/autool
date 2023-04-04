@@ -30,39 +30,24 @@ We aim to make AuTool a desktop version of Tampermonkey, featuring lightweight a
   <img src="./demos/example.png" width="90%" title="AuTool">
 </p>
 
-### Usage
-<details>
-<summary>
-#### Install new scripts
-</summary>
-- Click the `+` icon and enter a GitHub folder link that contains a `autool-tasks.json`, such as https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display.
-</details>
+## Usage
+### Manage Scripts
+- *Install new scripts*: click the `+` icon and enter a GitHub folder link that contains a `autool-tasks.json`, such as https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display.
 
-<details>
-<summary>
-#### Minimize AuTool into a taskbar
-</summary>
-- Minimize the window into a taskbar by clicking on the rabbit icon at the top. The taskbar will display all checked scripts, and you can run any script by clicking on it.
-</details> 
+- *Minimize window into a taskbar*: click on the rabbit icon at the top. The taskbar will display all checked scripts, and you can run any script by clicking on it.
 
-<details>
-<summary>
-#### Interact with the script with dialog
-</summary>
-- A dialog resembles a system notification in the form of a pop-up window. The dialog's content can be customized by using JSON in the script. Check out [this example](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/Password-Manager/Password-Manager.yaml):
+Install new scripts            |  Taskbar
+:-------------------------:|:-------------------------:
+<img src="./demos/demo-new-task.gif" width=450 title="new"> |  <img src="./demos/demo-taskbar.gif" width=450  title="taskbar">
 
-<p align="center">
-  <img src="./demos/demo-daily-vocabulary.gif" width="90%" title="Dialog">
-</p>
-</details> 
+### Interact with Script
+- *Pop-up dialog*: an AuTool script may ask for user input by displaying a pop-up dialog. The dialog can be used to collect user input, or to display information to the user.
 
-<details>
-<summary>
-#### Annotate screen with floating tips
-</summary>
-- Annotations are floating windows that can be used to display information and tips. It is highly customizable and can be used to trigger diverse actions. Check out [this example]()
-</details> 
+- *Screen annotations*: an AuTool script can draw annotations on the screen with purpose of guiding users to use a software. 
 
+Pop-up dialog             |  Screen annotation
+:-------------------------:|:-------------------------:
+<img src="./demos/demo-daily-vocabulary.gif" width=450 title="dialog"> |  <img src="./demos/demo-annotation.gif" width=450  title="annotation">
 
 ## Example AuTool Scripts
 [![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
