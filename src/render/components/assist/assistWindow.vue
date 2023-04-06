@@ -56,7 +56,7 @@ import { ipcRenderer } from "electron";
 import { onMounted, ref } from "vue";
 import { appConfig } from "@/utils/main/config";
 
-document.title = "Assist";
+document.title = "Canvas";
 document.getElementsByTagName("html")[0].style.height = "100%";
 document.getElementsByTagName("body")[0].style.height = "100%";
 

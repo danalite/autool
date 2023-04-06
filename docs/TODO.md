@@ -3,12 +3,14 @@
 - [ ] Task or app renaming
 
 ## 2023-04
-- [ ] Release v0.02
+- [ ] DOC: update document site
+- [x] README: canvas annotation example
+- [ ] Example: app usage tour of docker (one-at-a-time mode)
+- [x] Release v0.02
 - [x] Update documents (bind to the autool.site domain)
 - [x] Support for deep-link downloads
 - [x] Support number type in assist window
 - [x] Example: app filtering AMZ/smzdm/arxiv events (i.e., event bus)
-- [ ] Example: app usage tour of openVPN (one-at-a-time mode)
 - [x] (cancelled) Update the task scheduling interface (using `NThing` instead of `NCard`)
 - [x] Support audio and video types in assist window
 

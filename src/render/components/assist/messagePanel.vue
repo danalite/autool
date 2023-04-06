@@ -1,9 +1,11 @@
 <template>
   <div :width="canvasWidth" :height="canvasHeight">
-    <n-tooltip
+    <n-popover
       v-for="(marker, index) in activeAnnotationsShow"
       :key="index"
       trigger="hover"
+      placement="left"
+      :delay="800"
     >
       <template #trigger>
         <div
@@ -15,12 +17,13 @@
             position: 'absolute',
             left: String(marker.absX) + 'px',
             top: String(marker.absY) + 'px',
+            // display: 'flex'
           }"
         >
           <n-button
-            @mouseover="closeMarker(marker.label)"
-            @mouseleave="leaveMarker(marker.label)"
-            @mouseenter="overMarker(marker.label)"
+            @mouseover.stop="closeMarker(marker.label)"
+            @mouseleave.stop="leaveMarker(marker.label)"
+            @mouseenter.stop="overMarker(marker.label)"
             size="small"
             text
           >
@@ -70,8 +73,30 @@
           </n-space>
         </div>
       </template>
+
+      <!-- More helper icons: report -->
+      <div class="btn-list">
+        <n-button text size="small">
+          <img
+            src="../../assets/icon/logo.png"
+            draggable="false"
+            alt=""
+            width="20"
+            style="padding-left: 3px; padding-top: 3px"
+          />
+        </n-button>
+        <n-button text size="small">
+          <img
+            src="../../assets/icon/logo.png"
+            draggable="false"
+            alt=""
+            width="20"
+            style="padding-left: 3px; padding-top: 3px"
+          />
+        </n-button>
+      </div>
       {{ marker.kind === "rect" ? marker.content : marker.label }}
-    </n-tooltip>
+    </n-popover>
 
     <mod-user-notification ref="modUserNotificationRef" />
     <mod-user-input ref="modUserInputRef" />
@@ -92,7 +117,7 @@ import {
   NImage,
   NDivider,
   NText,
-  NTooltip,
+  NPopover,
   NInput,
   NInputGroup,
   NBadge,
@@ -150,7 +175,6 @@ const activeAnnotationsShow = computed(() => {
     });
 });
 
-
 // Ref handles to sub-components
 const modUserNotificationRef = ref(null);
 const modUserInputRef = ref(null);
@@ -190,7 +214,7 @@ ipcRenderer.on("assist-win-push", (event, message) => {
     case "user-notify":
       modUserNotificationRef.value.enqueue(message);
       break;
-    
+
     case "user-input":
       modUserInputRef.value.enqueue(message);
       break;
@@ -215,7 +239,7 @@ const closeMarker = (label) => {
       activeMarkerLabel = "";
       closedMarkers.value.push(label);
     }
-  }, 800);
+  }, 500);
 };
 
 const leaveMarker = (index) => {

@@ -2,10 +2,10 @@
   "name": "AuTool",
   "license": "GPL v3",
   "private": true,
-  "version": "0.0.1",
-  "author": "Danalite LTD <support@autool.site>",
+  "version": "0.0.3",
+  "author": "vrteee <support@autool.site>",
   "main": "background.js",
-  "description": "Scripting language for workflow automation",
+  "description": "Workflow Automation and Digital Adoption Platform",
   "scripts": {
     "init": "python -m venv pyenv && run-script-os",
     "init:darwin:linux": "./pyenv/bin/pip install -r ./backend/requirements.txt",

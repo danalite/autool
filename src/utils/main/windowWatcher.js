@@ -42,5 +42,5 @@ export const monitorWindowChange = (assistWindow) => {
                     lastWindowBounds = win.bounds;
                 }
             });
-    }, 300);
+    }, 500);
 }

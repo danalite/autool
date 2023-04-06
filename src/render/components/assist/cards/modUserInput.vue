@@ -31,42 +31,14 @@ import { h, reactive, ref, computed } from "vue";
 import { ipcRenderer, shell } from "electron";
 
 import { handleCopyImg } from "@/utils/render/msgRenders";
-import { ExternalLink, Checkbox } from "@vicons/tabler";
+import { ExternalLink } from "@vicons/tabler";
+
 import queryResults from "./queryResults.vue";
+import { renderTitle } from "@/utils/render/compRenders";
 
 const notification = useNotification();
 const retValues = reactive({});
 let nRef = null;
-
-const renderTitle = (title) => {
-  return h(
-    NSpace,
-    {},
-    {
-      default: () => [
-        h(
-          NIcon,
-          { size: 16, color: "#0e7a0d" },
-          { default: () => h(Checkbox) }
-        ),
-        h(
-          NText,
-          {
-            style: {
-              "font-size": "15px",
-              "line-height": "0px",
-              color: "#3a4dbf",
-              "font-family": '"Lucida Console", "Courier New", monospace',
-            },
-          },
-          {
-            default: () => title,
-          }
-        ),
-      ],
-    }
-  );
-};
 
 const renderCheckbox = (content) => {
   const options = content.content.map((item) => {
@@ -504,7 +476,7 @@ const renderImageList = (content) => {
 const renderContent = (content) => {
   switch (content.type) {
     case "list":
-      console.log("@@@", content)
+      // console.log("@@@", content)
       if (content.imagePreview == true) {
         return renderImageList(content);
       } else {

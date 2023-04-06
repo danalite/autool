@@ -9,7 +9,7 @@
 [![Downloads](https://img.shields.io/github/downloads/danalite/autool/total?style=flat-square&logo=github)](https://github.com/danalite/autool/releases)
 <a href="https://discord.gg/P3t2SvQaZp"><img alt="discord invitation link" src="https://dcbadge.vercel.app/api/server/P3t2SvQaZp?style=flat-square"></a>
 
-AuTool is a scripting/glue language for workflow automation and digital adoption. AuTool was initially developed as an enhancement to [AutoHotkey](https://www.autohotkey.com/), with the purpose of supporting event-driven async programming, improving user interactivity, and ensuring platform agnosticism. It can be used to:
+AuTool is a software platform for workflow automation and digital adoption. AuTool was initially developed as an enhancement to [AutoHotkey](https://www.autohotkey.com/), with the purpose of supporting event-driven async programming, improving user interactivity, and ensuring platform agnosticism. It can be used to:
 
 - Automate repetitive tasks, e.g., keyboard, mouse, and web
 - Build interactive GUI to guide users through a workflow
