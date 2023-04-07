@@ -173,7 +173,7 @@ setTimeout(() => {
       ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
     }
   });
-}, 500);
+}, 1500);
 </script>
 
 <style scoped>

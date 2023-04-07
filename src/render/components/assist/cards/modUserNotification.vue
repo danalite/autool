@@ -242,7 +242,7 @@ const enqueue = (message) => {
         size: "small",
         src: message.icon,
         fallbackSrc:
-          "https://raw.githubusercontent.com/danalites/autoo/main/imgs/logo.png",
+          "https://raw.githubusercontent.com/danalite/autool/main/imgs/logo.png",
         style: {
           backgroundColor: "#ffffff",
         },

@@ -233,14 +233,14 @@ const addNewTask = async () => {
   }
 
   if (addTaskType.value === "template") {
-    ipcRenderer.invoke("to-console", {
+    ipcRenderer.send("to-console", {
       action: "create-task",
       taskName: newTaskName.value,
       appPath: targetAppPath,
       content: taskTemplates[selectedTemplate.value],
     });
   } else if (addTaskType.value === "macro-record") {
-    await ipcRenderer.invoke("to-console", {
+    ipcRenderer.send("to-console", {
       action: "uio-event",
       type: "macroRecord",
       options: [...macroRecordOptions.value],

@@ -16,7 +16,7 @@
                 style="width: 80%"
                 size="small"
                 v-model:value="githubFolderLink"
-                placeholder="https://github.com/danalites/apps/tree/master/macos"
+                placeholder="https://github.com/danalite/apps/tree/master/macos"
               />
             </n-input-group>
 
@@ -182,7 +182,7 @@ const githubFolderLink = ref("");
 const newAppAuthor = ref("");
 const newAppName = ref("");
 const newAppIcon = ref(
-  "https://raw.githubusercontent.com/danalites/autoo/main/imgs/logo.png"
+  "https://raw.githubusercontent.com/danalite/autool/main/imgs/logo.png"
 );
 
 const addNewApp = () => {
@@ -207,7 +207,7 @@ const addNewApp = () => {
       return;
     }
 
-    ipcRenderer.invoke("to-console", {
+    ipcRenderer.send("to-console", {
       action: "create-app",
       appAuthor: newAppAuthor.value,
       appName: newAppName.value,
@@ -219,7 +219,7 @@ const addNewApp = () => {
 
 const openExternal = () => {
   shell.openExternal(
-    "https://danalites.github.io/autool/docs/basics/apps-macos-display"
+    "https://danalite.github.io/autool/docs/basics/apps-macos-display"
   );
 };
 

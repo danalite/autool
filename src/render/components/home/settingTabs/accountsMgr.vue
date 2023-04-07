@@ -30,16 +30,18 @@
       <n-input-group-label size="small">
         {{ $t("settings.accounts.appHome") }}
       </n-input-group-label>
+
       <n-input
         size="small"
         v-model:value="appHome"
+        disabled
         type="text"
         style="width: 240px"
       />
 
       <n-button
         secondary
-        @click="onAppHomeChange"
+        @click="openAppHome"
         :bordered="false"
         :type="'success'"
         size="small"
@@ -79,7 +81,7 @@ import {
 } from "naive-ui";
 
 import { ref } from "vue";
-import { ipcRenderer } from "electron";
+import { shell } from "electron";
 import { appConfig } from "@/utils/main/config";
 import { Refresh, Check } from "@vicons/tabler";
 
@@ -91,8 +93,9 @@ const availableLocales = [
   { label: "简体中文", value: "zh" },
 ];
 
-const onAppHomeChange = async () => {
-  await ipcRenderer.invoke("to-console", { action: "reload-apps" });
+// Open appHome folder
+const openAppHome = async () => {
+    shell.openPath(appHome.value);
 };
 
 const appHome = ref(appConfig.get("appHome"));

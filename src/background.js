@@ -2,7 +2,7 @@ import {
   app,
   dialog,
   systemPreferences,
-  BrowserWindow,
+  BrowserWindow, Menu,
   ipcMain
 } from 'electron'
 
@@ -47,6 +47,20 @@ if (process.defaultApp) {
 } else {
   app.setAsDefaultProtocolClient('autool')
 }
+
+const dockMenu = Menu.buildFromTemplate([
+  {
+    label: 'New Window',
+    click () { console.log('New Window') }
+  }, {
+    label: 'New Window with Settings',
+    submenu: [
+      { label: 'Basic' },
+      { label: 'Pro' }
+    ]
+  },
+  { label: 'New Command...' }
+])
 
 // Backend PyWebsocket server
 let subPy = null;
@@ -139,19 +153,14 @@ const init = async () => {
     protocolHandler(url, mainWindow)
   })
 
-  mainWindow = await createMainWindow(userHeader)
-  assistWindow = await createAssistWindow(userHeader)
-  ipcListener(mainWindow, assistWindow)
-  
-  // assistWindow.on('blur', () => {
-  //   if (!assistWindow.webContents.isDevToolsOpened()) {
-  //     assistWindow.hide()
-  //   }
-  // })
   if (process.platform === "darwin") {
-    let enabled = systemPreferences.isTrustedAccessibilityClient(true)
-    console.log("[ NodeJS ] OSX accessibility status: ", enabled)
+    // let enabled = systemPreferences.isTrustedAccessibilityClient(true)
+    // console.log("[ NodeJS ] OSX accessibility status: ", enabled)
   }
+
+  assistWindow = await createAssistWindow(userHeader)
+  mainWindow = await createMainWindow(userHeader, iconPath)
+  ipcListener(mainWindow, assistWindow)
 
   uioStartup(assistWindow)
   makeTray(iconPath, mainWindow, assistWindow)
@@ -164,6 +173,10 @@ const init = async () => {
 
 app.whenReady().then(async () => {
   await init()
+  app.dock.setIcon(iconPath)
+  app.dock.setMenu(dockMenu)
+  app.dock.show()
+
   app.on('activate', async () => {
 
     // On macOS it's common to re-create a window in the app when the
@@ -241,19 +254,13 @@ app.whenReady().then(async () => {
 
 // Setup before launching GUI window
 const appSetup = async () => {
-  let appHome = appConfig.get('appHome')
   let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
 
-  // Set to local apps folder by default
-  if (appHome === '') {
-    appHome = path.join(userPath, 'scripts')
-    // let user = require("os").userInfo().username
-    // appHome = `/Users/${user}/Desktop/apps/`
-    if (!fs.existsSync(appHome)){
-      fs.mkdirSync(appHome, { recursive: true });
-    }
-    appConfig.set('appHome', appHome)
+  let appHome = path.join(userPath, 'scripts')
+  if (!fs.existsSync(appHome)){
+    fs.mkdirSync(appHome, { recursive: true });
   }
+  appConfig.set('appHome', appHome)
 
   let logPath = path.join(userPath, 'logs')
   if (!fs.existsSync(logPath)){

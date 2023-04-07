@@ -52,7 +52,7 @@ export const appConfig = new Store({
       {
         'isChecked': true,
         'label': "AuTool Documents",
-        'value': "https://danalites.github.io/autool/",
+        'value': "https://danalite.github.io/autool/",
       }],
     'isLocalServerActive': false,
     'remoteServer': {

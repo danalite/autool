@@ -6,7 +6,7 @@ export const createAssistWindow = async (userHeader) => {
   const currentScreen = screen.getPrimaryDisplay()['size']
   appConfig.set('assistWinSize', currentScreen)
   const assistWin = new BrowserWindow({
-    title: 'autoolAssist',
+    title: 'Canvas',
     frame: false,
     transparent: true,
     // closable: false,
@@ -47,8 +47,8 @@ export const createAssistWindow = async (userHeader) => {
 
   assistWin.setIgnoreMouseEvents(true);
   assistWin.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-  assistWin.setAlwaysOnTop(true, 'floating', 1)
-  assistWin.setFocusable(true);
+  // assistWin.setAlwaysOnTop(true, 'floating', 1)
+  // assistWin.setFocusable(true);
 
   if (process.env.npm_lifecycle_event === "electron:serve") {
     assistWin.webContents.openDevTools()

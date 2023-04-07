@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { ipcMain, app } from "electron";
 import { appConfig } from "@/utils/main/config";
 import { addApp, addTask, deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
 import { registerUioEvent } from "@/utils/main/uioListener";
@@ -65,10 +65,6 @@ export const ipcListener = (mainWindow, assistWindow) => {
     assistWindow.setIgnoreMouseEvents(...args);
   });
 
-  ipcMain.handle("assist-focus", () => {
-    assistWindow.focus();
-  });
-
   // Proxy message from main window to assist window
   // https://stackoverflow.com/a/40251412
   ipcMain.on('to-assist-window', (event, message) => {
@@ -81,7 +77,7 @@ export const ipcListener = (mainWindow, assistWindow) => {
   })
 
   // read or update local apps, invoke shell command (from windows)
-  ipcMain.handle('to-console', async (event, message) => {
+  ipcMain.on('to-console', async (event, message) => {
     let action = message.action
 
     if (action === "reload-apps") {

@@ -2,7 +2,7 @@ import { BrowserWindow } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { appConfig } from '@/utils/main/config'
 
-export const createMainWindow = async (userHeader) => {
+export const createMainWindow = async (userHeader, iconPath) => {
   let dim = appConfig.get('mainWindowDimension')
   let pos = appConfig.get('mainWindowPosition')
 
@@ -29,6 +29,8 @@ export const createMainWindow = async (userHeader) => {
     y: pos.y,
     width: dim.width,
     height: dim.isCollapsed ? 40 : dim.height,
+    icon: iconPath,
+
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

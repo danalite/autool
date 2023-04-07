@@ -1,9 +1,11 @@
 ## TODOs
 - [ ] Click app icon to show documents
-- [ ] Task or app renaming
 
 ## 2023-04
-- [x] API: `window.capture` to grab the screen
+- [ ] Add an initial app download list for new users
+- [ ] Deprecate the `user.notify` and `user.input` in favor of `user.prompt`
+- [ ] Deprecate Media servers in settings
+- [ ] API: `window.capture` to grab the screen
 - [ ] DOC: update document site
 - [x] README: canvas annotation example
 - [ ] Example: app usage tour of docker (one-at-a-time mode)

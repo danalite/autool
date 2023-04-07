@@ -192,7 +192,7 @@ onMounted(() => {
     hotkeyTasksCache.forEach((task) => {
       // console.log("Registering hotkey: ", task);
       tasksStatusTable.value.push(task);
-      ipcRenderer.invoke("to-console", {
+      ipcRenderer.send("to-console", {
         action: "uio-event",
         type: "hotkeyWait",
         source: task.taskName,
@@ -223,7 +223,7 @@ const ProcessTarget = Object.freeze({
 const proxyMsg = (target, msg) => {
   switch (target) {
     case ProcessTarget.MainProcess:
-      ipcRenderer.invoke("to-console", msg);
+      ipcRenderer.send("to-console", msg);
       break;
     case ProcessTarget.AssistWindow:
       ipcRenderer.invoke("to-assist", msg);
@@ -267,7 +267,7 @@ const backendEventHook = (msg) => {
     case EventType.O_EVENT_HOOK_REQ:
       // blocking (keyWait) 
       // non-blocking: event.on(__KEY__, configs)
-      ipcRenderer.invoke("to-console", {
+      ipcRenderer.send("sole", {
         action: "uio-event",
         type: value.type,
         source: msg.taskName,
@@ -375,7 +375,7 @@ const runTask = async (task) => {
     message.success(`"${task.relTaskPath}"" bind with ${task.hotkey}`);
 
     // The hotkey remains registered until the task is stopped
-    await ipcRenderer.invoke("to-console", {
+    ipcRenderer.send("to-console", {
       action: "uio-event",
       type: "hotkeyWait",
       source: task.relTaskPath,
@@ -418,7 +418,7 @@ const stopTask = (task) => {
 
   if (isHotkeyTask) {
     // Unregister hotkey bind with the task
-    ipcRenderer.invoke("to-console", {
+    ipcRenderer.send("to-console", {
       action: "uio-event",
       type: "hotkeyRemove",
       taskId: task.id,
@@ -506,7 +506,7 @@ const menuOptions = [
 ];
 
 const refreshApps = async () => {
-  await ipcRenderer.invoke("to-console", { action: "reload-apps" });
+  ipcRenderer.send("to-console", { action: "reload-apps" });
   apps.value = appConfig.get("apps");
 };
 </script>

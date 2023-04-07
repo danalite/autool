@@ -56,7 +56,7 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         label: "Help",
         click: () => {
           process.nextTick(() => {
-            shell.openExternal("https://github.com/danalites/autool/issues");
+            shell.openExternal("https://github.com/danalite/autool/issues");
           });
         },
       },
@@ -64,8 +64,8 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         label: "About",
         click() {
           dialog.showMessageBox({
-            title: "AuTool copyright © 2023 Danalites LTD",
-            message: "Software Automation Framework",
+            title: "AuTool © DANALITE Technology",
+            message: "Software Automation Platform",
             detail: `version: ${pkg.version}\n`,
           });
         },

@@ -456,7 +456,7 @@ const appOptions = [
 const myNewTaskModal = ref(null);
 const handleAppAction = async (key, app) => {
   if (key === "delete") {
-    await ipcRenderer.invoke("to-console", {
+    ipcRenderer.send("to-console", {
       action: "delete-app",
       appPath: app.path,
     });
@@ -507,7 +507,7 @@ const handleTaskAction = async (key) => {
   } else if (key === "edit") {
     shell.openExternal(`vscode://file/${activeSelectedTask.value.absTaskPath}`);
   } else if (key === "delete") {
-    await ipcRenderer.invoke("to-console", {
+    ipcRenderer.send("to-console", {
       action: "delete-task",
       appPath: activeSelectedTask.value.appPath,
       taskPath: activeSelectedTask.value.absTaskPath,
@@ -534,7 +534,7 @@ const handleContextMenu = (e, task) => {
 
 const handleTaskChecked = async (isChecked, task) => {
   // Update local task config
-  await ipcRenderer.invoke("to-console", {
+  ipcRenderer.send("to-console", {
     action: "update-task-configs",
     taskPath: task.absTaskPath,
     key: "shortcut",
@@ -550,7 +550,7 @@ const updateSetupValue = ref("");
 
 const handleToggleProperty = async (task, property) => {
   if (property === "autostart" || property === "remote") {
-    await ipcRenderer.invoke("to-console", {
+    ipcRenderer.send("to-console", {
       action: "update-task-configs",
       taskPath: task.absTaskPath,
       key: property,
@@ -568,7 +568,7 @@ const handleToggleProperty = async (task, property) => {
 
 const saveSetupsToFile = async () => {
   showSetupModal.value = false;
-  await ipcRenderer.invoke("to-console", {
+  ipcRenderer.send("to-console", {
     action: "update-task-configs",
     taskPath: activeSelectedTask.value.absTaskPath,
     key: quickSetupTarget.value,
