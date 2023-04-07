@@ -42,7 +42,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn install
+          yarn install --network-timeout 100000
           yarn global add @vue/cli
           yarn run clean
           yarn run init

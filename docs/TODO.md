@@ -3,6 +3,7 @@
 - [ ] Task or app renaming
 
 ## 2023-04
+- [x] API: `window.capture` to grab the screen
 - [ ] DOC: update document site
 - [x] README: canvas annotation example
 - [ ] Example: app usage tour of docker (one-at-a-time mode)
