@@ -20,9 +20,9 @@ We aim to make AuTool a desktop version of Tampermonkey, featuring lightweight a
 ## Install AuTool
 - Download and install AuTool app from the following links:
 
-[![WinExe](https://img.shields.io/badge/Win.exe-download-green?logo=windows&style=flat-square)](https://github.com/danalite/autool/releases)
-[![MacOS](https://img.shields.io/badge/MacOS.dmg-download-green?logo=apple&style=flat-square)](https://github.com/danalite/autool/releases)
-[![Ubuntu](https://img.shields.io/badge/Ubuntu.deb-download-green?logo=ubuntu&style=flat-square)](https://github.com/danalite/autool/releases)
+[![WinExe](https://img.shields.io/badge/win32-download-green?logo=windows&style=flat-square)](https://github.com/danalite/autool/releases)
+[![MacOS](https://img.shields.io/badge/osx64-download-green?logo=apple&style=flat-square)](https://github.com/danalite/autool/releases)
+[![Ubuntu](https://img.shields.io/badge/amd64-download-green?logo=ubuntu&style=flat-square)](https://github.com/danalite/autool/releases)
 
 - Once you have installed AuTool, you can download your desired scripts from [our website](https://danalite.github.io/autool/). These scripts will then appear in the AuTool task manager, where they can be executed with a single click.
 
