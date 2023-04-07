@@ -141,7 +141,8 @@ const init = async () => {
 
   mainWindow = await createMainWindow(userHeader)
   assistWindow = await createAssistWindow(userHeader)
-
+  ipcListener(mainWindow, assistWindow)
+  
   // assistWindow.on('blur', () => {
   //   if (!assistWindow.webContents.isDevToolsOpened()) {
   //     assistWindow.hide()
@@ -158,7 +159,6 @@ const init = async () => {
 
   // Setting up app path and server checking
   await appSetup()
-  ipcListener(mainWindow, assistWindow)
   mainWindow.webContents.send('start-wss-backend', {})
 }
 
