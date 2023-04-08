@@ -50,7 +50,7 @@ const EnglishOptions = {
             emptyText: 'No active tasks',
         },
         later: {
-            title: 'Later',
+            title: 'Scheduled',
         },
         hotkey: {
             title: 'Hotkey',

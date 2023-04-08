@@ -6,7 +6,7 @@
     <div>
       <n-tabs type="segment">
         <n-tab-pane name="download" :tab="$t('apps.newApp.download')">
-          <n-space vertical>
+          <n-space vertical v-if="numApps > 0">
             <n-input-group>
               <n-input-group-label size="small">
                 {{ $t("apps.newApp.appLink") }}
@@ -35,6 +35,10 @@
                 {{ $t("apps.newApp.appExamples") }}
               </n-button>
             </n-space>
+          </n-space>
+
+          <n-space v-else>
+            <queryResults :options="exampleApps" :height="'120px'" @customEvent="customEvent" />
           </n-space>
         </n-tab-pane>
         <n-tab-pane name="blank" :tab="$t('apps.newApp.blank')">
@@ -72,7 +76,6 @@
                 :bordered="false"
                 :size="28"
                 :src="newAppIcon"
-                fallback-src="https://pngimg.com/d/apple_logo_PNG19689.png"
                 style="display: block; background-color: #ffffff"
               />
             </n-space>
@@ -135,13 +138,18 @@ import { ref, h } from "vue";
 import { Apps } from "@vicons/tabler";
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
+import queryResults from "../../assist/cards/queryResults.vue";
 
 const { t } = useI18n();
 const message = useMessage();
 
+const numApps = ref(0);
+const appsToDownload = ref([]);
+
 const showAddAppModal = ref(false);
 const show = () => {
   showAddAppModal.value = true;
+  numApps.value = appConfig.get("apps").length;
 };
 
 defineExpose({
@@ -159,6 +167,8 @@ const downloadAppFromGithub = (link) => {
       wsConn = null;
       // const data = JSON.parse(event.data);
       message.success(event.data);
+      ipcRenderer.send("to-console", { action: "reload-apps" });
+
     };
     wsConn.onopen = (event) => {
       wsConn.send(
@@ -185,13 +195,38 @@ const newAppIcon = ref(
   "https://raw.githubusercontent.com/danalite/autool/main/imgs/logo.png"
 );
 
+const exampleApps = [
+  {
+    label: "MacOS-display",
+    url: "https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display",
+    description: "Display the current time and date",
+    src: "https://www.macscreenrepair.com/wp-content/uploads/2022/01/2020-Air.jpg",
+    width: 35
+  },
+  {
+    label: "Mini-Tools",
+    url: "https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools",
+    description: "A set of cross-platform mini tools",
+    src: "https://raw.githubusercontent.com/danalite/autool/main/imgs/logo.png",
+    width: 35
+  }
+];
+
+const customEvent = (data) => {
+  downloadAppFromGithub(data.url);
+};
+
 const addNewApp = () => {
   if (addAppType.value === "download") {
-    if (
+    if (numApps.value == 0) {
+      message.warning("You have no apps installed. Please install one first.");
+      return;
+
+    } else if (
       githubFolderLink.value === "" ||
       !githubFolderLink.value.startsWith("http")
     ) {
-      message.warning("Please enter a valid link");
+      message.warning(`INVALID: ${githubFolderLink.value}`);
       return;
     }
     downloadAppFromGithub(githubFolderLink.value);

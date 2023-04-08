@@ -32,7 +32,6 @@
             v-if="activeMenuItem == 'apps'"
             :apps="apps"
             @runTask="runTask($event)"
-            @refreshApps="refreshApps"
           ></AppLists>
 
           <TaskSch
@@ -45,7 +44,6 @@
 
           <SettingsPage
             v-show="activeMenuItem == 'settings'"
-            @refreshApps="refreshApps"
           />
 
           <!-- <n-layout-footer
@@ -265,7 +263,7 @@ const backendEventHook = (msg) => {
       break;
 
     case EventType.O_EVENT_HOOK_REQ:
-      // blocking (keyWait) 
+      // blocking (keyWait)
       // non-blocking: event.on(__KEY__, configs)
       ipcRenderer.send("sole", {
         action: "uio-event",
@@ -307,7 +305,6 @@ const backendEventHook = (msg) => {
           callback: callback,
           ...value,
         });
-
       } else {
         // Wait for user input (input/select option)
         ipcRenderer.send("to-assist-window", {
@@ -505,10 +502,9 @@ const menuOptions = [
   },
 ];
 
-const refreshApps = async () => {
-  ipcRenderer.send("to-console", { action: "reload-apps" });
+ipcRenderer.on("apps-loaded", (event, message) => {
   apps.value = appConfig.get("apps");
-};
+});
 </script>
 
 <style>

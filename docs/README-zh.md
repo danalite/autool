@@ -10,13 +10,13 @@
 <a href="https://discord.gg/P3t2SvQaZp"><img alt="discord invitation link" src="https://dcbadge.vercel.app/api/server/P3t2SvQaZp?style=flat-square"></a>
 
 
-AuTool是一种用于工作流自动化和数字采纳的脚本/胶水语言。AuTool最初的愿景是作为[AutoHotkey](https://www.autohotkey.com/)的增强版本，旨在支持事件驱动的异步编程、改善用户交互性，以及跨平台使用。它可以用于：
+AuTool是一种用于工作流自动化的软件平台。AuTool最初的愿景是作为[AutoHotkey](https://www.autohotkey.com/)的增强版本，旨在支持事件驱动的异步编程、改善用户交互性，以及跨平台使用。它可以用于：
 
 - 自动化重复任务，例如键盘、鼠标和网络操作
 - 构建交互式 GUI，引导用户使用软件
 - 结合多种软件组件，创建自定义工作流
 
-我们的目标是使 AuTool 成为 Tampermonkey 的桌面版，具有轻量级和个性化脚本，可以轻松安装以满足您的需求。
+我们的目标是使 AuTool 成为桌面版的 Tampermonkey，具有轻量级和个性化脚本，可以轻松安装以满足您的需求。
 
 ## 安装 AuTool
 - 从以下链接下载并安装 AuTool 应用程序：

@@ -1,6 +1,8 @@
 <template>
   <n-list v-show="props.options.length > 0" hoverable :show-divider="false">
-    <n-scrollbar style="max-height: 280px">
+    <n-scrollbar :style="{
+      maxHeight: props.height,
+    }">
       <n-list-item
         v-for="option in props.options"
         :key="option.label"
@@ -45,6 +47,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  height: {
+    type: String,
+    default: "280px",
+  },
 });
 
 const createImgUrl = (ext) => {
@@ -86,7 +92,7 @@ const clickItem = (option) => {
 </script>
 
 <style scoped>
-.emphasis {
+/* .emphasis {
   color: #df4040;
-}
+} */
 </style>

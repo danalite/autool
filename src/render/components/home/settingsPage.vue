@@ -72,7 +72,6 @@ import {
   NListItem,
   NTooltip,
   NCheckboxGroup,
-  useMessage,
   NModal,
   NRadio,
   NSwitch,
@@ -113,9 +112,6 @@ import envVariables from "./settingTabs/envVariables.vue";
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
-
-const emits = defineEmits(["refreshApps"]);
-const message = useMessage();
 
 const collapsed = ref(appConfig.get("isSettingsMenuCollapsed"));
 const subTab = ref("accounts");

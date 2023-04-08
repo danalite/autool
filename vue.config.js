@@ -23,7 +23,7 @@ module.exports = defineConfig({
     electronBuilder: {
       nodeIntegration: true,
       builderOptions: {
-        productName: "AuTool",
+        productName: "autool",
         appId: "com.autool.app",
         copyright: "Danalite PTE LTD",
         extraResources: [
@@ -32,15 +32,16 @@ module.exports = defineConfig({
         directories: {
           output: "release/"
         },
+        artifactName: "${productName}-${version}-${os}${arch}.${ext}",
         mac: {
-          target: ['dmg'],
+          target: ['dmg', 'zip'],
           icon: './imgs/logo.png',
           asar: true
         },
         win: {
           icon: "./imgs/logo.png",
           target: [
-            "portable"
+            "portable", 'zip', 'nsis'
           ]
         },
         linux: {

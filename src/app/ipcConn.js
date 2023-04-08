@@ -83,6 +83,7 @@ export const ipcListener = (mainWindow, assistWindow) => {
     if (action === "reload-apps") {
       const apps = await loadApps(appConfig.get('appHome'))
       appConfig.set('apps', apps.apps)
+      mainWindow.webContents.send("apps-loaded", {})
 
     } else if (action === "delete-app") {
       let appPath = message.appPath

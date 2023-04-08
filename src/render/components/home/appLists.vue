@@ -358,8 +358,6 @@ import { ipcRenderer, shell } from "electron";
 
 import newAppModal from "./modals/newAppModal";
 import newTaskModal from "./modals/newTaskModal";
-
-import { EventType } from "@/utils/render/eventTypes";
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
@@ -369,7 +367,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(["runTask", "refreshApps"]);
+const emits = defineEmits(["runTask"]);
 const message = useMessage();
 
 const loadingTaskIndex = ref(-1);
@@ -405,13 +403,13 @@ const displayTasks = computed(() => {
 
 onMounted(() => {
   setTimeout(() => {
-    emits("refreshApps", {});
+    ipcRenderer.send("to-console", { action: "reload-apps" });
   }, 1200);
 });
 
 const activateApp = (index) => {
   activeAppIndex.value = index;
-  emits("refreshApps", {});
+  ipcRenderer.send("to-console", { action: "reload-apps" });
 };
 
 const showDropdownRef = ref(false);
@@ -460,7 +458,7 @@ const handleAppAction = async (key, app) => {
       action: "delete-app",
       appPath: app.path,
     });
-    emits("refreshApps", {});
+    ipcRenderer.send("to-console", { action: "reload-apps" });
     message.warning(`deleted app ${app.author}/${app.app}`);
   
   } else if (key === "edit") {
@@ -514,7 +512,7 @@ const handleTaskAction = async (key) => {
       taskName: activeSelectedTask.value.relTaskPath,
     });
 
-    emits("refreshApps", {});
+    ipcRenderer.send("to-console", { action: "reload-apps" });
     // message.info(`delete task ${activeSelectedTask.value.relTaskPath}`);
   } else if (key === "showLog") {
     // message.info("Show log");
@@ -540,7 +538,7 @@ const handleTaskChecked = async (isChecked, task) => {
     key: "shortcut",
     update: isChecked,
   });
-  emits("refreshApps", {});
+  ipcRenderer.send("to-console", { action: "reload-apps" });
 };
 
 // Toggle autostart, remote, time, hotkey
@@ -563,7 +561,7 @@ const handleToggleProperty = async (task, property) => {
     showSetupModal.value = true;
     quickSetupTarget.value = property;
   }
-  emits("refreshApps", {});
+  ipcRenderer.send("to-console", { action: "reload-apps" });
 };
 
 const saveSetupsToFile = async () => {
@@ -574,7 +572,7 @@ const saveSetupsToFile = async () => {
     key: quickSetupTarget.value,
     update: updateSetupValue.value,
   });
-  emits("refreshApps", {});
+  ipcRenderer.send("to-console", { action: "reload-apps" });
 };
 
 // Create dialog for new tasks
