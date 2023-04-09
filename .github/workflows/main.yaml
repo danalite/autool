@@ -36,7 +36,7 @@ jobs:
         with:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # - name: Install system deps
+      - name: Install system deps
         if: matrix.os == 'windows-latest'
         run: |
           yarn config get
