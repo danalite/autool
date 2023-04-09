@@ -62,14 +62,6 @@
       {{ $t("settings.services.EventSource.title") }}
     </n-divider>
 
-    <n-transfer
-      ref="transfer"
-      source-filterable
-      source-filter-placeholder="Search"
-      v-model:value="sourceValue"
-      :options="sourceOptions"
-      :render-target-label="renderLabel"
-    />
   </n-space>
 </template>
 
@@ -83,16 +75,14 @@ import {
   NInput,
   NButton,
   NDivider,
-  NTransfer,
   NAvatar,
   NTag,
   useMessage,
 } from "naive-ui";
 
-import { ref, nextTick, h, computed, onMounted, reactive } from "vue";
+import { ref, h, computed, onMounted } from "vue";
 import { Check, Refresh } from "@vicons/tabler";
 
-import { request } from "@/utils/render/request";
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
@@ -103,53 +93,5 @@ setInterval(() => {
   isLocalServerActive.value = appConfig.get("isLocalServerActive");
 }, 1000);
 
-const sourceOptions = [
-  {
-    label: "Amazon deals",
-    value: "https://avatars.githubusercontent.com/u/18677354?s=60&v=4",
-  },
-  {
-    label: "Arxiv daily",
-    value: "https://avatars.githubusercontent.com/u/34439652?s=60&v=4",
-  },
-  {
-    label: "News daily",
-    value: "https://avatars.githubusercontent.com/u/46394163?s=60&v=4",
-  },
-];
 
-const sourceValue = ref([]);
-const renderLabel = function ({ option }) {
-  return h(
-    "div",
-    {
-      style: {
-        display: "flex",
-        margin: "6px 0",
-      },
-    },
-    {
-      default: () => [
-        h(NAvatar, {
-          round: false,
-          src: option.value,
-          size: "small",
-          fallbackSrc:
-            "https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg",
-        }),
-        h(
-          "div",
-          {
-            style: {
-              display: "flex",
-              marginLeft: "6px",
-              alignSelf: "center",
-            },
-          },
-          { default: () => option.label }
-        ),
-      ],
-    }
-  );
-};
 </script>

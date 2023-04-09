@@ -54,10 +54,16 @@ jobs:
         if: matrix.os == 'windows-latest'
         # https://github.com/nodejs/node-gyp/issues/2482
         run: |
-          Remove-Item -Recurse -Force "$env:LocalAppData\node-gyp\Cache" -ErrorAction SilentlyContinue
+          $path = "$env:LocalAppData\node-gyp\Cache"
+          if (Test-Path -LiteralPath $path) {
+            Remove-Item -LiteralPath $path -Recurse -Verbose
+          } else {
+            "Path doesn't exist: $path"
+          }
       
       - name: Install
         run: |
+          yarn cache clean
           yarn install --network-timeout 100000
           yarn run clean
           yarn run init

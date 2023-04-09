@@ -2,7 +2,7 @@ import {
   screen,
   ipcMain,
   globalShortcut,
-  desktopCapturer,
+  // desktopCapturer,
   shell
 } from 'electron'
 
