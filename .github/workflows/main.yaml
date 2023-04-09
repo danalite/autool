@@ -56,7 +56,7 @@ jobs:
           rmdir /s /q %LocalAppData%\node-gyp\Cache
       
       - name: Install
-        run:
+        run: |
           yarn install --network-timeout 100000
           yarn run clean
           yarn run init
