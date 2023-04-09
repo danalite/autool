@@ -37,12 +37,15 @@ jobs:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       # - name: Install system deps
-      #   if: matrix.os == 'ubuntu-latest'
-      #   run: |
-      #     sudo snap install snapcraft --classic  
+        if: matrix.os == 'windows-latest'
+        run: |
+          yarn config get
+          yarn config set msvs_version 2022 --global
 
       - name: Install dependencies
         run: |
+          yarn global add node-gyp
+          yarn cache clean
           yarn install --network-timeout 100000
           yarn global add @vue/cli
           yarn run clean
