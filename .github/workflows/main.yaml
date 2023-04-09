@@ -43,7 +43,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install --network-timeout 100000
+          npm config set timeout 6000000
+          npm install
           npm install -g @vue/cli
           npm run clean
           npm run init
