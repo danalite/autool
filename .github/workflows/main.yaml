@@ -52,8 +52,9 @@ jobs:
       
       - name: Clear cache
         if: matrix.os == 'windows-latest'
+        # https://github.com/nodejs/node-gyp/issues/2482
         run: |
-          Remove-Item -Recurse -Force "$env:LocalAppData\node-gyp\Cache"
+          Remove-Item -Recurse -Force "$env:LocalAppData\node-gyp\Cache" -ErrorAction SilentlyContinue
       
       - name: Install
         run: |
