@@ -32,7 +32,7 @@ module.exports = defineConfig({
         directories: {
           output: "release/"
         },
-        artifactName: "${productName}-${version}-${os}${arch}.${ext}",
+        artifactName: "${productName}-${version}-${os}-${arch}.${ext}",
         mac: {
           target: ['dmg', 'zip'],
           icon: './imgs/logo.png',
@@ -41,7 +41,7 @@ module.exports = defineConfig({
         win: {
           icon: "./imgs/logo.png",
           target: [
-            "portable", 'zip', 'nsis'
+            "portable", 'zip'
           ]
         },
         linux: {
