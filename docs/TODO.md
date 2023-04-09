@@ -3,6 +3,7 @@
 - [ ] Tauri + Vite with Python sidecar
 
 ## 2023-04
+- [ ] Support prompt sessions (for long-running dialogs)
 - [ ] Support of libauto to connect with cloud monitor
 - [ ] Remove the service-transfer section; replace it with API call stats
 - [ ] Add electron-updater to auto-update the app
