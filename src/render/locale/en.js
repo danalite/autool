@@ -10,7 +10,7 @@ const EnglishOptions = {
         },
         task: {
             edit: 'Edit Task',
-            debug: 'Open logs',
+            debug: 'Debug',
             delete: 'Delete Task',
             rerun: 'Rerun',
         },
@@ -18,7 +18,7 @@ const EnglishOptions = {
             title: 'New App',
             download: 'Download App',
             blank: 'Empty App',
-            appExamples: 'Discover and download example apps',
+            official: 'Community Apps',
             appName: 'App Name',
             appIcon: 'App Icon',
             appLink: 'App Link',
@@ -75,21 +75,18 @@ const EnglishOptions = {
             title: 'Services',
             taskServer: {
                 title: 'Task Server',
-                local: 'Local Server',
-                remote: 'Remote Server',
+                local: 'Local worker',
+                remote: 'Cloud worker',
             },
 
-            mediaServer: {
-                title: 'Media Server',
-                ocrServer: 'Text OCR',
-                textParser: 'Text Parser',
-                uiDetector: 'Icon Detector',
+            EventSource: {
+                title: 'Message Subscription',
             },
 
         },
 
         helpers: {
-            title: 'Helpers',
+            title: 'Bookmarks',
             placeholderName: 'Name',
             placeholderUrl: 'URL',
         },

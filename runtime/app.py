@@ -12,7 +12,7 @@ active_conns = dict()
 ts = new_task_sch()
 
 
-async def eventQueueListener(task_sch):
+async def event_queue_listener(task_sch):
     while len(task_sch.event_proxy.o_queue) == 0:
         await asyncio.sleep(random.random() * 1)
     events = task_sch.event_proxy.o_queue.copy()
@@ -31,16 +31,16 @@ async def loopMain(websocket):
                     f"[WARNING] Mainloop ConnectionClosed {websocket}. Exiting MainLoop executor...")
                 break
 
-            userEvent = asyncio.ensure_future(websocket.recv())
-            backendEvent = asyncio.ensure_future(
-                eventQueueListener(ts))
+            frontend_event = asyncio.ensure_future(websocket.recv())
+            backend_event = asyncio.ensure_future(
+                event_queue_listener(ts))
 
             done, pending = await asyncio.wait(
-                [userEvent, backendEvent],
+                [frontend_event, backend_event],
                 return_when=asyncio.FIRST_COMPLETED)
 
-            if userEvent in done:
-                message = json.loads(userEvent.result())
+            if frontend_event in done:
+                message = json.loads(frontend_event.result())
                 if message["event"] == "I_EVENT_WSS_REQ":
                     action = message["action"]
                     if action == "Shutdown":
@@ -52,16 +52,16 @@ async def loopMain(websocket):
                     ts.event_proxy.resolve(message)
 
             else:
-                userEvent.cancel()
+                frontend_event.cancel()
 
-            if (backendEvent in done) or backendEvent.done():
-                events = backendEvent.result()
+            if (backend_event in done) or backend_event.done():
+                events = backend_event.result()
                 # print("(O_Event)", events)
                 for event in events:
                     await websocket.send(json.dumps(event))
 
             else:
-                backendEvent.cancel()
+                backend_event.cancel()
 
             await asyncio.sleep(random.random() * 0.2)
 

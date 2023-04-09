@@ -459,10 +459,11 @@ const handleAppAction = async (key, app) => {
       appPath: app.path,
     });
     ipcRenderer.send("to-console", { action: "reload-apps" });
-    message.warning(`deleted app ${app.author}/${app.app}`);
+    message.warning(`App ${app.author}/${app.app} is deleted.`);
   
   } else if (key === "edit") {
-    shell.openExternal(`vscode://file/${app.path}`);
+    shell.openPath(app.path);
+    // shell.openExternal(`vscode://file/${app.path}`);
 
   } else if (key == "new") {
     let appName = props.apps[activeAppIndex.value].app

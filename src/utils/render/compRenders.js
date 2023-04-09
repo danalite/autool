@@ -20,8 +20,8 @@ export const renderTitle = (title) => {
               style: {
                 "font-size": "15px",
                 "line-height": "0px",
-                color: "#3a4dbf",
-                "font-family": '"Lucida Console", "Courier New", monospace',
+                "color": "#df4040",
+                'font-weight': 'bold'
               },
             },
             {

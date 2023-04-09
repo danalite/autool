@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./demos/banner.png" height="95" title="main">
+  <img src="./docs/banner.png" height="95" title="main">
 </p>
 
 [Documents](https://danalite.github.io/autool/) | [APIs](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
@@ -27,7 +27,7 @@ We aim to make AuTool a desktop version of Tampermonkey, featuring lightweight a
 - Once you have installed AuTool, you can download your desired scripts from [our website](https://danalite.github.io/autool/). These scripts will then appear in the AuTool task manager, where they can be executed with a single click.
 
 <p align="center">
-  <img src="./demos/example.png" width="90%" title="AuTool">
+  <img src="./docs/example.png" width="90%" title="AuTool">
 </p>
 
 ## Usage
@@ -38,7 +38,7 @@ We aim to make AuTool a desktop version of Tampermonkey, featuring lightweight a
 
 Install new scripts            |  Taskbar
 :-------------------------:|:-------------------------:
-<img src="./demos/demo-new-task.gif" width=450 title="new"> |  <img src="./demos/demo-taskbar.gif" width=450  title="taskbar">
+<img src="./docs/demo-new-task.gif" width=450 title="new"> |  <img src="./docs/demo-taskbar.gif" width=450  title="taskbar">
 
 ### Interact with Script
 - *Pop-up dialog*: an AuTool script may ask for user input by displaying a pop-up dialog. The dialog can be used to collect user input, or to display information to the user.
@@ -47,7 +47,7 @@ Install new scripts            |  Taskbar
 
 Pop-up dialog             |  Screen annotation
 :-------------------------:|:-------------------------:
-<img src="./demos/demo-daily-vocabulary.gif" width=450 title="dialog"> | <img src="./demos/demo-annotation.gif" width=450  title="annotation">
+<img src="./docs/demo-daily-vocabulary.gif" width=450 title="dialog"> | <img src="./docs/demo-annotation.gif" width=450  title="annotation">
 
 ## Example AuTool Scripts
 [![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)

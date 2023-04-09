@@ -18,7 +18,7 @@ const ChineseOptions = {
             title: '新建应用',
             download: '下载应用',
             blank: '空白应用',
-            appExamples: '下载官方内置应用',
+            official: '社区应用',
             appName: '应用名称',
             appIcon: '应用图标',
             appLink: '应用链接',
@@ -79,17 +79,14 @@ const ChineseOptions = {
                 remote: '远程服务',
             },
 
-            mediaServer: {
-                title: '图片音频处理',
-                ocrServer: '文字识别',
-                textParser: '文字解析',
-                uiDetector: '图标识别',
+            EventSource: {
+                title: '消息源',
             },
 
         },
 
         helpers: {
-            title: '辅助窗口',
+            title: '书签窗口',
             placeholderName: '名称',
             placeholderUrl: '网址',
         },

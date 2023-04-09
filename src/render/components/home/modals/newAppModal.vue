@@ -5,8 +5,15 @@
     </template>
     <div>
       <n-tabs type="segment">
+        <n-tab-pane name="official" :tab="$t('apps.newApp.official')">
+          <queryResults
+            :options="exampleApps"
+            :height="'120px'"
+            @customEvent="customEvent"
+          />
+        </n-tab-pane>
         <n-tab-pane name="download" :tab="$t('apps.newApp.download')">
-          <n-space vertical v-if="numApps > 0">
+          <n-space vertical>
             <n-input-group>
               <n-input-group-label size="small">
                 {{ $t("apps.newApp.appLink") }}
@@ -19,26 +26,6 @@
                 placeholder="https://github.com/danalite/apps/tree/master/macos"
               />
             </n-input-group>
-
-            <n-space justify="center">
-              <n-button
-                quaternary
-                size="small"
-                type="primary"
-                @click="openExternal"
-              >
-                <template #icon>
-                  <n-icon>
-                    <Apps />
-                  </n-icon>
-                </template>
-                {{ $t("apps.newApp.appExamples") }}
-              </n-button>
-            </n-space>
-          </n-space>
-
-          <n-space v-else>
-            <queryResults :options="exampleApps" :height="'120px'" @customEvent="customEvent" />
           </n-space>
         </n-tab-pane>
         <n-tab-pane name="blank" :tab="$t('apps.newApp.blank')">
@@ -168,7 +155,6 @@ const downloadAppFromGithub = (link) => {
       // const data = JSON.parse(event.data);
       message.success(event.data);
       ipcRenderer.send("to-console", { action: "reload-apps" });
-
     };
     wsConn.onopen = (event) => {
       wsConn.send(
@@ -201,15 +187,15 @@ const exampleApps = [
     url: "https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display",
     description: "Display the current time and date",
     src: "https://www.macscreenrepair.com/wp-content/uploads/2022/01/2020-Air.jpg",
-    width: 35
+    width: 35,
   },
   {
     label: "Mini-Tools",
     url: "https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools",
     description: "A set of cross-platform mini tools",
     src: "https://raw.githubusercontent.com/danalite/autool/main/imgs/logo.png",
-    width: 35
-  }
+    width: 35,
+  },
 ];
 
 const customEvent = (data) => {
@@ -221,7 +207,6 @@ const addNewApp = () => {
     if (numApps.value == 0) {
       message.warning("You have no apps installed. Please install one first.");
       return;
-
     } else if (
       githubFolderLink.value === "" ||
       !githubFolderLink.value.startsWith("http")
@@ -230,7 +215,6 @@ const addNewApp = () => {
       return;
     }
     downloadAppFromGithub(githubFolderLink.value);
-    
   } else {
     if (
       newAppName.value === "" ||
@@ -252,11 +236,6 @@ const addNewApp = () => {
   showAddAppModal.value = false;
 };
 
-const openExternal = () => {
-  shell.openExternal(
-    "https://danalite.github.io/autool/docs/basics/apps-macos-display"
-  );
-};
 
 ipcRenderer.on("download", (event, data) => {
   githubFolderLink.value = data;

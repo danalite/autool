@@ -32,7 +32,7 @@ const path = require('path')
 const devMode = process.env.npm_lifecycle_event === "electron:serve"
 
 const iconPath = path.join(
-  `${__dirname}/../imgs`, 'logo.png',
+  `${__dirname}/../imgs`, 'logo-medium.png',
 )
 
 const userHeader = userAgentList[Math.floor((Math.random() * userAgentList.length))]
@@ -68,7 +68,7 @@ let subPyExited = false
 let isRestartEnabled = false
 let confirmQuit = false
 
-const PY_SRC_FOLDER = "../backend"
+const PY_SRC_FOLDER = "../runtime"
 const PY_MODULE = "app.py"
 
 const getPythonScriptPath = () => {

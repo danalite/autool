@@ -1,11 +1,13 @@
-## TODOs
-- [ ] Click app icon to show documents
+### WIP
+- [ ] Migrate to Vite + Electron-Builder
+- [ ] Tauri + Vite with Python sidecar
 
 ## 2023-04
-- [ ] Migrate to Vite + Electron-Builder
-- [ ] Add an initial app download list for new users
+- [ ] Add electron-updater to auto-update the app
+- [x] Remove special fonts in popup text
+- [x] Add an initial app download list for new users
 - [ ] Deprecate the `user.notify` and `user.input` in favor of `user.prompt`
-- [ ] Deprecate Media servers in settings
+- [x] Deprecate Media servers in settings
 - [ ] API: `window.capture` to grab the screen
 - [ ] DOC: update document site
 - [x] README: canvas annotation example

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../demos/banner.png" height="95" title="main">
+  <img src="../docs/banner.png" height="95" title="main">
 </p>
 
 [文档](https://danalite.github.io/autool/) | [APIs](https://danalite.github.io/autool/) 
@@ -27,7 +27,7 @@ AuTool是一种用于工作流自动化的软件平台。AuTool最初的愿景�
 
 - 安装了 AuTool 后，您可以从[我们的网站](https://danalite.github.io/autool/)下载所需的脚本。这些脚本将出现在 AuTool 任务管理器中，可以通过单击执行。
 <p align="center">
-  <img src="../demos/example.png" width="90%" title="AuTool">
+  <img src="../docs/example.png" width="90%" title="AuTool">
 </p>
 
 ## 使用
@@ -38,7 +38,7 @@ AuTool是一种用于工作流自动化的软件平台。AuTool最初的愿景�
 
 Install new scripts            |  Taskbar
 :-------------------------:|:-------------------------:
-<img src="../demos/demo-new-task.gif" width=450 title="new"> |  <img src="../demos/demo-taskbar.gif" width=450  title="taskbar">
+<img src="../docs/demo-new-task.gif" width=450 title="new"> |  <img src="../docs/demo-taskbar.gif" width=450  title="taskbar">
 
 ### 与脚本交互
 - *弹出对话框*：AuTool脚本可以通过显示弹出对话框来要求用户输入。该对话框可用于收集用户输入或向用户显示信息。
@@ -47,7 +47,7 @@ Install new scripts            |  Taskbar
 
 弹出对话框             |  屏幕注释
 :-------------------------:|:-------------------------:
-<img src="../demos/demo-daily-vocabulary.gif" width=450 title="dialog"> | <img src="../demos/demo-annotation.gif" width=450  title="annotation">
+<img src="../docs/demo-daily-vocabulary.gif" width=450 title="dialog"> | <img src="../docs/demo-annotation.gif" width=450  title="annotation">
 
 ## AuTool示例脚本
 [![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)

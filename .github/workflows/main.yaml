@@ -37,9 +37,11 @@ jobs:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Install system deps
+        # https://github.com/actions/runner-images/blob/win22/20230402.1/images/win/Windows2022-Readme.md
         if: matrix.os == 'windows-latest'
+        # https://github.com/nodejs/node-gyp/issues/1587
         run: |
-          yarn config get
+          yarn config list
           yarn config set msvs_version 2022 --global
 
       - name: Install dependencies

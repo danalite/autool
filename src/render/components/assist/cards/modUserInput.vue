@@ -106,10 +106,7 @@ const renderCheckbox = (content) => {
                                     {
                                       style: {
                                         "font-size": "14px",
-                                        "line-height": "0px",
-                                        color: "#3a4dbf",
-                                        "font-family":
-                                          '"Lucida Console", "Courier New", monospace',
+                                        "line-height": "0px"
                                       },
                                     },
                                     { default: () => option.label }
@@ -152,9 +149,7 @@ const renderText = (content) => {
               {
                 style: {
                   "font-size": "14px",
-                  "line-height": "0px",
-                  "font-family":
-                    '"Lucida Console", "Courier New", monospace',
+                  "line-height": "0px"
                 },
               },
               { default: () => content.content }

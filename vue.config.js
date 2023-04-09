@@ -28,24 +28,24 @@ module.exports = defineConfig({
         copyright: "Danalite PTE LTD",
         extraResources: [
           { from: './imgs', to: './imgs' },
-          { from: './dist/app', to: './backend' }],
+          { from: './dist/app', to: './runtime' }],
         directories: {
           output: "release/"
         },
         artifactName: "${productName}-${version}-${os}-${arch}.${ext}",
         mac: {
           target: ['dmg', 'zip'],
-          icon: './imgs/logo.png',
+          icon: './imgs/logo-medium.png',
           asar: true
         },
         win: {
-          icon: "./imgs/logo.png",
+          icon: "./imgs/logo-medium.png",
           target: [
             "portable", 'zip'
           ]
         },
         linux: {
-          icon: "./imgs/logo.png",
+          icon: "./imgs/logo-medium.png",
           publish: ["github"],
           target: ["deb"]
         },
