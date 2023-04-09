@@ -36,19 +36,18 @@ jobs:
         with:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Install system deps
-        if: matrix.os == 'windows-latest'
-        run: |
-          npm install --g --production windows-build-tools
+      # - name: Install system deps
+      #   if: matrix.os == 'ubuntu-latest'
+      #   run: |
+      #     sudo snap install snapcraft --classic  
 
       - name: Install dependencies
         run: |
-          npm config set timeout 6000000
-          npm install
-          npm install -g @vue/cli
-          npm run clean
-          npm run init
-          npm run build-py
-          npm run electron:build -- -p always
+          yarn install --network-timeout 100000
+          yarn global add @vue/cli
+          yarn run clean
+          yarn run init
+          yarn run build-py
+          yarn run electron:build -p always
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
