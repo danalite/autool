@@ -51,7 +51,7 @@ if (process.defaultApp) {
 const dockMenu = Menu.buildFromTemplate([
   {
     label: 'New Window',
-    click () { console.log('New Window') }
+    click() { console.log('New Window') }
   }, {
     label: 'New Window with Settings',
     submenu: [
@@ -173,12 +173,13 @@ const init = async () => {
 
 app.whenReady().then(async () => {
   await init()
-  app.dock.setIcon(iconPath)
-  app.dock.setMenu(dockMenu)
-  app.dock.show()
+  if (process.platform === "darwin") {
+    app.dock.setIcon(iconPath)
+    app.dock.setMenu(dockMenu)
+    app.dock.show()
+  }
 
   app.on('activate', async () => {
-
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (subPy == null) {
@@ -257,13 +258,13 @@ const appSetup = async () => {
   let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
 
   let appHome = path.join(userPath, 'scripts')
-  if (!fs.existsSync(appHome)){
+  if (!fs.existsSync(appHome)) {
     fs.mkdirSync(appHome, { recursive: true });
   }
   appConfig.set('appHome', appHome)
 
   let logPath = path.join(userPath, 'logs')
-  if (!fs.existsSync(logPath)){
+  if (!fs.existsSync(logPath)) {
     fs.mkdirSync(logPath, { recursive: true });
   }
   appConfig.set('logPath', logPath + path.sep)

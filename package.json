@@ -2,7 +2,7 @@
   "name": "AuTool",
   "license": "GPL v3",
   "private": true,
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "vrteee <support@autool.site>",
   "main": "background.js",
   "description": "Workflow Automation and Digital Adoption Platform",

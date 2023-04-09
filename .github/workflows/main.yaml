@@ -16,7 +16,8 @@ jobs:
     if: "contains(github.event.head_commit.message, 'release:')"
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        # https://github.com/actions/runner-images
+        os: [macos-latest, windows-2019, ubuntu-latest]
         python-version: [3.9]
 
     steps:
@@ -29,7 +30,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 16.19.1
+          node-version: 16.x
 
       - uses: webfactory/ssh-agent@v0.7.0
         with:
