@@ -3,6 +3,8 @@
 - [ ] Tauri + Vite with Python sidecar
 
 ## 2023-04
+- [ ] Docker-compose monitor service with MonogoDB
+- [ ] Canvas: long press key to enter the edit mode (capture and SAM from there)
 - [ ] Support prompt sessions (for long-running dialogs)
 - [ ] Support of libauto to connect with cloud monitor
 - [ ] Remove the service-transfer section; replace it with API call stats
@@ -12,7 +14,7 @@
 - [ ] Deprecate the `user.notify` and `user.input` in favor of `user.prompt`
 - [x] Deprecate Media servers in settings
 - [ ] API: `window.capture` to grab the screen
-- [ ] DOC: update document site
+- [ ] DOC: update document site with https://github.com/opensumi/docs
 - [x] README: canvas annotation example
 - [ ] Example: app usage tour of docker (one-at-a-time mode)
 - [x] Release v0.02
