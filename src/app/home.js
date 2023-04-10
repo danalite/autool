@@ -27,7 +27,7 @@ export const createMainWindow = async (userHeader, iconPath) => {
 
     x: pos.x,
     y: pos.y,
-    width: dim.width,
+    width: dim.isCollapsed ? 590 : dim.width,
     height: dim.isCollapsed ? 40 : dim.height,
     icon: iconPath,
 

@@ -2,7 +2,6 @@ import {
   screen,
   ipcMain,
   globalShortcut,
-  // desktopCapturer,
   shell
 } from 'electron'
 
@@ -172,6 +171,7 @@ const isConsecutiveKeys = (targetKey) => {
 const detectIcon = (e, reception = { width: 600, height: 120 }) => {
   // https://stackoverflow.com/a/71663530
   const screenSize = screen.getPrimaryDisplay()['size']
+  const { desktopCapturer } = require('electron')
   desktopCapturer.getSources({
     types: ['screen'], thumbnailSize: {
       height: screenSize.height,

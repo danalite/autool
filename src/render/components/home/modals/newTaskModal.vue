@@ -164,6 +164,7 @@ import {
 import { taskTemplates } from "@/utils/render/taskTemplates";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
+const message = useMessage();
 
 const addTaskType = ref("template");
 const macroRecordOptions = ref(["mouse-keys"]);

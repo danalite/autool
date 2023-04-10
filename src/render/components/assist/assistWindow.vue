@@ -20,11 +20,8 @@
             <n-popselect v-model:value="selectType" :options="options">
               <n-button style="width: 400px">
                 <n-ellipsis style="max-width: 380px">
-                  {{
-                selectType || "Popselect"
-              }}
+                  {{ selectType || "Popselect" }}
                 </n-ellipsis>
-
               </n-button>
             </n-popselect>
           </template>
@@ -114,7 +111,9 @@ ipcRenderer.on("toggle-helper-drawer", (event, arg) => {
       showDrawer.value = false;
     });
   } else {
-    options.value = appConfig.get("helperWindowsList").filter((item) => item.isCheck)
+    options.value = appConfig
+      .get("helperWindowsList")
+      .filter((item) => item.isCheck);
     showDrawer.value = true;
   }
 });

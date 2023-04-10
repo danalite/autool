@@ -199,15 +199,13 @@ const exampleApps = [
 ];
 
 const customEvent = (data) => {
+  message.success(`Downloading ${data.label}...`, { duration: 3000 });
   downloadAppFromGithub(data.url);
 };
 
 const addNewApp = () => {
   if (addAppType.value === "download") {
-    if (numApps.value == 0) {
-      message.warning("You have no apps installed. Please install one first.");
-      return;
-    } else if (
+    if (
       githubFolderLink.value === "" ||
       !githubFolderLink.value.startsWith("http")
     ) {

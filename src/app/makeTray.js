@@ -2,26 +2,22 @@ import { app, Menu, nativeImage, Tray, shell, dialog } from "electron";
 import { appConfig } from "@/utils/main/config";
 import pkg from "../../package.json";
 
-let isEditing = false;
-
 // Create a status page (task scheduled or running. notifications etc.)
 export const makeTray = (iconPath, mainWindow, assistWindow) => {
   const icon = nativeImage.createFromPath(iconPath).resize({ width: 20, height: 20 })
   const appIcon = new Tray(icon)
 
   appIcon.setToolTip('AuTool')
-
-  const createContextMenu = () =>
-    Menu.buildFromTemplate([
+  const createContextMenu = Menu.buildFromTemplate([
       {
-        label: "Main Console",
+        label: "Show Console",
         click() {
           mainWindow.show();
           mainWindow.focus();
-        },
+        }
       },
       {
-        label: "Restart",
+        label: "Restart App",
         click() {
           app.relaunch();
           app.quit();
@@ -35,7 +31,8 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
       },
       { type: "separator" },
       {
-        label: "Hide Canvas",
+        label: "Show Canvas",
+        type: "checkbox",
         click: () => {
           if (assistWindow.isVisible()) {
             assistWindow.hide();
@@ -43,13 +40,7 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
             assistWindow.show();
           }
         },
-      },
-      {
-        label: "Edit Canvas",
-        click: () => {
-          assistWindow.setIgnoreMouseEvents(isEditing);
-          isEditing = !isEditing;
-        }
+        checked: true,
       },
       { type: "separator" },
       {
@@ -73,11 +64,9 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
     ]);
 
   appIcon.on("click", () => {
-    appIcon.setContextMenu(createContextMenu());
+    appIcon.setContextMenu(createContextMenu);
     appIcon.popUpContextMenu();
   });
-
-  appIcon.setContextMenu(createContextMenu());
-
+  appIcon.setContextMenu(createContextMenu);
 }
 
