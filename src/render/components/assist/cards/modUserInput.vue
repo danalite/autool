@@ -30,11 +30,11 @@ import {
 import { h, reactive, ref, computed } from "vue";
 import { ipcRenderer, shell } from "electron";
 
-import { handleCopyImg } from "@/utils/render/msgRenders";
+import { handleCopyImg } from "@/utils/render/renderComponents";
 import { ExternalLink } from "@vicons/tabler";
 
 import queryResults from "./queryResults.vue";
-import { renderTitle } from "@/utils/render/compRenders";
+import { renderTitle } from "@/utils/render/renderComponents";
 
 const notification = useNotification();
 const retValues = reactive({});
@@ -106,7 +106,7 @@ const renderCheckbox = (content) => {
                                     {
                                       style: {
                                         "font-size": "14px",
-                                        "line-height": "0px"
+                                        "line-height": "0px",
                                       },
                                     },
                                     { default: () => option.label }
@@ -128,12 +128,11 @@ const renderCheckbox = (content) => {
 const renderText = (content) => {
   return h(
     NSpace,
-    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
+    { vertical: true, style: {} },
     {
       default: () => [
         renderTitle(content.label),
-
-        // Text input or a simple paragraph
+        // Text input or a simple text to display
         content.key != null
           ? h(NInput, {
               style: { "font-size": "14px" },
@@ -149,7 +148,7 @@ const renderText = (content) => {
               {
                 style: {
                   "font-size": "14px",
-                  "line-height": "0px"
+                  "line-height": "0px",
                 },
               },
               { default: () => content.content }
@@ -450,20 +449,20 @@ const renderImageList = (content) => {
   const options = content.content.map((item) => {
     return {
       ...item,
-      width: 100
+      width: 100,
     };
   });
   return h(
-    NSpace, 
-    { vertical : true },
+    NSpace,
+    { vertical: true },
     {
       default: () => [
         renderTitle(content.label),
         h(queryResults, {
           options: options,
-          style: { width: "290px" }
+          style: { width: "290px" },
         }),
-      ]
+      ],
     }
   );
 };
@@ -508,7 +507,7 @@ const renderContent = (content) => {
           src: content.source,
           controls: true,
           volume: content.volume || 0.5,
-          style: { width: "90%", maxHeight: "30px"},
+          style: { width: "90%", maxHeight: "30px" },
         },
         { default: () => "Your browser does not support the audio element." }
       );
@@ -524,7 +523,7 @@ const renderContent = (content) => {
         },
         { default: () => "Your browser does not support the video element." }
       );
-    
+
     default:
       console.log("[ ERROR ] Unknown content type", content.type);
       return h(

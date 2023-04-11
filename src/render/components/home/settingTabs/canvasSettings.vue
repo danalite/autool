@@ -1,7 +1,6 @@
 <template>
   <n-space vertical>
     <n-dynamic-input
-      show-sort-button
       v-model:value="customValue"
       :on-create="onCreate"
       item-style="margin-bottom: 5px"
@@ -22,13 +21,13 @@
           <n-input
             size="small"
             v-model:value="value.label"
-            :placeholder="$t('settings.helpers.placeholderName')"
+            :placeholder="$t('settings.canvas.placeholderName')"
             style="margin-right: 12px; width: 80%"
           />
           <n-input
             size="small"
             v-model:value="value.value"
-            :placeholder="$t('settings.helpers.placeholderUrl')"
+            :placeholder="$t('settings.canvas.placeholderUrl')"
             type="text"
           />
         </div>

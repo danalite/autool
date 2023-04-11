@@ -1,7 +1,7 @@
 import { ipcMain, app } from "electron";
 import { appConfig } from "@/utils/main/config";
 import { addApp, addTask, deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
-import { registerUioEvent } from "@/utils/main/uioListener";
+import { registerUioEvent } from "@/utils/main/systemHook";
 
 async function runShellCommand(cmd) {
   const { exec } = require("child_process");

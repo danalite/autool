@@ -12,7 +12,7 @@ const routes = [
   {
     path: '/assist',
     name: 'Assist',
-    component: () => import('@/render/components/assist/assistWindow.vue')
+    component: () => import('@/render/components/assist/canvasFrame.vue')
   }
 ]
 

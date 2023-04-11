@@ -67,14 +67,10 @@ const assistWindowMouseWatch = (assistWindow) => {
       name: "move-assist-window-enter",
       source: "console",
       rule: (e) => {
-        // console.log("assistBounds", promptPosition, range, assistBounds)
         return e.x > assistBounds.x + assistBounds.width - 380 || e.x < 500
       },
       action: (e) => {
         // console.log("enter assist window area")  
-        // assistWindow.focus()
-
-        assistWindow.webContents.send('mouse-over-assist', { isOverPrompt: e.x > assistBounds.x + assistBounds.width - 380 })
       }
     },
 
@@ -87,7 +83,7 @@ const assistWindowMouseWatch = (assistWindow) => {
       },
       action: (e) => {
         // console.log("leave assist window area")
-        assistWindow.webContents.send('mouse-leave-assist', { })
+        // assistWindow.webContents.send('mouse-leave-assist', { })
       }
     }, 
   )
@@ -431,7 +427,7 @@ export const uioStop = async () => {
   uIOhook.stop()
 }
 
-export const uioListenerStart = async (hotkeyTable) => {
+export const systemHookStart = async (hotkeyTable) => {
   ipcMain.on('io-hook-request', (event, data) => {
     const taskId = data.uuid
 

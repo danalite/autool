@@ -8,16 +8,17 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
   const appIcon = new Tray(icon)
 
   appIcon.setToolTip('AuTool')
-  const createContextMenu = Menu.buildFromTemplate([
+  const appMenu = Menu.buildFromTemplate([
       {
-        label: "Show Console",
+        label: "Show Main",
         click() {
           mainWindow.show();
           mainWindow.focus();
-        }
+        }, 
+        accelerator: "CommandOrControl+E",
       },
       {
-        label: "Restart App",
+        label: "Restart",
         click() {
           app.relaunch();
           app.quit();
@@ -42,6 +43,18 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         },
         checked: true,
       },
+      {
+        label: "Activate Canvas",
+        type: "checkbox",
+        click: () => {
+          if (appMenu.items[5].checked) {
+            assistWindow.setIgnoreMouseEvents(false);
+          } else {
+            assistWindow.setIgnoreMouseEvents(true, { forward: true });
+          }
+        },
+        checked: false,
+      },
       { type: "separator" },
       {
         label: "Help",
@@ -54,9 +67,10 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
       {
         label: "About",
         click() {
+          mainWindow.show();
           dialog.showMessageBox({
-            title: "AuTool © DANALITE Technology",
-            message: "Software Automation Platform",
+            title: "AuTool © Danalite Technology",
+            message: "Software Platform for Workflows Automation and Digital Adoption",
             detail: `version: ${pkg.version}\n`,
           });
         },
@@ -64,9 +78,9 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
     ]);
 
   appIcon.on("click", () => {
-    appIcon.setContextMenu(createContextMenu);
+    appIcon.setContextMenu(appMenu);
     appIcon.popUpContextMenu();
   });
-  appIcon.setContextMenu(createContextMenu);
+  appIcon.setContextMenu(appMenu);
 }
 

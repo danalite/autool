@@ -8,7 +8,7 @@ import {
 
 const axios = require('axios')
 
-import { uioStop } from './utils/main/uioListener'
+import { uioStop } from './utils/main/systemHook'
 import { appConfig, userAgentList } from './utils/main/config'
 
 import {
@@ -20,7 +20,7 @@ import {
 
 import { execFile, spawn } from "child_process"
 import { loadApps } from './utils/main/queryTasks';
-import { uioStartup } from "./utils/main/uioListener";
+import { uioStartup } from "./utils/main/systemHook";
 import { protocolHandler } from './utils/main/protocolHandler';
 import { monitorWindowChange } from './utils/main/windowWatcher';
 
@@ -65,7 +65,6 @@ const dockMenu = Menu.buildFromTemplate([
 // Backend PyWebsocket server
 let subPy = null;
 let subPyExited = false
-let isRestartEnabled = false
 let confirmQuit = false
 
 const PY_SRC_FOLDER = "../runtime"
@@ -88,7 +87,6 @@ const getPythonScriptPath = () => {
 
 const startPythonSubprocess = () => {
   let script = getPythonScriptPath();
-
   if (!devMode) {
     console.log("[ NodeJS ] prodMode. " + script)
     subPy = execFile(script, []);
@@ -104,12 +102,6 @@ const startPythonSubprocess = () => {
     console.log('[ NodeJS ] process exited with ' +
       `code ${code} and signal ${signal}`);
     subPyExited = true
-
-    if (isRestartEnabled) {
-      startPythonSubprocess()
-      isRestartEnabled = false
-      mainWindow.webContents.send('wss-server-restarted')
-    }
   });
 
   subPy.stdout.on('data', (data) => {
@@ -119,12 +111,6 @@ const startPythonSubprocess = () => {
   // Pipe subprocess output to main std.out
   subPy.stderr.pipe(process.stdout)
 };
-
-ipcMain.on('wss-server-restart', (event, arg) => {
-  console.log("[ NodeJS ] restarting wss server...")
-  subPy.kill('SIGTERM')
-  isRestartEnabled = true
-})
 
 const init = async () => {
   startPythonSubprocess()

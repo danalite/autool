@@ -1,12 +1,14 @@
 <template>
-  <n-notification-provider :placement="promptPosition">
+  <n-notification-provider placement="top-right">
     <div>
-      <message-panel />
+      <canvas-content />
       <n-drawer
         v-model:show="showDrawer"
         content-style="height: 95%; padding: 0px;"
-        :width="500"
-        :placement="'left'"
+        :width="drawerWidth"
+        placement="left"
+        @mouseenter="enterWindow"
+        @mouseleave="leaveWindow"
         :show-mask="false"
         :mask-closable="false"
         style="border-radius: 12px"
@@ -17,13 +19,38 @@
           body-content-style="height: 95%; padding: 0px"
         >
           <template #header>
-            <n-popselect v-model:value="selectType" :options="options">
-              <n-button style="width: 400px">
-                <n-ellipsis style="max-width: 380px">
-                  {{ selectType || "Popselect" }}
-                </n-ellipsis>
-              </n-button>
-            </n-popselect>
+            <n-button-group>
+              <n-popover trigger="hover">
+                <template #trigger>
+                  <n-button
+                    @click="showDrawer = false"
+                    size="small"
+                    style="margin-right: 10px"
+                  >
+                    <n-icon size="25" depth="3">
+                      <PlaylistAdd />
+                    </n-icon>
+                  </n-button>
+                </template>
+                <n-slider
+                  v-model:value="drawerWidth"
+                  :min="500"
+                  :max="canvasWidth"
+                  :step="50"
+                  style="width: 200px"
+                />
+              </n-popover>
+              <n-popselect v-model:value="selectType" :options="options">
+                <n-button
+                  :style="{ width: `${drawerWidth * 0.8}px` }"
+                  size="small"
+                >
+                  <n-ellipsis style="max-width: 500px">
+                    {{ selectType || "Popselect" }}
+                  </n-ellipsis>
+                </n-button>
+              </n-popselect>
+            </n-button-group>
           </template>
 
           <webview
@@ -44,11 +71,16 @@ import {
   NDrawerContent,
   NEllipsis,
   NButton,
+  NButtonGroup,
   NPopselect,
+  NSlider,
+  NIcon,
+  NPopover,
 } from "naive-ui";
 
-import messagePanel from "./messagePanel.vue";
+import canvasContent from "./canvasContent.vue";
 import { ipcRenderer } from "electron";
+import { PlaylistAdd } from "@vicons/tabler";
 
 import { onMounted, ref } from "vue";
 import { appConfig } from "@/utils/main/config";
@@ -57,15 +89,8 @@ document.title = "Canvas";
 document.getElementsByTagName("html")[0].style.height = "100%";
 document.getElementsByTagName("body")[0].style.height = "100%";
 
-const promptPosition = ref(appConfig.get("promptPosition"));
-var isMouseClickThrough = true;
-
-// const togglePromptPlacement = async () => {
-//   const position =
-//     promptPosition.value == "top-left" ? "top-right" : "top-left";
-//   promptPosition.value = position;
-//   appConfig.set("promptPosition", position);
-// };
+let assistWinSize = appConfig.get("assistWinSize");
+const canvasWidth = ref(assistWinSize.width);
 
 const options = ref([]);
 const selectType = ref("https://www.google.com/");
@@ -118,21 +143,10 @@ ipcRenderer.on("toggle-helper-drawer", (event, arg) => {
   }
 });
 
-// document.getElementsByTagName("body")[0].addEventListener("mouseover", (e) => {
-//   console.log("@@", "over body", e.path);
-//   if (!isMouseClickThrough && e.path.length < 5) {
-//     ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
-//   } else if (isMouseClickThrough && e.path.length > 8) {
-//     ipcRenderer.invoke("assist-ignore-mouse-events", false);
-//   }
-// });
-
 function refreshElements() {
   const listeningAttr = "listeningForMouse";
-
   var elements = document.getElementsByClassName("n-notification");
-  if (elements.length == 0) {
-    isMouseClickThrough = true;
+  if (elements.length == 0 && !showDrawer.value) {
     ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
     return;
   }
@@ -143,36 +157,27 @@ function refreshElements() {
     }
     ele.addEventListener("mouseenter", () => {
       // console.log("@@", "in notification. block");
-      isMouseClickThrough = false;
       ipcRenderer.invoke("assist-ignore-mouse-events", false);
     });
     ele.addEventListener("mouseleave", () => {
       // console.log("@@", "leave notification. pass");
-      isMouseClickThrough = true;
       ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
     });
     ele.setAttribute(listeningAttr, true);
   }
 }
 
-// Events to trigger when crossing the boundary of the prompt
-setTimeout(() => {
-  ipcRenderer.on("mouse-over-assist", async (event, data) => {
-    // console.log("@@", "mouse-over-assist", data, isMouseClickThrough);
-    if (data.isOverPrompt) {
-      refreshElements();
-    } else if (isMouseClickThrough && showDrawer.value) {
-      isMouseClickThrough = false;
-      ipcRenderer.invoke("assist-ignore-mouse-events", false);
-    }
-  });
-  ipcRenderer.on("mouse-leave-assist", async (event, data) => {
-    if (!isMouseClickThrough) {
-      isMouseClickThrough = true;
-      ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
-    }
-  });
-}, 1500);
+const enterWindow = () => {
+  // console.log("@@", "enter window. block");
+  ipcRenderer.invoke("assist-ignore-mouse-events", false);
+};
+
+const leaveWindow = () => {
+  // console.log("@@", "leave window. pass");
+  ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
+};
+
+const drawerWidth = ref(500);
 </script>
 
 <style scoped>

@@ -18,7 +18,7 @@ const EnglishOptions = {
             title: 'New App',
             download: 'Download',
             blank: 'Empty',
-            official: 'Community Apps',
+            official: 'Selected',
             appName: 'App Name',
             appIcon: 'App Icon',
             appLink: 'App Link',
@@ -85,8 +85,8 @@ const EnglishOptions = {
 
         },
 
-        helpers: {
-            title: 'Bookmarks',
+        canvas: {
+            title: 'Canvas',
             placeholderName: 'Name',
             placeholderUrl: 'URL',
         },

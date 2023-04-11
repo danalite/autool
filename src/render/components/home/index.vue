@@ -298,7 +298,7 @@ const backendEventHook = (msg) => {
         });
       });
 
-      // Wait for mouse action trigger from uioListener
+      // Wait for mouse action trigger from systemHook
       if (value.type === "area") {
         ipcRenderer.send("to-console", {
           source: msg.taskName,

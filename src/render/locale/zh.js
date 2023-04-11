@@ -85,7 +85,7 @@ const ChineseOptions = {
 
         },
 
-        helpers: {
+        canvas: {
             title: '书签窗口',
             placeholderName: '名称',
             placeholderUrl: '网址',

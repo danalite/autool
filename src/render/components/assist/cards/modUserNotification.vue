@@ -20,7 +20,7 @@ import {
 
 import { h, ref } from "vue";
 import { ipcRenderer, shell } from "electron";
-import { handleCopyImg } from "@/utils/render/msgRenders";
+import { handleCopyImg } from "@/utils/render/renderComponents";
 import { ExternalLink, Bookmarks } from "@vicons/tabler";
 
 const notification = useNotification();

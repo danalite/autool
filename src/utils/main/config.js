@@ -16,7 +16,6 @@ export const appConfig = new Store({
     'stoppedTasksCache': [],
     'scheduledTasksCache': [],
     'eventsCache': [],
-    'promptPosition': 'top-right',
     'autoRune': {},
     'appHome': '',
     'logPath': '',

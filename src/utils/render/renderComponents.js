@@ -1,3 +1,8 @@
+
+import { Checkbox } from "@vicons/tabler";
+import { h } from "vue";
+import { NButton, NIcon, NSpace, NText } from "naive-ui";
+
 export const handleCopyImg = (src) => {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -30,4 +35,18 @@ export const handleCopyImg = (src) => {
       );
     });
   };
+};
+
+export const renderTitle = (title) => {
+  return h(NButton, {
+    size: "small",
+    type: "success",
+    bordered: false,
+    tertiary: true,
+  },
+    {
+      default: () => title,
+      icon: () => h(Checkbox),
+    }
+  )
 };

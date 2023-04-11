@@ -31,8 +31,7 @@
       <n-layout content-style="padding: 15px 25px 5px;">
         <accounts-mgr v-if="subTab == 'accounts'" />
         <server-lists v-if="subTab == 'servers'" />
-        <helper-windows v-if="subTab == 'helpers'" />
-
+        <canvas-settings v-if="subTab == 'canvas'" />
       </n-layout>
     </n-layout>
   </n-layout-content>
@@ -100,7 +99,7 @@ import {
 } from "@vicons/tabler";
 
 import serverLists from "./settingTabs/serverLists.vue";
-import helperWindows from "./settingTabs/helperWindows.vue";
+import canvasSettings from "./settingTabs/canvasSettings.vue";
 import accountsMgr from "./settingTabs/accountsMgr.vue";
 
 import { appConfig } from "@/utils/main/config";
@@ -130,8 +129,8 @@ const menuOptions = [
     icon: renderIcon(Cloud),
   },
   {
-    label: () => t("settings.helpers.title"),
-    key: "helpers",
+    label: () => t("settings.canvas.title"),
+    key: "canvas",
     icon: renderIcon(PictureInPictureOff),
   }
 ];
