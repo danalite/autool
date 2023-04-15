@@ -32,22 +32,22 @@ We aim to make AuTool a desktop version of Tampermonkey, featuring lightweight a
 
 ## Usage
 ### Manage Scripts
-- *Install new scripts*: click the `+` icon and enter a GitHub folder link that contains a `autool-tasks.json`, such as https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display.
+- **New scripts**: click the `+` icon and enter a GitHub folder link that contains a `autool-tasks.json`, such as https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display.
 
-- *Minimize window into a taskbar*: click on the rabbit icon at the top. The taskbar will display all checked scripts, and you can run any script by clicking on it.
+- **Taskbar**: click on the rabbit icon at the top. The taskbar will display all checked scripts, and you can run any script by clicking on the script names.
 
 Install new scripts            |  Taskbar
 :-------------------------:|:-------------------------:
 <img src="./docs/demo-new-task.gif" width=450 title="new"> |  <img src="./docs/demo-taskbar.gif" width=450  title="taskbar">
 
 ### Magic Canvas
-AuTool employs a transparent canvas that spans the entire screen, allowing for seamless and non-intrusive interaction with the user. The canvas can be scripted to perform the following tasks:
+AuTool employs a transparent canvas that spans the entire screen. The canvas can be scripted to perform the following tasks:
 
-- *Dialogs*: ask for user input, or to display information to the user. In the GIF below, the user is asked to enter a search keyword, and the search results are displayed in a list.
+- **Notifications**: to ask for user input, or display information to the user. 
 
-- *Annotations*: draw masks or popovers on the screen to highlight certain area, or to guide new users to use a desktop software.
+- **Annotations**: to draw masks or popovers on the screen to highlight certain area, or to guide new users to use a desktop software. 
 
-Dialogs             |  Annotation
+Notifications (app launcher)             |  Annotations (image segmentation)
 :-------------------------:|:-------------------------:
 <img src="./docs/demo-app-launcher.gif" width=450 title="dialog"> | <img src="./docs/demo-screen-mask.gif" width=450  title="annotation">
 
