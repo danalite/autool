@@ -6,7 +6,7 @@
 
 ## 2023-04
 - [ ] Docker-compose monitor service with MonogoDB
-- [ ] Canvas: dynamic input to capture screen components with SAM
+- [x] Canvas: dynamic input to capture screen components with SAM
 - [ ] Support of libauto to connect with cloud monitor
 - [x] Remove the service-transfer section; replace it with API call stats
 - [x] Remove special fonts in popup text
