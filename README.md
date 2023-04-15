@@ -43,9 +43,9 @@ Install new scripts            |  Taskbar
 ### Magic Canvas
 AuTool employs a transparent canvas that spans the entire screen. The canvas can be scripted to perform the following tasks:
 
-- **Notifications**: to ask for user input, or display information to the user. 
+- **Notifications**: to ask for user input, or display information to the user. The example below shows how to launch an app using a notification window.
 
-- **Annotations**: to draw masks or popovers on the screen to highlight certain area, or to guide new users to use a desktop software. 
+- **Annotations**: to draw masks or popovers on the screen to highlight certain area, or to guide new users to use a desktop software. The example below shows the usage of mask to segment an image.
 
 Notifications (app launcher)             |  Annotations (image segmentation)
 :-------------------------:|:-------------------------:
