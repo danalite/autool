@@ -5,7 +5,7 @@
       :key="index"
       trigger="hover"
       placement="left"
-      :delay="800"
+      :delay="0"
     >
       <template #trigger>
         <div
@@ -20,21 +20,28 @@
             // display: 'flex'
           }"
         >
-          <n-button
-            @mouseover.stop="closeMarker(marker.label)"
-            @mouseleave.stop="leaveMarker(marker.label)"
-            @mouseenter.stop="overMarker(marker.label)"
-            size="small"
-            text
-          >
-            <img
-              src="../../assets/icon/logo.png"
-              draggable="false"
-              alt=""
-              width="20"
-              style="padding-left: 3px; padding-top: 3px"
-            />
-          </n-button>
+          <img
+            src="../../assets/icon/logo.png"
+            draggable="false"
+            alt=""
+            width="20"
+            style="padding-left: 3px; padding-top: 3px"
+            @mouseover="closeMarker(marker.label)"
+            @mouseleave="leaveMarker(marker.label)"
+            @mouseenter="overMarker(marker.label)"
+          />
+        </div>
+        <div
+          v-else-if="marker.kind === 'mask'"
+          :style="{
+            position: 'absolute',
+            width: String(marker.width) + 'px',
+            height: String(marker.height) + 'px',
+            left: String(marker.absX) + 'px',
+            top: String(marker.absY) + 'px',
+          }"
+        >
+          <img :src="marker.content" class="mask" />
         </div>
         <div
           v-else
@@ -45,17 +52,10 @@
           }"
         >
           <n-space>
-            <n-button
-              @mouseover="closeMarker(marker.label)"
-              @mouseleave="leaveMarker(marker.label)"
-              @mouseenter="overMarker(marker.label)"
-              size="small"
-              text
-            >
+            <n-button size="small" text>
               <img
                 src="../../assets/icon/logo.png"
                 draggable="false"
-                alt=""
                 width="20"
                 style="padding-left: 3px; padding-top: 3px"
               />
@@ -74,18 +74,15 @@
         </div>
       </template>
 
-      <!-- More helper icons: report -->
+      <!-- More helper icons: close -->
       <div class="btn-list">
-        <n-button text size="small">
-          <img
-            src="../../assets/icon/logo.png"
-            draggable="false"
-            alt=""
-            width="20"
-            style="padding-left: 3px; padding-top: 3px"
-          />
-        </n-button>
-        <n-button text size="small">
+        <n-button
+          text
+          size="small"
+          @mouseover="closeMarker(marker.label)"
+          @mouseleave="leaveMarker(marker.label)"
+          @mouseenter="overMarker(marker.label)"
+        >
           <img
             src="../../assets/icon/logo.png"
             draggable="false"
@@ -99,7 +96,7 @@
     </n-popover>
 
     <mod-user-notification ref="modUserNotificationRef" />
-    <mod-user-input ref="modUserInputRef" />
+    <mod-user-input ref="modUserInputRef" @drawMask="drawMask" />
   </div>
 </template>
 
@@ -131,7 +128,7 @@ import {
   NCheckbox,
 } from "naive-ui";
 
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, getCurrentInstance } from "vue";
 import { appConfig } from "@/utils/main/config";
 
 import modUserNotification from "./cards/modUserNotification.vue";
@@ -140,6 +137,7 @@ import modUserInput from "./cards/modUserInput.vue";
 let assistWinSize = appConfig.get("assistWinSize");
 const canvasWidth = ref(assistWinSize.width);
 const canvasHeight = ref(assistWinSize.height);
+const screenShift = 24;
 
 const activeAnnotationsShow = computed(() => {
   return activeAnnotations.value
@@ -208,7 +206,20 @@ ipcRenderer.on("assist-win-push", (event, message) => {
   let messageType = message.type;
   switch (messageType) {
     case "window-annotate":
-      activeAnnotations.value.push(message);
+      if (Array.isArray(message.content)) {
+        message.content.forEach((item) => {
+          const newItem = {
+            ...item,
+            scope: message.scope,
+          };
+          activeAnnotations.value.push(newItem);
+        });
+      } else {
+        activeAnnotations.value.push({
+          scope: message.scope,
+          ...message.content,
+        });
+      }
       break;
 
     case "user-notify":
@@ -245,6 +256,26 @@ const closeMarker = (label) => {
 const leaveMarker = (index) => {
   activeMarkerLabel = "";
 };
+
+const drawMask = async (maskData) => {
+  activeAnnotations.value = activeAnnotations.value.filter(
+    (item) => item.kind !== "mask"
+  );
+  const newItem = {
+    kind: "mask",
+    scope: {
+      owner: maskData.windowOwner,
+    },
+    height: maskData.height,
+    width: maskData.width,
+    content: maskData.content,
+    label: "TEST DATA",
+    show: true,
+    x: 0,
+    y: -screenShift,
+  };
+  activeAnnotations.value.push(newItem);
+};
 </script>
 
 <style scoped>
@@ -262,8 +293,14 @@ const leaveMarker = (index) => {
   padding: 0 !important;
 }
 
-.buttonSwitch {
-  margin-top: 5px;
-  margin-left: -5px;
+.mask {
+  width: 100%;
+  height: 100%;
+  opacity: 0.4;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.mask:hover {
+  opacity: 0.7;
 }
 </style>

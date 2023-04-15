@@ -36,6 +36,7 @@ import { ExternalLink } from "@vicons/tabler";
 import queryResults from "./queryResults.vue";
 import { renderTitle } from "@/utils/render/renderComponents";
 
+const emits = defineEmits(["drawMask"]);
 const notification = useNotification();
 const retValues = reactive({});
 let nRef = null;
@@ -297,7 +298,7 @@ function querySearch(query, searchType, params) {
       server.send(
         JSON.stringify({
           event: "I_EVENT_WSS_REQ",
-          value: `Search${searchType}`,
+          value: `${searchType}`,
           query: query,
           params: params,
         })
@@ -319,44 +320,95 @@ const dynamicOptions = computed(() => {
     return { ...item };
   });
 });
+
+var selectStatus = false;
+var selectIndex = 0;
 const renderDynamicInput = (content) => {
   if (retValues[content.key] == null) {
     retValues[content.key] = [];
   }
+
+  // search == "File": search for files
+  // search == "Segmentation": search for window segmentation
+  if (content.search == "Segmentation" && selectStatus == false) {
+    selectStatus = true;
+
+    var callback = "SegmentationMouseClicked";
+    ipcRenderer.send("to-console", {
+      action: "uio-event",
+      source: "canvasWindow",
+      type: "mouseClicked",
+      callback: callback,
+      targetWindow: content.params.window,
+      wallTime: 200,
+    });
+    // assume to capture the active window only
+    ipcRenderer.on(callback, (event, data) => {
+      let params = {
+        ...content.params,
+        ...data,
+      };
+      querySearch("predict", content.search, params)
+        .then(function (mask) {
+          let maskData = JSON.parse(mask);
+          ipcRenderer.send("to-console", {
+            action: "load-image",
+            path: maskData.image,
+          });
+
+          ipcRenderer.once("image-loaded", (event, content) => {
+            maskData.content = content;
+            emits("drawMask", maskData);
+
+            // Add image mask to segmentation list
+            rawOptions.value.push({
+              label: `mask #${++selectIndex}`,
+              src: content,
+            });
+          });
+        })
+        .catch(function (err) {
+          console.log("[ ERROR ] querySearch ", err);
+        });
+    });
+  }
+
   return h(
     NSpace,
     { vertical: true },
     {
       default: () => [
         renderTitle(content.label),
-        h(
-          NInputGroup,
-          { size: "small" },
-          {
-            default: () => [
-              h(NInput, {
-                placeholder: "Search",
-                size: "small",
-                round: true,
-                style: { "font-size": "14px", width: "250px" },
-                onUpdateValue: (value) => {
-                  if (value == "") {
-                    rawOptions.value = [];
-                    return;
-                  }
-                  querySearch(value, content.search, content.params)
-                    .then(function (data) {
-                      rawOptions.value = JSON.parse(data);
-                      // console.log("[ INFO ] querySearch ", rawOptions.value);
-                    })
-                    .catch(function (err) {
-                      console.log("[ ERROR ] querySearch ", err);
-                    });
-                },
-              }),
-            ],
-          }
-        ),
+        content.search == "Segmentation"
+          ? null
+          : h(
+              NInputGroup,
+              { size: "small" },
+              {
+                default: () => [
+                  h(NInput, {
+                    placeholder: "Search",
+                    size: "small",
+                    round: true,
+                    style: { "font-size": "14px", width: "250px" },
+                    onUpdateValue: (value) => {
+                      if (value == "") {
+                        rawOptions.value = [];
+                        return;
+                      }
+                      querySearch(value, content.search, content.params)
+                        .then(function (data) {
+                          rawOptions.value = JSON.parse(data);
+                          // console.log("[ INFO ] querySearch ", rawOptions.value);
+                        })
+                        .catch(function (err) {
+                          console.log("[ ERROR ] querySearch ", err);
+                        });
+                    },
+                  }),
+                ],
+              }
+            ),
 
         // Equivalent to <query-results :queryResults={queryResults} />
         h(queryResults, {
@@ -621,6 +673,11 @@ const enqueue = (message) => {
           data: JSON.stringify(retValues),
         });
       }
+
+      // Unset preset parameters
+      selectStatus = false;
+      selectIndex = 0;
+      ipcRenderer.removeAllListeners("mouse-hover");
     },
   });
 };

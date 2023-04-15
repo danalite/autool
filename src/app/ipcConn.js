@@ -3,21 +3,7 @@ import { appConfig } from "@/utils/main/config";
 import { addApp, addTask, deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
 import { registerUioEvent } from "@/utils/main/systemHook";
 
-async function runShellCommand(cmd) {
-  const { exec } = require("child_process");
-  exec(cmd, (error, stdout, stderr) => {
-    if (error) {
-      console.log(`error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-  });
-}
-
+const fs = require('fs');
 export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.on('move-main', (event, pos) => {
     let dim = appConfig.get('mainWindowDimension')
@@ -101,19 +87,16 @@ export const ipcListener = (mainWindow, assistWindow) => {
     } else if (action === "create-task") {
       addTask(message.appPath, message.taskName, message.content)
 
-    } else if (action === "shell") {
-      runShellCommand(message.cmd)
+    } else if (action === "load-image") {
+      const encode = fs.readFileSync(message.path).toString('base64');
+      const content = `data:image/png;base64,${encode}`
+      assistWindow.webContents.send("image-loaded", content)
 
     } else if (action == "uio-event") {
       // E.g., when recording is done or hotkey triggered
       // assistWindow should be hidden in some cases
       registerUioEvent(assistWindow, {
-        type: message.type,
-        source: message.source,
-        taskId: message.taskId,
-        options: message.options,
-        hotkey: message.hotkey,
-
+        ...message,
         callback: (ret) => {
           if (message.type == "macroRecord") {
             let task = {
@@ -121,6 +104,13 @@ export const ipcListener = (mainWindow, assistWindow) => {
               actions: ret
             }
             addTask(message.appPath, message.taskName, task)
+
+          } else if (message.source == "canvasWindow") {
+            // console.log("canvasWindow callback", message.callback)
+
+            assistWindow.webContents.send(message.callback, {
+              type: message.type, ...ret
+            })
 
           } else {
             // keyWait (resumeTask) or hotkeyWait (trigger task)

@@ -56,42 +56,10 @@ var isOverAssist = false
 var isHelperWindowShown = false
 var assistBounds = {}
 
-const assistWindowMouseWatch = (assistWindow) => {
-  // If no macro recording, activate assist window and DOM listeners  
-  //    when mouse is hovered on assist window area. 
-  //   Otherwise, assist window is hidden and DOM listeners are disabled.
-  assistBounds = assistWindow.getBounds()
-
-  mouseActionTables.push(
-    {
-      name: "move-assist-window-enter",
-      source: "console",
-      rule: (e) => {
-        return e.x > assistBounds.x + assistBounds.width - 380 || e.x < 500
-      },
-      action: (e) => {
-        // console.log("enter assist window area")  
-      }
-    },
-
-    // Leave assist window area
-    {
-      name: "move-assist-window-leave",
-      source: "console",
-      rule: (e) => {
-        return e.x > 500 && e.x < assistBounds.x + assistBounds.width - 380
-      },
-      action: (e) => {
-        // console.log("leave assist window area")
-        // assistWindow.webContents.send('mouse-leave-assist', { })
-      }
-    }, 
-  )
-}
 
 export const uioStartup = (assistWindow) => {
   uIOhook.start()
-  assistWindowMouseWatch(assistWindow)
+  // assistWindowMouseWatch(assistWindow)
 
   uIOhook.on('mousemove', async (e) => {
     await Promise.all(mouseActionTables.map(async (action) => {
@@ -110,11 +78,12 @@ export const uioStartup = (assistWindow) => {
     }))
   })
 
+  // MAT actions to keyboard events
   let keyTargets = ['keyup', 'keydown']
   for (let i = 0; i < keyTargets.length; i++) {
     uIOhook.on(keyTargets[i], (e) => {
 
-      // Key stroke window
+      // Key stroke history window
       keyStrokesWindow.push(e)
       if (keyStrokesWindow.length > 10) {
         keyStrokesWindow.shift()
@@ -200,10 +169,6 @@ const detectIcon = (e, reception = { width: 600, height: 120 }) => {
   })
 }
 
-const hotkeyRemoveUpdateMAT = (event) => {
-  keyboardActionTable = keyboardActionTable.filter((a) => a.name != `hotkey-${event.taskId}`)
-}
-
 const hotkeyRegisterUpdateMAT = (event) => {
   keyboardActionTable.push({
     name: `hotkey-${event.taskId}`,
@@ -235,6 +200,51 @@ const keyWaitUpdateMAT = (event) => {
         taskId: event.taskId,
         source: event.source,
         return: keycode
+      })
+    }
+  })
+}
+
+const registerMouseClickedUpdateMAT = (event) => {
+  mouseActionTables.push({
+    name: "click-select-mask",
+    source: event.source,
+    rule: (e) => {
+      // console.log("mouse hover!!! ", e, lastActionTimeStamp)
+      // check if the mouse is hovered and stayed on the target for more than 200ms
+      if (lastActionTimeStamp == 0) {
+        lastActionTimeStamp = e.time
+      }
+      let trigger = e.time - lastActionTimeStamp > 2 * 1e8
+      lastActionTimeStamp = e.time
+      return trigger
+    },
+    action: (e) => {
+      // console.log("mouse hover!!! ", e.x, e.y)
+      // get active window and send relative position
+      activeWindow({}).then((win) => {
+        if (!win) return
+        if (event.targetWindow && win.owner.name != event.targetWindow) return
+
+        // console.log("mouse hover ", win.owner.name, event.targetWindow)
+        let relativeX = e.x - win.bounds.x
+        let relativeY = e.y - win.bounds.y
+        let isOutOfBound = relativeX < 0 || relativeY < 0 || relativeX > win.bounds.width || relativeY > win.bounds.height
+
+        // console.log("mouse hover ", win, relativeX, relativeY)
+        if (!isOutOfBound) {
+          event.callback({
+            type: "mouseClicked",
+            mouseX: relativeX,
+            mouseY: relativeY,
+            x: win.bounds.x,
+            y: win.bounds.y,
+            windowOwner: win.owner.name,
+            windowId: win.id,
+            width: win.bounds.width,
+            height: win.bounds.height
+          })
+        }
       })
     }
   })
@@ -369,7 +379,7 @@ export const registerUioEvent = (assistWindow, event) => {
           // clear and reset MAT
           keyboardActionTable.splice(0, keyboardActionTable.length)
           mouseActionTables.splice(0, mouseActionTables.length)
-          assistWindowMouseWatch(assistWindow)
+          lastActionTimeStamp = 0
 
           // send recorded sequence back to requestor
           let seq = parseSequence(macroRecordedSequence)
@@ -402,127 +412,15 @@ export const registerUioEvent = (assistWindow, event) => {
     keyboardActionTable = keyboardActionTable.filter((item) => {
       return item.name != `hotkey-${event.taskId}`
     })
+
+  } else if (event.type == "mouseClicked") {
+    registerMouseClickedUpdateMAT(event)
+
+  } else {
+    console.log("@@ Unhandled Uio event", event)
   }
 }
-
-const getActiveWindowClickPos = async (e) => {
-  let options = {}
-  let win = await activeWindow(options)
-  if (win == undefined) {
-    return {
-      window: null,
-      x: e.x,
-      y: e.y,
-    }
-  } else {
-    return {
-      window: win.owner.name,
-      x: e.x - win.bounds.x,
-      y: e.y - win.bounds.y,
-    }
-  }
-};
 
 export const uioStop = async () => {
   uIOhook.stop()
-}
-
-export const systemHookStart = async (hotkeyTable) => {
-  ipcMain.on('io-hook-request', (event, data) => {
-    const taskId = data.uuid
-
-    const { type } = data.value
-    if (type === 'keyWait') {
-      const { key } = data.value
-
-      let ret = globalShortcut.register(key, () => {
-        console.log("Main app: keyWait event resolved (", key, ")")
-        globalShortcut.unregister(start)
-        let newEvent = {
-          event: 'I_EVENT_USER_INPUT',
-          uuid: taskId,
-          value: {
-            type: 'keyWait',
-            key: key
-          }
-        }
-        mainWindow.webContents.send('to-backend', newEvent)
-      })
-      if (!ret) {
-        console.log(`[ NodeJS ] ${stop} unhooking failed`)
-      }
-
-    } else if (type === 'selectArea') {
-      const { window } = data.value
-      // Notification
-
-      let options = {}
-      activeWindow(options).then(
-        win => {
-          // console.log("@@ reg", win.bounds)
-          selectAreaAction.started = true
-          selectAreaAction.target = {
-            taskId: taskId,
-            owner: win.owner.name,
-            bounds: win.bounds,
-            lt: [0, 0]
-          }
-        });
-
-    }
-
-    console.log("[ NodeJS ] io-hook-request", data)
-  })
-
-  const trackTime = () => {
-    if (macroRecordCsr["track"].includes("delay")) {
-      const now = Date.now()
-      recordedActions.push({
-        "type": "sleep",
-        'duration': now - lastTimeStamp
-      })
-      lastTimeStamp = now
-    }
-  }
-
-  // Mouse dragging events (e.g., select area)
-  uIOhook.on('mousedown', (e) => {
-    // console.log("@@ down", e.x, e.y)
-    if (macroRecordCsr["started"] && macroRecordCsr["track"].includes("move")) {
-      trackTime()
-      recordedActions.push({
-        type: 'mousedown',
-        key: e.keycode,
-      })
-
-    } else if (!macroRecordCsr["started"] && selectAreaAction.started) {
-      // console.log("@@ down", e.x, e.y)
-      selectAreaAction.target.lt = [e.x, e.y]
-    }
-  })
-
-  uIOhook.on('mouseup', (e) => {
-    // console.log("@@ up", e.x, e.y)
-    if (macroRecordCsr["started"] && macroRecordCsr["track"].includes("move")) {
-
-      // Send selected region to task
-    } else if (!macroRecordCsr["started"] && selectAreaAction.started) {
-      const { taskId, owner, bounds, lt } = selectAreaAction.target
-      // console.log("@@ up", e.x, e.y)
-      let area_width = e.x - lt[0]
-      let area_height = e.y - lt[1]
-      let newEvent = {
-        event: 'I_EVENT_USER_INPUT',
-        uuid: taskId,
-        value: {
-          type: 'selectArea',
-          window: owner,
-          area: [lt[0] - bounds.x, lt[1] - bounds.y, area_width, area_height]
-        }
-      }
-      mainWindow.webContents.send('to-backend', newEvent)
-      selectAreaAction.started = false
-    }
-  })
-
 }

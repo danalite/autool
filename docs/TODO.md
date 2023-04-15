@@ -1,14 +1,14 @@
 ### WIP
 - [ ] Migrate to Vite + Electron-Builder
 - [ ] Tauri + Vite with Python sidecar
+- [ ] Support prompt sessions (for long-running dialogs)
+- [ ] Add electron-updater to auto-update the app
 
 ## 2023-04
 - [ ] Docker-compose monitor service with MonogoDB
-- [ ] Canvas: long press key to enter the edit mode (capture and SAM from there)
-- [ ] Support prompt sessions (for long-running dialogs)
+- [ ] Canvas: dynamic input to capture screen components with SAM
 - [ ] Support of libauto to connect with cloud monitor
-- [ ] Remove the service-transfer section; replace it with API call stats
-- [ ] Add electron-updater to auto-update the app
+- [x] Remove the service-transfer section; replace it with API call stats
 - [x] Remove special fonts in popup text
 - [x] Add an initial app download list for new users
 - [ ] Deprecate the `user.notify` and `user.input` in favor of `user.prompt`
@@ -26,7 +26,6 @@
 - [x] Support audio and video types in assist window
 
 ## 2023-03
-- [x] (cancelled) Merge `user.input` and `user.notify` into `user.prompt`
 - [x] Example: minimal clipboard manager
 - [x] Example: password manager based on `pass` command
 - [x] Add dynamic input type (search file or folder in FS)

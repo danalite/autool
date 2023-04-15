@@ -9,7 +9,7 @@
 [![Downloads](https://img.shields.io/github/downloads/danalite/autool/total?style=flat-square&logo=github)](https://github.com/danalite/autool/releases)
 <a href="https://discord.gg/P3t2SvQaZp"><img alt="discord invitation link" src="https://dcbadge.vercel.app/api/server/P3t2SvQaZp?style=flat-square"></a>
 
-AuTool is a software platform for workflow automation and digital adoption. AuTool was initially developed as an enhancement to [AutoHotkey](https://www.autohotkey.com/), with the purpose of supporting event-driven async programming, improving user interactivity, and ensuring platform agnosticism. It can be used to:
+AuTool is a software platform for workflow automation and AI adoption. AuTool was initially developed as an enhancement to [AutoHotkey](https://www.autohotkey.com/), with the purpose of supporting event-driven async programming, improving user interactivity, and ensuring platform agnosticism. It can be used to:
 
 - Automate repetitive tasks, e.g., keyboard, mouse, and web
 - Build interactive GUI to guide users through a workflow
@@ -40,7 +40,9 @@ Install new scripts            |  Taskbar
 :-------------------------:|:-------------------------:
 <img src="./docs/demo-new-task.gif" width=450 title="new"> |  <img src="./docs/demo-taskbar.gif" width=450  title="taskbar">
 
-### Interact with Script
+### Magic Canvas
+AuTool comes with a magic canvas that can be used to draw annotations on the screen. The canvas can be used to guide users through a workflow, or to highlight important information on the screen. 
+
 - *Pop-up dialog*: an AuTool script may ask for user input by displaying a pop-up dialog. The dialog can be used to collect user input, or to display information to the user.
 
 - *Screen annotations*: an AuTool script can draw annotations on the window with purpose of guiding users to use a software. Annotations will not interfere with the user's interaction with the software. 

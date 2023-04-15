@@ -1,11 +1,16 @@
 import os
 import json
+import pygb
+import tempfile
+
+import requests
 import asyncio
 import random
 
 import websockets
 from libauto import new_task_sch, download
 from py_rust_search import get_similar_files
+from io import BytesIO
 
 # Manage application states
 active_conns = dict()
@@ -94,10 +99,34 @@ async def websocket_handler(websocket):
         elif worker == "MainLoop":
             await loopMain(websocket)
 
-        elif worker == "SearchFile":
+        elif worker == "File":
             q = [{"label": _.split(os.sep)[-1], "value": _, "ext": os.path.splitext(_)[-1]} for _ in get_similar_files(
                 message["query"], message["params"]["location"])]
             await websocket.send(json.dumps(q))
+
+        elif worker == "Segmentation":
+            image = pygb.screenshot(
+                window=message["params"]["windowId"]).convert('RGB')
+            byte_io = BytesIO()
+            image.save(byte_io, 'PNG')
+            byte_io.seek(0)
+
+            cord = {'x': message["params"]["mouseX"],
+                    'y': message["params"]["mouseY"]}
+            files = {
+                'json': ('params', json.dumps(cord), 'application/json'),
+                'image': ('image', byte_io.read(), 'application/octet-stream')
+            }
+            response = requests.post(
+                message["params"]["server"], files=files)
+
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
+                f.write(response.content)
+                output_path = f.name
+
+            ret = {"image": output_path, **message["params"]}
+            # print(ret)
+            await websocket.send(json.dumps(ret))
 
 
 async def check_connections():

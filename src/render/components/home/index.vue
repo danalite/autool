@@ -265,7 +265,7 @@ const backendEventHook = (msg) => {
     case EventType.O_EVENT_HOOK_REQ:
       // blocking (keyWait)
       // non-blocking: event.on(__KEY__, configs)
-      ipcRenderer.send("sole", {
+      ipcRenderer.send("to-console", {
         action: "uio-event",
         type: value.type,
         source: msg.taskName,

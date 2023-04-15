@@ -1,6 +1,6 @@
 <template>
   <n-notification-provider placement="top-right">
-    <div>
+    <div id="my-div">
       <canvas-content />
       <n-drawer
         v-model:show="showDrawer"
@@ -181,5 +181,10 @@ const drawerWidth = ref(500);
 </script>
 
 <style scoped>
-@import url(../../assets/css/animationCommon.css);
+/* @import url(../../assets/css/animationCommon.css); */
+/* #my-div {
+  height: 1500px;
+  width: 2000px;
+  background-image: url("../../assets/images/bg.png");
+} */
 </style>
