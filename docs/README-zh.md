@@ -47,7 +47,7 @@ Install new scripts            |  Taskbar
 
 弹出对话框             |  屏幕注释
 :-------------------------:|:-------------------------:
-<img src="../docs/demo-daily-vocabulary.gif" width=450 title="dialog"> | <img src="../docs/demo-annotation.gif" width=450  title="annotation">
+<img src="../docs/demo-app-launcher.gif" width=450 title="dialog"> | <img src="../docs/demo-screen-mask.gif" width=450  title="annotation">
 
 ## AuTool示例脚本
 [![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)

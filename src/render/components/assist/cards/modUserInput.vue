@@ -362,7 +362,7 @@ const renderDynamicInput = (content) => {
 
             // Add image mask to segmentation list
             rawOptions.value.push({
-              label: `mask #${++selectIndex}`,
+              label: `mask #${selectIndex++}`,
               src: content,
             });
           });
@@ -677,6 +677,7 @@ const enqueue = (message) => {
       // Unset preset parameters
       selectStatus = false;
       selectIndex = 0;
+      rawOptions.value = [];
       ipcRenderer.removeAllListeners("mouse-hover");
     },
   });

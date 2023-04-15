@@ -137,7 +137,7 @@ import modUserInput from "./cards/modUserInput.vue";
 let assistWinSize = appConfig.get("assistWinSize");
 const canvasWidth = ref(assistWinSize.width);
 const canvasHeight = ref(assistWinSize.height);
-const screenShift = 24;
+const screenShift = 25;
 
 const activeAnnotationsShow = computed(() => {
   return activeAnnotations.value
