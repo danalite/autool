@@ -41,15 +41,15 @@ Install new scripts            |  Taskbar
 <img src="./docs/demo-new-task.gif" width=450 title="new"> |  <img src="./docs/demo-taskbar.gif" width=450  title="taskbar">
 
 ### Magic Canvas
-AuTool comes with a magic canvas that can be used to draw annotations on the screen. The canvas can be used to guide users through a workflow, or to highlight important information on the screen. 
+AuTool employs a transparent canvas that spans the entire screen, allowing for seamless and non-intrusive interaction with the user. The canvas can be scripted to perform the following tasks:
 
-- *Pop-up dialog*: an AuTool script may ask for user input by displaying a pop-up dialog. The dialog can be used to collect user input, or to display information to the user.
+- *Dialogs*: ask for user input, or to display information to the user. In the GIF below, the user is asked to enter a search keyword, and the search results are displayed in a list.
 
-- *Screen annotations*: an AuTool script can draw annotations on the window with purpose of guiding users to use a software. Annotations will not interfere with the user's interaction with the software. 
+- *Annotations*: draw masks or popovers on the screen to highlight certain area, or to guide new users to use a desktop software.
 
-Pop-up dialog             |  Screen annotation
+Dialogs             |  Annotation
 :-------------------------:|:-------------------------:
-<img src="./docs/demo-daily-vocabulary.gif" width=450 title="dialog"> | <img src="./docs/demo-annotation.gif" width=450  title="annotation">
+<img src="./docs/demo-app-launcher.gif" width=450 title="dialog"> | <img src="./docs/demo-screen-mask.gif" width=450  title="annotation">
 
 ## Example AuTool Scripts
 [![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
