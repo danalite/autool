@@ -1,5 +1,21 @@
 ## CHANGE LOG
 
+### 2023-04-19
+- Add new env variable `PWD` to specify the app path
+- Remove `Activate Canvas` button in menu
+- Put selected tasks into tray menu (and run action)
+
+### 2023-04-18
+- Add dynamic input types with default values (record add/sub)
+
+### 2023-04-16
+- Fixed the setAttribute issue
+- Fixed the Open DEV tool loading issue
+
+### 2023-04-15
+- Updated README with new GIF demos
+- Updated README with tiny link pointing to community apps
+
 ### 2023-04-14
 - Add an option to clear existing annotations in `window.annotate`
 - Add SAM support to canvas

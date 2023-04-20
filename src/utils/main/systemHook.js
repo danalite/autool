@@ -1,6 +1,5 @@
 import {
   screen,
-  ipcMain,
   globalShortcut,
   shell
 } from 'electron'
@@ -13,34 +12,6 @@ const activeWindow = require('active-win');
 
 // queue the incoming IO hook requests
 let ioEventQueue = []
-
-// TODO: support mouseup, mousedown
-var recordOptions = {
-  "click": true,
-  "keydown": true,
-  "keyup": true
-}
-
-// IO hook event tracing
-let macroRecordCsr = {
-  started: false,
-  taskId: '',
-  startKey: '',
-  stopKey: '',
-  track: [],
-}
-
-var recordedActions = []
-let selectAreaAction = {
-  started: false,
-  target: {
-    taskId: '',
-    owner: '',
-    bounds: { x: 0, y: 0, width: 0, height: 0 },
-    lt: [0, 0],
-  }
-}
-
 var isMacroRecording = false
 var macroRecordedSequence = []
 
@@ -52,9 +23,7 @@ var isTrackingTime = false
 var lastActionTimeStamp = 0
 
 var mouseActionTables = []
-var isOverAssist = false
 var isHelperWindowShown = false
-var assistBounds = {}
 
 
 export const uioStartup = (assistWindow) => {

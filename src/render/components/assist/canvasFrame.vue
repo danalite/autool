@@ -163,7 +163,7 @@ function refreshElements() {
       // console.log("@@", "leave notification. pass");
       ipcRenderer.invoke("assist-ignore-mouse-events", true, { forward: true });
     });
-    ele.setAttribute(listeningAttr, true);
+    ele.setAttribute(listeningAttr, "true");
   }
 }
 

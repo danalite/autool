@@ -2,7 +2,7 @@
   <img src="./docs/banner.png" height="95" title="main">
 </p>
 
-[Documents](https://danalite.github.io/autool/) | [APIs](https://danalite.github.io/autool/) | [简体中文](docs/README-zh.md)
+[Documents](https://danalite.github.io/autool/) | [APIs](https://danalite.github.io/autool/) | [中文](docs/README-zh.md)
 
 [![Latest Release](https://img.shields.io/github/v/release/danalite/autool?color=blue&label=Latest%20Release&style=flat-square)](https://github.com/danalite/autool/releases/latest)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=flat-square)](https://github.com/danalite/autool/actions)
@@ -20,7 +20,7 @@ We aim to make AuTool a desktop version of Tampermonkey, featuring lightweight a
 ## Install AuTool
 - Download and install AuTool app from the following links:
 
-[![WinExe](https://img.shields.io/badge/win32-download-green?logo=windows&style=flat-square)](https://github.com/danalite/autool/releases)
+[![WinExe](https://img.shields.io/badge/win64-download-green?logo=windows&style=flat-square)](https://github.com/danalite/autool/releases)
 [![MacOS](https://img.shields.io/badge/osx64-download-green?logo=apple&style=flat-square)](https://github.com/danalite/autool/releases)
 [![Ubuntu](https://img.shields.io/badge/amd64-download-green?logo=ubuntu&style=flat-square)](https://github.com/danalite/autool/releases)
 
@@ -47,20 +47,18 @@ AuTool employs a transparent canvas that spans the entire screen. The canvas can
 
 - **Annotations**: to draw masks or popovers on the screen to highlight certain area, or to guide new users to use a desktop software. The example below shows the usage of mask to segment an image.
 
-Notifications (app launcher)             |  Annotations (image segmentation)
+Example: app launcher             |  Example: image segmentation
 :-------------------------:|:-------------------------:
 <img src="./docs/demo-app-launcher.gif" width=450 title="dialog"> | <img src="./docs/demo-screen-mask.gif" width=450  title="annotation">
 
 ## Example AuTool Scripts
-[![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
+Here is a few AuTool example scripts to get you started and get a taste on what AuTool can help you with. These scripts can be downloaded in AuTool app directly (i.e., Mini-Tool).
 
-Here is a few AuTool example scripts to get you started and get a taste on what AuTool can help you with. The scripts can be downloaded by clicking the icon above.
-
-- [Quick search and open files](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): enter keywords to search and open files or folders.
+- [File Finder & Launcher](https://github.com/danalite/autool-script-examples/blob/master/danalite/Mini-Tools/File-Searcher.yaml): enter keywords to search and open files or folders.
 - [Password Manager](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Password-Manager): generate a new password or copy existing passwords to clipboard.
 - [Format Converter](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): convert MOVs into GIFs or other formats.
 - [Amazon Deals](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/): gather hot deals from cloud monitor and keep you informed. 
-- [Vocabulary flashcards](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): flashcards with example and audio. 
+- [Vocabulary Flashcards](https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools/Clipboard-Manager): flashcards with example and audio. 
 
 ## Write Your Own Scripts
 - Each AuTool script is a YAML text file which contains a sequence of actions. Here is a simple AuTool script example to push a notification to you when your copied content contains a keyword:

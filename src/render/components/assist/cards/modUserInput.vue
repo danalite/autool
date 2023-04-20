@@ -25,6 +25,7 @@ import {
   NCarousel,
   NCarouselItem,
   useNotification,
+  NDynamicInput,
 } from "naive-ui";
 
 import { h, reactive, ref, computed } from "vue";
@@ -126,6 +127,114 @@ const renderCheckbox = (content) => {
   );
 };
 
+// has key attribute
+const renderInput = (content) => {
+  // init retValues[content.key]
+  if (retValues[content.key] == null) {
+    retValues[content.key] = content.advanced?.default;
+  }
+  return content.advanced?.dynamic
+    ? h(
+        NDynamicInput,
+        {
+          createButtonStyle: {
+            "margin-left": "30px",
+            "margin-top": "8px",
+            "margin-bottom": "8px",
+          },
+          onCreate: (index) => {
+            var newInput = {
+              label: index, 
+              value: "",
+              isNew: true,
+              isCheck: false,
+            };
+            retValues[content.key].push(newInput);
+            return newInput;
+          },
+
+          onRemove: (index) => {
+            retValues[content.key] = retValues[content.key].map((item) => {
+              if (item.label === index) {
+                return {
+                  ...item,
+                  isDeleted: true,
+                };
+              } else {
+                return item;
+              }
+            })
+          },
+
+          size: "small",
+          placeholder: content.placeholder,
+          style: { "font-size": "14px" },
+          defaultValue: retValues[content.key],
+        },
+        {
+          default: ({ value }) =>
+            h(
+              "div",
+              {
+                style: {
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                },
+              },
+              {
+                default: () => [
+                  h(NCheckbox, {
+                    style: { marginRight: "12px" },
+                    onUpdateChecked: (v) => {
+                      retValues[content.key] = retValues[content.key].map((item) => {
+                        if (item.label === value.label) {
+                          return {
+                            ...item,
+                            isCheck: v,
+                          };
+                        } else {
+                          return item;
+                        }
+                      })
+                    },
+                  }),
+                  h(NInput, {
+                    style: { "font-size": "14px" },
+                    defaultValue: value.value,
+                    onUpdateValue: (v) => {
+                      retValues[content.key] = retValues[content.key].map((item) => {
+                        if (item.label === value.label && !item.isNew) {
+                          return {
+                            ...item,
+                            value: v,
+                            isUpdated: true,
+                          };
+                        } else {
+                          return item;
+                        }
+                      })
+                    },
+                    size: "small",
+                    placeholder: content.placeholder,
+                    style: { "font-size": "14px" },
+                  }),
+                ],
+              }
+            ),
+        }
+      )
+    : h(NInput, {
+        style: { "font-size": "14px" },
+        onUpdateValue: (value) => {
+          retValues[content.key] = value;
+        },
+        size: "small",
+        placeholder: content.placeholder,
+        style: { "font-size": "14px" },
+      });
+};
+
 const renderText = (content) => {
   return h(
     NSpace,
@@ -135,15 +244,7 @@ const renderText = (content) => {
         renderTitle(content.label),
         // Text input or a simple text to display
         content.key != null
-          ? h(NInput, {
-              style: { "font-size": "14px" },
-              onUpdateValue: (value) => {
-                retValues[content.key] = value;
-              },
-              size: "small",
-              placeholder: content.placeholder,
-              style: { "font-size": "14px" },
-            })
+          ? renderInput(content)
           : h(
               NText,
               {
@@ -553,25 +654,27 @@ const renderContent = (content) => {
       return renderNumberInput(content);
 
     case "audio":
-      return h(
-        "audio",
-        {
-          src: content.source,
-          controls: true,
-          volume: content.volume || 0.5,
-          style: { width: "90%", maxHeight: "30px" },
-        },
-        { default: () => "Your browser does not support the audio element." }
-      );
-
     case "video":
       return h(
-        "video",
+        content.type,
         {
           src: content.source,
           controls: true,
           volume: content.volume || 0.5,
-          style: { width: "90%", maxHeight: "320px" },
+          style: {
+            width: "90%",
+            maxHeight: content.type == "audio" ? "30px" : "320px",
+          },
+        },
+        { default: () => "Your browser does not support the video element." }
+      );
+
+    case "webview":
+      return h(
+        "webview",
+        {
+          src: content.source,
+          style: { width: "100%", height: "600px", fontSize: "12px" },
         },
         { default: () => "Your browser does not support the video element." }
       );
