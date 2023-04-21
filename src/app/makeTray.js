@@ -26,9 +26,9 @@ const setupCheckedTasks = (mainWindow, icon) => {
   } else {
     return [
       { type: "separator" },
-      ...selectedTasks.map((task) => {
+      ...selectedTasks.map((task, index) => {
         return {
-          label: task.relTaskPath.split(path.sep).slice(-1)[0],
+          label: `${index}. ` + task.relTaskPath.split(path.sep).slice(-1)[0],
           icon: icon,
           click: () => {
             mainWindow.webContents.send('to-main-win',
@@ -93,17 +93,17 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         });
       },
     },
-    {
-      label: "About",
-      click() {
-        mainWindow.show();
-        dialog.showMessageBox({
-          title: "AuTool © DanaLite Ltd. 2023",
-          message: "Software Platform for Workflows Automation and Digital Adoption",
-          detail: `version: ${pkg.version}\n`,
-        });
-      },
-    },
+    // {
+    //   label: "About",
+    //   click() {
+    //     mainWindow.show();
+    //     dialog.showMessageBox({
+    //       title: "AuTool © DanaLite Ltd. 2023",
+    //       message: "Software Platform for Workflows Automation and Digital Adoption",
+    //       detail: `version: ${pkg.version}\n`,
+    //     });
+    //   },
+    // },
   ]);
   }
 

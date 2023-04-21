@@ -127,11 +127,12 @@ const renderCheckbox = (content) => {
   );
 };
 
-// has key attribute
 const renderInput = (content) => {
-  // init retValues[content.key]
   if (retValues[content.key] == null) {
-    retValues[content.key] = content.advanced?.default;
+    retValues[content.key] = {
+      options: content.advanced?.default ?? [],
+      checked: [],
+    };
   }
   return content.advanced?.dynamic
     ? h(
@@ -143,36 +144,25 @@ const renderInput = (content) => {
             "margin-bottom": "8px",
           },
           onCreate: (index) => {
-            var newInput = {
-              label: index, 
-              value: "",
-              isNew: true,
-              isCheck: false,
-            };
-            retValues[content.key].push(newInput);
-            return newInput;
+            if (Array.isArray(retValues[content.key])) {
+              retValues[content.key].options.splice(index, 0, "");
+            }
+            return "";
           },
 
           onRemove: (index) => {
-            retValues[content.key] = retValues[content.key].map((item) => {
-              if (item.label === index) {
-                return {
-                  ...item,
-                  isDeleted: true,
-                };
-              } else {
-                return item;
-              }
-            })
+            if (Array.isArray(retValues[content.key])) {
+              retValues[content.key].options.splice(index, 1);
+            }
           },
 
           size: "small",
           placeholder: content.placeholder,
           style: { "font-size": "14px" },
-          defaultValue: retValues[content.key],
+          defaultValue: retValues[content.key].options,
         },
         {
-          default: ({ value }) =>
+          default: ({ value, index }) =>
             h(
               "div",
               {
@@ -187,33 +177,22 @@ const renderInput = (content) => {
                   h(NCheckbox, {
                     style: { marginRight: "12px" },
                     onUpdateChecked: (v) => {
-                      retValues[content.key] = retValues[content.key].map((item) => {
-                        if (item.label === value.label) {
-                          return {
-                            ...item,
-                            isCheck: v,
-                          };
-                        } else {
-                          return item;
-                        }
-                      })
+                      const current = retValues[content.key].options[index];
+                      if (v) {
+                        retValues[content.key].checked.push(current);
+                      } else {
+                        retValues[content.key].checked = retValues[
+                          content.key
+                        ].checked.filter((item) => item !== current);
+                      }
                     },
                   }),
                   h(NInput, {
                     style: { "font-size": "14px" },
-                    defaultValue: value.value,
+                    defaultValue: value,
                     onUpdateValue: (v) => {
-                      retValues[content.key] = retValues[content.key].map((item) => {
-                        if (item.label === value.label && !item.isNew) {
-                          return {
-                            ...item,
-                            value: v,
-                            isUpdated: true,
-                          };
-                        } else {
-                          return item;
-                        }
-                      })
+                      retValues[content.key].options[index] = v;
+                      // console.log(retValues[content.key], "@@@");
                     },
                     size: "small",
                     placeholder: content.placeholder,

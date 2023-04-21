@@ -1,5 +1,9 @@
 ## CHANGE LOG
 
+### 2023-04-20
+- Add todo app example
+- Add password manager example
+
 ### 2023-04-19
 - Add new env variable `PWD` to specify the app path
 - Remove `Activate Canvas` button in menu
