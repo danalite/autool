@@ -211,6 +211,8 @@ app.whenReady().then(async () => {
         confirmQuit = true
         uioStop()
         app.quit()
+      } else {
+        mainWindow.hide()
       }
     }
   })

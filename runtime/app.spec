@@ -6,7 +6,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('seleniumwire/*', 'seleniumwire')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
