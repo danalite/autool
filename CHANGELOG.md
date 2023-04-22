@@ -1,5 +1,8 @@
 ## CHANGE LOG
 
+### 2023-04-22
+- Add initial windows location for pos=0,0
+
 ### 2023-04-21
 - Organize the script-examples
 - Hide main window when close button is clicked
@@ -7,7 +10,7 @@
 
 ### 2023-04-20 
 - Add todo app example
-- Add password manage r example
+- Add password manager example
 
 ### 2023-04-19
 - Add new env variable `PWD` to specify the app path

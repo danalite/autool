@@ -1,10 +1,11 @@
-import { BrowserWindow } from "electron";
+import { BrowserWindow, screen } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { appConfig } from '@/utils/main/config'
 
 export const createMainWindow = async (userHeader, iconPath) => {
   let dim = appConfig.get('mainWindowDimension')
   let pos = appConfig.get('mainWindowPosition')
+  const currentScreen = screen.getPrimaryDisplay()['size']
 
   const win = new BrowserWindow({
     title: 'AuTool',
@@ -25,8 +26,8 @@ export const createMainWindow = async (userHeader, iconPath) => {
       height: 30
     },
 
-    x: pos.x,
-    y: pos.y,
+    x: pos.x || (currentScreen.width - dim.width) / 2,
+    y: pos.y || (currentScreen.height - dim.height) / 2,
     width: dim.isCollapsed ? 590 : dim.width,
     height: dim.isCollapsed ? 40 : dim.height,
     icon: iconPath,
