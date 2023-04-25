@@ -2,7 +2,7 @@
   <img src="./docs/banner.png" height="95" title="main">
 </p>
 
-[Documents](https://danalite.github.io/autool/) | [APIs](https://danalite.github.io/autool/) | [中文](docs/README-zh.md)
+[Documents](https://autool.site) | [APIs](https://autool.site) | [中文](docs/README-zh.md)
 
 [![Latest Release](https://img.shields.io/github/v/release/danalite/autool?color=blue&label=Latest%20Release&style=flat-square)](https://github.com/danalite/autool/releases/latest)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=flat-square)](https://github.com/danalite/autool/actions)
@@ -24,7 +24,7 @@ We aim to make AuTool a desktop version of Tampermonkey, featuring lightweight a
 [![MacOS](https://img.shields.io/badge/osx64-download-green?logo=apple&style=flat-square)](https://github.com/danalite/autool/releases)
 [![Ubuntu](https://img.shields.io/badge/amd64-download-green?logo=ubuntu&style=flat-square)](https://github.com/danalite/autool/releases)
 
-- Once you have installed AuTool, you can download your desired scripts from [our website](https://danalite.github.io/autool/). These scripts will then appear in the AuTool task manager, where they can be executed with a single click.
+- Once you have installed AuTool, you can download your desired scripts from [our website](https://autool.site). These scripts will then appear in the AuTool task manager, where they can be executed with a single click.
 
 <p align="center">
   <img src="./docs/example.png" width="90%" title="AuTool">

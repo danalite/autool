@@ -2,7 +2,7 @@
   <img src="../docs/banner.png" height="95" title="main">
 </p>
 
-[文档](https://danalite.github.io/autool/) | [APIs](https://danalite.github.io/autool/) 
+[文档](https://autool.site) | [APIs](https://autool.site) 
 
 [![Latest Release](https://img.shields.io/github/v/release/danalite/autool?color=blue&label=Latest%20Release&style=flat-square)](https://github.com/danalite/autool/releases/latest)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=flat-square)](https://github.com/danalite/autool/actions)
@@ -25,7 +25,7 @@ AuTool是一种用于工作流自动化的软件平台。AuTool最初的愿景�
 [![MacOS](https://img.shields.io/badge/MacOS.dmg-download-green?logo=apple&style=flat-square)](https://github.com/danalite/autool/releases)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu.deb-download-green?logo=ubuntu&style=flat-square)](https://github.com/danalite/autool/releases)
 
-- 安装了 AuTool 后，您可以从[我们的网站](https://danalite.github.io/autool/)下载所需的脚本。这些脚本将出现在 AuTool 任务管理器中，可以通过单击执行。
+- 安装了 AuTool 后，您可以从[我们的网站](https://autool.site)下载所需的脚本。这些脚本将出现在 AuTool 任务管理器中，可以通过单击执行。
 <p align="center">
   <img src="../docs/example.png" width="90%" title="AuTool">
 </p>
@@ -50,7 +50,7 @@ Install new scripts            |  Taskbar
 <img src="../docs/demo-app-launcher.gif" width=450 title="dialog"> | <img src="../docs/demo-screen-mask.gif" width=450  title="annotation">
 
 ## AuTool示例脚本
-[![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://danalite.github.io/autool/docs/basics/apps-macos-runner)
+[![AuToolExample](https://img.shields.io/badge/AuTool--Examples-download-green?logo=github&style=flat-square)](https://autool.sitedocs/basics/apps-macos-runner)
 
 以下是一些AuTool示例脚本，可帮助您入门并了解AuTool可以帮助您做什么。可以通过单击上面的图标下载这些脚本。
 
