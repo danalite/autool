@@ -59,7 +59,12 @@ export const ipcListener = (mainWindow, assistWindow) => {
 
   // Proxy message from assist window to main window
   ipcMain.on('event-to-main-win', (event, message) => {
-    mainWindow.webContents.send(message.callback, message.data)
+    // if message has key `callback`, send to callback channel
+    if (message.callback) {
+      mainWindow.webContents.send(message.callback, message.data)
+    } else {
+      mainWindow.webContents.send("to-main-win", message)
+    }
   })
 
   // read or update local apps, invoke shell command (from windows)

@@ -1,5 +1,14 @@
 ## CHANGE LOG
 
+### 2023-05-08
+- Refined the dynamic API spec
+- Use realtime thumbnail for searching images
+
+### 2023-04-28
+- Implement a chat window
+- Feature preview: long press Meta to awake assistant
+- Add a new environment variable `PLATFORM` 
+
 ### 2023-04-22
 - Add initial windows location for pos=0,0
 

@@ -1,21 +1,30 @@
 <template>
   <n-list v-show="props.options.length > 0" hoverable :show-divider="false">
-    <n-scrollbar :style="{
-      maxHeight: props.height,
-    }">
+    <n-scrollbar
+      :style="{
+        maxHeight: props.height,
+      }"
+    >
       <n-list-item
         v-for="option in props.options"
         :key="option.label"
         :style="{
-          padding: '0px',
+          paddingTop: '4px',
+          paddingBottom: '4px',
           margin: '0px',
           cursor: 'pointer',
         }"
         @click="clickItem(option)"
       >
         <div style="display: flex; align-items: center">
-          <n-image
+          <img
             :width="option.width || 35"
+            lazy
+            :style="{
+              borderRadius: '4px',
+              // objectFit: 'cover',
+              // objectPosition: 'top',
+            }"
             :src="option.src || createImgUrl(option.ext)"
             preview-disabled
           />
@@ -41,6 +50,7 @@ import { h } from "vue";
 import { NImage, NText, NList, NListItem, NScrollbar } from "naive-ui";
 import { shell } from "electron";
 import { Emphasis } from "@vicons/tabler";
+import eventBus from "@/utils/render/eventBus";
 
 const props = defineProps({
   options: {
@@ -86,7 +96,13 @@ const emits = defineEmits(["customEvent"]);
 const clickItem = (option) => {
   emits("customEvent", option);
   if (option.link) {
-    shell.openExternal(option.link);
+    // shell.openExternal(option.link);
+    const task = {
+      relTaskPath: "amazon-login",
+      absTaskPath:
+        "/Users/hecmay/Desktop/apps/danalite/Web-Apps/Automation/bookkeeper/amazon-tracking-orders/amazon-login.yaml",
+    };
+    eventBus.emit("run-task", task);
   }
 };
 </script>

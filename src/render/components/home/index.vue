@@ -84,14 +84,15 @@ import {
 
 import { PlayerPlay, Apps, HeartRateMonitor, Settings } from "@vicons/tabler";
 
-import { useStore } from "../../store";
+import { useStore } from "@/render/store";
 import { storeToRefs } from "pinia";
 
 import { h, onMounted, ref } from "vue";
 import { appConfig } from "@/utils/main/config";
 import { EventType } from "@/utils/render/eventTypes";
 import { ipcRenderer } from "electron";
-import { genUUID } from "@/utils/render/taskUtils";
+
+import { genUUID } from "@/utils/render/components/common";
 import { parseCron } from "@/utils/render/parseCron";
 
 import eventBus from "@/utils/render/eventBus";
@@ -441,6 +442,7 @@ const stopTask = (task) => {
 
 // Handle events from node process and task bar
 eventBus.on("run-task", (task) => {
+  console.log("run-task", task);
   runTask(task);
 });
 

@@ -5,7 +5,7 @@
   "version": "0.0.17",
   "author": "vrteee <support@autool.site>",
   "main": "background.js",
-  "description": "Workflow Automation and Digital Adoption Platform",
+  "description": "Software infrastructure for AI adoption",
   "scripts": {
     "init": "python -m venv pyenv && run-script-os",
     "init:darwin:linux": "./pyenv/bin/pip install -r ./runtime/requirements.txt",

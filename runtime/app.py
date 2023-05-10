@@ -7,14 +7,30 @@ import requests
 import asyncio
 import random
 
+import base64
 import websockets
 from libauto import new_task_sch, download
-from py_rust_search import get_similar_files
+
+from PIL import Image
 from io import BytesIO
 
-# Manage application states
+from py_rust_search import get_similar_files
+
+# websocket server states management
 active_conns = dict()
 ts = new_task_sch()
+
+
+async def search_files_from_dir(query, params):
+    location = params["location"]
+    resp = []
+
+    for _ in get_similar_files(query, location):
+        ext = os.path.splitext(_)[-1]
+        entry = {"label": _.split(os.sep)[-1], "value": _, "ext": ext}
+        resp.append(entry)
+
+    return resp
 
 
 async def event_queue_listener(task_sch):
@@ -87,22 +103,51 @@ async def websocket_handler(websocket):
         del active_conns[websocket]
 
     else:
-        if worker == "Download":
-            ack = "Success."
+        if worker == "MainLoop":
+            await loopMain(websocket)
+
+        elif worker == "Download":
             try:
                 download(message["appUrl"], message["appHome"])
+                ack = "Success"
             except Exception as e:
                 ack = "Error: " + str(e)
 
             await websocket.send(json.dumps({"event": "O_EVENT_WSS_RESP", "message": ack}))
 
-        elif worker == "MainLoop":
-            await loopMain(websocket)
-
-        elif worker == "File":
-            q = [{"label": _.split(os.sep)[-1], "value": _, "ext": os.path.splitext(_)[-1]} for _ in get_similar_files(
-                message["query"], message["params"]["location"])]
+        elif worker == "Files":
+            q = await search_files_from_dir(message["query"], message["params"])
             await websocket.send(json.dumps(q))
+
+        elif worker == "SelectItem":
+            # Request to process a single file
+            params = message["params"]
+            await asyncio.sleep(2)
+            # files = {'json': ('params', json.dumps(
+            #     params), 'application/json')}
+
+            # if "file" in params:
+            #     files['file'] = ('file', open(
+            #         params["file"], 'rb'), 'application/octet-stream')
+            # stream = params["stream"] if "stream" in params else False
+
+
+            # response = requests.post(
+            #     params["server"], files=files, stream=stream)
+
+            # if response.status_code == 200:
+            #     if stream:
+            #         for chunk in response.iter_content(chunk_size=30):
+            #             if chunk:
+            #                 v = chunk.decode('utf-8')
+            #                 print(v, end='', flush=True)
+            #                 await websocket.send(json.dumps({'text': v}))
+
+            #     else:
+            #         ret = response.json()
+            #         await websocket.send(json.dumps(ret))
+            # else:
+            #     print("[ ERROR ]", response.status_code, response)
 
         elif worker == "Segmentation":
             image = pygb.screenshot(
@@ -127,6 +172,31 @@ async def websocket_handler(websocket):
             ret = {"image": output_path, **message["params"]}
             # print(ret)
             await websocket.send(json.dumps(ret))
+
+        elif worker.startswith("http"):
+            print(message["query"])
+            # return a list of options from a remote server
+            # response = requests.get(worker)
+            q = [{"label": "Hipoly 3D Model LoRA", "value": "tes5", "src": "https://imagecache.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/3e28cc7f-dd15-4dbf-0981-b840dc19fc00/width=450/01972-20230410094800-1041864763-models_02_25D_AlstroemeriaMix-fp16.jpeg", "description": "Realistic", "width": 100},
+                 {
+                "label": "Cetus-Mix", "value": "xx", "src": "https://imagecache.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/e8af6535-6ff6-4404-c6f9-63a28029bb00/width=450/00877-1649434158-(neko%20girl),hold%20a%20cat,%20%20cute,%20full%20of%20cats,%20(%20full%20body),%20,Cat%20litter%20boxes,%20cat%20paintings%20on%20the%20wall,%20(detailed%20face),.jpeg", "description": "Anime", "width": 100}, 
+                {
+                    "label": "Firewatch Diffusion Model", 
+                    "value": "xx",
+                    "src": "https://imagecache.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/cdfccd83-1f02-4580-4bbc-f11d665d8800/width=450/frozenl.jpeg",
+                    "description": "Landscapes, Anime",
+                    "width": 100
+                },
+                                {
+                    "label": "2D Sprite style", 
+                    "value": "xx",
+                    "src": "https://imagecache.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/0a93ad68-6798-4798-544e-18fe4df7ef00/width=450/330270.jpeg",
+                    "description": "Characters, 2D",
+                    "width": 100
+                },
+                ]
+            q = [ _ for _ in q if message["query"] in _["label"] ]
+            await websocket.send(json.dumps(q))
 
 
 async def check_connections():

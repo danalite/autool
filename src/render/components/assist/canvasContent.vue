@@ -95,7 +95,6 @@
       {{ marker.kind === "rect" ? marker.content : marker.label }}
     </n-popover>
 
-    <mod-user-notification ref="modUserNotificationRef" />
     <mod-user-input ref="modUserInputRef" @drawMask="drawMask" />
   </div>
 </template>
@@ -130,8 +129,6 @@ import {
 
 import { ref, computed, reactive, getCurrentInstance } from "vue";
 import { appConfig } from "@/utils/main/config";
-
-import modUserNotification from "./cards/modUserNotification.vue";
 import modUserInput from "./cards/modUserInput.vue";
 
 let assistWinSize = appConfig.get("assistWinSize");
@@ -174,7 +171,6 @@ const activeAnnotationsShow = computed(() => {
 });
 
 // Ref handles to sub-components
-const modUserNotificationRef = ref(null);
 const modUserInputRef = ref(null);
 
 let activeWin = reactive({
@@ -220,10 +216,6 @@ ipcRenderer.on("assist-win-push", (event, message) => {
           ...message.content,
         });
       }
-      break;
-
-    case "user-notify":
-      modUserNotificationRef.value.enqueue(message);
       break;
 
     case "user-input":

@@ -4,11 +4,13 @@
   
 <script setup>
 import {
+  NSpin,
   NSpace,
   NInput,
   NInputNumber,
   NInputGroup,
   NButton,
+  NDivider,
   NAvatar,
   NSwitch,
   NCheckboxGroup,
@@ -31,319 +33,29 @@ import {
 import { h, reactive, ref, computed } from "vue";
 import { ipcRenderer, shell } from "electron";
 
-import { handleCopyImg } from "@/utils/render/renderComponents";
-import { ExternalLink } from "@vicons/tabler";
+import { genUUID, querySearch } from "@/utils/render/components/common";
 
 import queryResults from "./queryResults.vue";
-import { renderTitle } from "@/utils/render/renderComponents";
 
+import { renderTitle } from "@/utils/render/components/common";
+import { renderChatWindow } from "@/utils/render/components/renderChatWindow";
+import { renderNumberInput } from "@/utils/render/components/renderInputNumber";
+import { renderMedia } from "@/utils/render/components/renderMedia";
+import { renderImageList } from "@/utils/render/components/renderImageList";
+import { renderCarousel } from "@/utils/render/components/renderCarousel";
+import { renderUpload } from "@/utils/render/components/renderUpload";
+import { renderCheckbox } from "@/utils/render/components/renderCheckbox";
+import { renderText } from "@/utils/render/components/renderText";
+
+import { useStore } from "@/render/store";
 const emits = defineEmits(["drawMask"]);
+
 const notification = useNotification();
 const retValues = reactive({});
-let nRef = null;
+const loadingElements = ref([]);
+const store = useStore();
 
-const renderCheckbox = (content) => {
-  const options = content.content.map((item) => {
-    // if item is of type string, convert it to object
-    if (typeof item === "string") {
-      return {
-        label: item,
-        value: item,
-      };
-    } else {
-      return {
-        label: item.label,
-        value: item.value,
-      };
-    }
-  });
-  return h(
-    NSpace,
-    { vertical: true },
-    {
-      default: () => [
-        renderTitle(content.label),
-        h(
-          NCheckboxGroup,
-          {
-            onUpdateValue: (value) => {
-              retValues[content.key] = value;
-              if (content.instantQuit && content.max === 1) {
-                nRef.destroy();
-              }
-            },
-            style: { "margin-left": "30px" },
-            defaultValue: content.preset,
-            max: content.max,
-            min: content.min,
-          },
-          {
-            default: () =>
-              h(
-                NGrid,
-                {
-                  yGap: 8,
-                  cols: 1,
-                },
-                {
-                  default: () =>
-                    options.map((option) =>
-                      h(
-                        NGridItem,
-                        {
-                          span: 1,
-                        },
-                        {
-                          default: () =>
-                            h(
-                              NCheckbox,
-                              {
-                                label: option.label,
-                                value: option.value,
-                              },
-                              {
-                                default: () =>
-                                  h(
-                                    NText,
-                                    {
-                                      style: {
-                                        "font-size": "14px",
-                                        "line-height": "0px",
-                                      },
-                                    },
-                                    { default: () => option.label }
-                                  ),
-                              }
-                            ),
-                        }
-                      )
-                    ),
-                }
-              ),
-          }
-        ),
-      ],
-    }
-  );
-};
-
-const renderInput = (content) => {
-  if (retValues[content.key] == null) {
-    retValues[content.key] = {
-      options: content.advanced?.default ?? [],
-      checked: [],
-    };
-  }
-  return content.advanced?.dynamic
-    ? h(
-        NDynamicInput,
-        {
-          createButtonStyle: {
-            "margin-left": "30px",
-            "margin-top": "8px",
-            "margin-bottom": "8px",
-          },
-          onCreate: (index) => {
-            if (Array.isArray(retValues[content.key])) {
-              retValues[content.key].options.splice(index, 0, "");
-            }
-            return "";
-          },
-
-          onRemove: (index) => {
-            if (Array.isArray(retValues[content.key])) {
-              retValues[content.key].options.splice(index, 1);
-            }
-          },
-
-          size: "small",
-          placeholder: content.placeholder,
-          style: { "font-size": "14px" },
-          defaultValue: retValues[content.key].options,
-        },
-        {
-          default: ({ value, index }) =>
-            h(
-              "div",
-              {
-                style: {
-                  display: "flex",
-                  alignItems: "center",
-                  width: "100%",
-                },
-              },
-              {
-                default: () => [
-                  h(NCheckbox, {
-                    style: { marginRight: "12px" },
-                    onUpdateChecked: (v) => {
-                      const current = retValues[content.key].options[index];
-                      if (v) {
-                        retValues[content.key].checked.push(current);
-                      } else {
-                        retValues[content.key].checked = retValues[
-                          content.key
-                        ].checked.filter((item) => item !== current);
-                      }
-                    },
-                  }),
-                  h(NInput, {
-                    style: { "font-size": "14px" },
-                    defaultValue: value,
-                    onUpdateValue: (v) => {
-                      retValues[content.key].options[index] = v;
-                      // console.log(retValues[content.key], "@@@");
-                    },
-                    size: "small",
-                    placeholder: content.placeholder,
-                    style: { "font-size": "14px" },
-                  }),
-                ],
-              }
-            ),
-        }
-      )
-    : h(NInput, {
-        style: { "font-size": "14px" },
-        onUpdateValue: (value) => {
-          retValues[content.key] = value;
-        },
-        size: "small",
-        placeholder: content.placeholder,
-        style: { "font-size": "14px" },
-      });
-};
-
-const renderText = (content) => {
-  return h(
-    NSpace,
-    { vertical: true, style: {} },
-    {
-      default: () => [
-        renderTitle(content.label),
-        // Text input or a simple text to display
-        content.key != null
-          ? renderInput(content)
-          : h(
-              NText,
-              {
-                style: {
-                  "font-size": "14px",
-                  "line-height": "0px",
-                },
-              },
-              { default: () => content.content }
-            ),
-      ],
-    }
-  );
-};
-
-const renderCarousel = (content) => {
-  const options = content.content.map((item) => {
-    // if item is of type string, convert it to object
-    if (typeof item === "string") {
-      return {
-        label: item,
-        value: item,
-      };
-    } else {
-      return item;
-    }
-  });
-  return h(
-    NSpace,
-    { style: { "margin-top": "5px", "margin-bottom": "2px" } },
-    {
-      default: () => [
-        renderTitle(content.label),
-        h(
-          NCarousel,
-          {
-            effect: "card",
-            "prev-slide-style":
-              "transform: translateX(-150%) translateZ(-800px);",
-            "next-slide-style":
-              "transform: translateX(50%) translateZ(-800px);",
-            style: { height: "180px", width: "290px" },
-            "show-dots": false,
-          },
-          {
-            default: () =>
-              options.map((item) => {
-                return h(
-                  NCarouselItem,
-                  { style: { width: "75%" } },
-                  {
-                    default: () => [
-                      h("img", {
-                        src: item.value,
-                        onClick: () => handleCopyImg(item.value),
-                        height: "180",
-                        "object-fit": "fill",
-                        "preview-disabled": true,
-                      }),
-                      h(
-                        NButton,
-                        {
-                          size: "small",
-                          circle: true,
-                          type: "info",
-                          onClick: () => shell.openExternal(item.value),
-                          style: {
-                            position: "absolute",
-                            bottom: "8px",
-                            right: "8px",
-                          },
-                        },
-                        {
-                          default: () =>
-                            h(
-                              NIcon,
-                              { size: 20 },
-                              { default: () => h(ExternalLink) }
-                            ),
-                        }
-                      ),
-                      content.key != null
-                        ? h(
-                            NSwitch,
-                            {
-                              round: false,
-                              style: {
-                                position: "absolute",
-                                bottom: "8px",
-                                left: "8px",
-                              },
-                              onUpdateValue: (value) => {
-                                if (retValues[content.key] == null) {
-                                  retValues[content.key] = [];
-                                }
-                                if (value) {
-                                  retValues[content.key].push(item);
-                                } else {
-                                  retValues[content.key].splice(
-                                    retValues[content.key].indexOf(item),
-                                    1
-                                  );
-                                }
-                              },
-                            },
-                            {
-                              default: () => null,
-                            }
-                          )
-                        : null,
-                    ],
-                  }
-                );
-              }),
-          }
-        ),
-      ],
-    }
-  );
-};
+var messageQueue = [];
 
 const renderList = (content) => {
   return h(
@@ -371,15 +83,16 @@ const renderList = (content) => {
   );
 };
 
-function querySearch(query, searchType, params) {
+function querySearchStream(searchType, params, callback) {
   return new Promise(function (resolve, reject) {
     var server = new WebSocket("ws://localhost:5678");
+
     server.onopen = function () {
       server.send(
         JSON.stringify({
           event: "I_EVENT_WSS_REQ",
-          value: `${searchType}`,
-          query: query,
+          value: searchType,
+          query: "*",
           params: params,
         })
       );
@@ -388,11 +101,58 @@ function querySearch(query, searchType, params) {
       reject(err);
     };
     server.onmessage = function (e) {
-      resolve(e.data);
-      server.close();
+      callback(e.data);
     };
+
+    resolve({
+      server: server,
+    });
   });
 }
+
+// dynamic input text with different reactions
+// E.g., File search + content preview, summary, or call API returns
+const renderDynamicUpdate = (content) => {
+  const paramsServer = content.params?.server;
+  // console.log("[ INFO ] ", retValues[content.key], paramsServer);
+  const showType = retValues[content.key]?.type ?? "text";
+
+  if (paramsServer != null) {
+    // Need continuous processing of selected item
+    return h(
+      NSpace,
+      { vertical: true },
+      {
+        default: () => [
+          renderTitle("Preview"),
+
+          // return loading page if no data
+          loadingElements.value.find((item) => item === content.key)
+            ? h(NSpin, { size: "small" })
+            : showType == "text"
+            ? h(
+                NText,
+                { style: { "font-size": "14px" } },
+                {
+                  default: () => retValues[content.key],
+                }
+              )
+            : renderCarousel(retValues[content.key]),
+        ],
+      }
+    );
+  } else {
+    return h(NUpload, {
+      listType: "image",
+      style: { width: "300px" },
+      fileList: retValues[content.key],
+      onUpdateFileList: (value) => {
+        // console.log("[ INFO ] onUpdateChange ", value);
+        retValues[content.key] = value;
+      },
+    });
+  }
+};
 
 const rawOptions = ref([]);
 const dynamicOptions = computed(() => {
@@ -406,14 +166,16 @@ var selectIndex = 0;
 const renderDynamicInput = (content) => {
   if (retValues[content.key] == null) {
     retValues[content.key] = [];
+
+    // register callback
   }
 
-  // search == "File": search for files
+  // search == "Files": search for files
   // search == "Segmentation": search for window segmentation
   if (content.search == "Segmentation" && selectStatus == false) {
     selectStatus = true;
 
-    var callback = "SegmentationMouseClicked";
+    var callback = "SegmentationRequest";
     ipcRenderer.send("to-console", {
       action: "uio-event",
       source: "canvasWindow",
@@ -500,104 +262,50 @@ const renderDynamicInput = (content) => {
             if (content.max == 1) {
               retValues[content.key] = data;
               if (content.instantQuit) {
-                nRef.destroy();
+                store.clearCurrentSession();
               }
             } else {
-              let item = {
-                id: data.label,
-                name: data.value,
-                status: "finished",
-              };
-              if (retValues[content.key].every((i) => i.name !== item.name)) {
-                retValues[content.key].push(item);
+              if (content.params?.server != null) {
+                retValues[content.key] = "";
+                loadingElements.value.push(content.key);
+                const params = {
+                  ...content.params,
+                  queryKey: data.value,
+                };
+
+                querySearchStream("SelectItem", params, (resp) => {
+                  // Type1: get streamed data from the server
+                  loadingElements.value = loadingElements.value.filter(
+                    (item) => item !== content.key
+                  );
+                  const v = JSON.parse(resp);
+                  if (v.type == "text") {
+                    retValues[content.key] = retValues[content.key] + v.content;
+                  } else {
+                    retValues[content.key] = v;
+                  }
+                });
+              } else {
+                // Select item into a list
+                let item = {
+                  id: data.label,
+                  name: data.value,
+                  status: "finished",
+                };
+                if (retValues[content.key].every((i) => i.name !== item.name)) {
+                  retValues[content.key].push(item);
+                }
               }
             }
           },
         }),
-        h(NUpload, {
-          listType: "image",
-          style: { width: "300px" },
-          fileList: retValues[content.key],
-          onUpdateFileList: (value) => {
-            // console.log("[ INFO ] onUpdateChange ", value);
-            retValues[content.key] = value;
-          },
-        }),
+        renderDynamicUpdate(content),
       ],
     }
   );
 };
 
-const renderUpload = (content) => {
-  return h(
-    NSpace,
-    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
-    {
-      default: () => [
-        renderTitle(content.label),
-        h(
-          NUpload,
-          {
-            defaultFileList: [],
-            listType: "image",
-            onChange: (event) => {
-              const { file, fileList } = event;
-              // fileListRef.value = fileList;
-              console.log("[ INFO ] onChange ", JSON.stringify(fileList));
-              retValues[content.key] = fileList.map((item) => item.file.path);
-            },
-          },
-          {
-            default: () =>
-              h(NButton, { size: "small" }, { default: () => "Select" }),
-          }
-        ),
-      ],
-    }
-  );
-};
 
-const renderNumberInput = (content) => {
-  return h(
-    NSpace,
-    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
-    {
-      default: () => [
-        renderTitle(content.label),
-        h(NInputNumber, {
-          placeholder: content.default,
-          size: "small",
-          style: { "font-size": "14px", width: "250px" },
-          onUpdateValue: (value) => {
-            retValues[content.key] = value;
-          },
-        }),
-      ],
-    }
-  );
-};
-
-const renderImageList = (content) => {
-  const options = content.content.map((item) => {
-    return {
-      ...item,
-      width: 100,
-    };
-  });
-  return h(
-    NSpace,
-    { vertical: true },
-    {
-      default: () => [
-        renderTitle(content.label),
-        h(queryResults, {
-          options: options,
-          style: { width: "290px" },
-        }),
-      ],
-    }
-  );
-};
 
 const renderContent = (content) => {
   switch (content.type) {
@@ -619,9 +327,12 @@ const renderContent = (content) => {
         return renderCheckbox(content);
       }
 
-    // dynamic inputs (search files, HTTP requests, etc.)
+    // dynamic inputs (search files, HTTP requests, Screen selection)
     case "dynamic":
       return renderDynamicInput(content);
+
+    case "interactive":
+      return renderChatWindow(content);
 
     case "upload":
       return renderUpload(content);
@@ -634,19 +345,7 @@ const renderContent = (content) => {
 
     case "audio":
     case "video":
-      return h(
-        content.type,
-        {
-          src: content.source,
-          controls: true,
-          volume: content.volume || 0.5,
-          style: {
-            width: "90%",
-            maxHeight: content.type == "audio" ? "30px" : "320px",
-          },
-        },
-        { default: () => "Your browser does not support the video element." }
-      );
+      return renderMedia(content);
 
     case "webview":
       return h(
@@ -696,27 +395,9 @@ const renderTabs = (content) => {
   );
 };
 
-function process(key, value) {
-  if (key == "key") {
-    retValues[value] = null;
-  }
-}
 
-function traverse(o, func) {
-  for (var i in o) {
-    func.apply(this, [i, o[i]]);
-    if (o[i] !== null && typeof o[i] == "object") {
-      traverse(o[i], func);
-    }
-  }
-}
-
-const enqueue = (message) => {
-  Object.assign(retValues, {});
-  traverse(message.content, process);
-  // console.log("waiting for...", retValues);
-
-  nRef = notification.create({
+const newNotification = (message) => {
+  const nRef = notification.create({
     title: () => h("span", message.title),
     description: () => "task: " + message.source,
 
@@ -730,7 +411,7 @@ const enqueue = (message) => {
           type: "success",
           tertiary: true,
           onClick: () => {
-            nRef.destroy();
+            store.clearCurrentSession();
           },
         },
         {
@@ -748,21 +429,35 @@ const enqueue = (message) => {
         },
       }),
     onAfterLeave: () => {
-      // Only send back if there is any input keys specified
-      if (Object.keys(retValues).length > 0) {
+      const returnValue = store.getReturnValue();
+      if (Object.keys(returnValue).length > 0) {
         ipcRenderer.send("event-to-main-win", {
           callback: message.callback,
-          data: JSON.stringify(retValues),
+          data: JSON.stringify(returnValue),
         });
       }
-
-      // Unset preset parameters
-      selectStatus = false;
-      selectIndex = 0;
-      rawOptions.value = [];
       ipcRenderer.removeAllListeners("mouse-hover");
+      store.clearCurrentSession();
+      if (messageQueue.length > 0) {
+        enqueue(messageQueue.shift().message);
+      }
     },
   });
+  store.initializeSession(message, nRef);
+};
+
+const enqueue = (message) => {
+  const newID = message.uuid || genUUID();
+
+  if (store.getCurrentSession() != null) {
+    messageQueue.push({
+      id: newID,
+      message: message,
+    });
+
+  } else {
+    newNotification(message);
+  }
 };
 
 defineExpose({
