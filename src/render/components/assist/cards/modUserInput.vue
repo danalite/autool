@@ -7,36 +7,25 @@ import {
   NSpin,
   NSpace,
   NInput,
-  NInputNumber,
   NInputGroup,
   NButton,
-  NDivider,
   NAvatar,
-  NSwitch,
-  NCheckboxGroup,
-  NCheckbox,
+  NDivider,
   NText,
   NTabs,
-  NGrid,
-  NGridItem,
-  NIcon,
   NUpload,
   NTabPane,
   NList,
   NListItem,
-  NCarousel,
-  NCarouselItem,
   useNotification,
-  NDynamicInput,
 } from "naive-ui";
 
-import { h, reactive, ref, computed } from "vue";
-import { ipcRenderer, shell } from "electron";
+import { h, ref, computed } from "vue";
+import { ipcRenderer } from "electron";
 
-import { genUUID, querySearch } from "@/utils/render/components/common";
+import { genUUID, querySearchCb } from "@/utils/render/components/common";
 
 import queryResults from "./queryResults.vue";
-
 import { renderTitle } from "@/utils/render/components/common";
 import { renderChatWindow } from "@/utils/render/components/renderChatWindow";
 import { renderNumberInput } from "@/utils/render/components/renderInputNumber";
@@ -49,9 +38,8 @@ import { renderText } from "@/utils/render/components/renderText";
 
 import { useStore } from "@/render/store";
 const emits = defineEmits(["drawMask"]);
-
 const notification = useNotification();
-const retValues = reactive({});
+
 const loadingElements = ref([]);
 const store = useStore();
 
@@ -83,61 +71,17 @@ const renderList = (content) => {
   );
 };
 
-function querySearchStream(searchType, params, callback) {
-  return new Promise(function (resolve, reject) {
-    var server = new WebSocket("ws://localhost:5678");
-
-    server.onopen = function () {
-      server.send(
-        JSON.stringify({
-          event: "I_EVENT_WSS_REQ",
-          value: searchType,
-          query: "*",
-          params: params,
-        })
-      );
-    };
-    server.onerror = function (err) {
-      reject(err);
-    };
-    server.onmessage = function (e) {
-      callback(e.data);
-    };
-
-    resolve({
-      server: server,
-    });
-  });
-}
-
-// dynamic input text with different reactions
-// E.g., File search + content preview, summary, or call API returns
 const renderDynamicUpdate = (content) => {
-  const paramsServer = content.params?.server;
-  // console.log("[ INFO ] ", retValues[content.key], paramsServer);
-  const showType = retValues[content.key]?.type ?? "text";
-
-  if (paramsServer != null) {
-    // Need continuous processing of selected item
+  if (content.onSelect != null) {
     return h(
       NSpace,
       { vertical: true },
       {
         default: () => [
-          renderTitle("Preview"),
-
-          // return loading page if no data
+          h(NDivider, { dashed: true }),
           loadingElements.value.find((item) => item === content.key)
             ? h(NSpin, { size: "small" })
-            : showType == "text"
-            ? h(
-                NText,
-                { style: { "font-size": "14px" } },
-                {
-                  default: () => retValues[content.key],
-                }
-              )
-            : renderCarousel(retValues[content.key]),
+            : renderContent(store.getReturnValue()[content.key]),
         ],
       }
     );
@@ -145,10 +89,10 @@ const renderDynamicUpdate = (content) => {
     return h(NUpload, {
       listType: "image",
       style: { width: "300px" },
-      fileList: retValues[content.key],
+      fileList: store.getReturnValue()[content.key],
       onUpdateFileList: (value) => {
         // console.log("[ INFO ] onUpdateChange ", value);
-        retValues[content.key] = value;
+        store.setValue(content.key, value);
       },
     });
   }
@@ -161,58 +105,9 @@ const dynamicOptions = computed(() => {
   });
 });
 
-var selectStatus = false;
-var selectIndex = 0;
 const renderDynamicInput = (content) => {
-  if (retValues[content.key] == null) {
-    retValues[content.key] = [];
-
-    // register callback
-  }
-
-  // search == "Files": search for files
-  // search == "Segmentation": search for window segmentation
-  if (content.search == "Segmentation" && selectStatus == false) {
-    selectStatus = true;
-
-    var callback = "SegmentationRequest";
-    ipcRenderer.send("to-console", {
-      action: "uio-event",
-      source: "canvasWindow",
-      type: "mouseClicked",
-      callback: callback,
-      targetWindow: content.params.window,
-      wallTime: 200,
-    });
-    // assume to capture the active window only
-    ipcRenderer.on(callback, (event, data) => {
-      let params = {
-        ...content.params,
-        ...data,
-      };
-      querySearch("predict", content.search, params)
-        .then(function (mask) {
-          let maskData = JSON.parse(mask);
-          ipcRenderer.send("to-console", {
-            action: "load-image",
-            path: maskData.image,
-          });
-
-          ipcRenderer.once("image-loaded", (event, content) => {
-            maskData.content = content;
-            emits("drawMask", maskData);
-
-            // Add image mask to segmentation list
-            rawOptions.value.push({
-              label: `mask #${selectIndex++}`,
-              src: content,
-            });
-          });
-        })
-        .catch(function (err) {
-          console.log("[ ERROR ] querySearch ", err);
-        });
-    });
+  if (store.getReturnValue()[content.key] == null) {
+    store.setValue(content.key, []);
   }
 
   return h(
@@ -220,80 +115,104 @@ const renderDynamicInput = (content) => {
     { vertical: true },
     {
       default: () => [
+        // Search input bar
         renderTitle(content.label),
-        content.search == "Segmentation"
-          ? null
-          : h(
-              NInputGroup,
-              { size: "small" },
-              {
-                default: () => [
-                  h(NInput, {
-                    placeholder: "Search",
-                    size: "small",
-                    round: true,
-                    style: { "font-size": "14px", width: "250px" },
-                    onUpdateValue: (value) => {
-                      if (value == "") {
-                        rawOptions.value = [];
-                        return;
-                      }
-                      querySearch(value, content.search, content.params)
-                        .then(function (data) {
-                          rawOptions.value = JSON.parse(data);
-                          // console.log("[ INFO ] querySearch ", rawOptions.value);
-                        })
-                        .catch(function (err) {
-                          console.log("[ ERROR ] querySearch ", err);
-                        });
-                    },
-                  }),
-                ],
-              }
-            ),
+        h(
+          NInputGroup,
+          { size: "small" },
+          {
+            default: () => [
+              h(NInput, {
+                placeholder: "Search",
+                size: "small",
+                round: true,
+                style: { "font-size": "14px", width: "250px" },
+                onUpdateValue: (value) => {
+                  if (value == "") {
+                    rawOptions.value = [];
+                    if (content.onSelect != null) {
+                      store.setValue(content.key, {});
+                    }
+                    return;
+                  }
+                  // Top-level search returning a list
+                  const searchType = content.options?.search ?? "";
+                  const params = content.options?.params ?? {};
+                  querySearchCb(value, searchType, params, (data) => {
+                    console.log("[ INFO ] querySearchCb", data);
+                    rawOptions.value = JSON.parse(data);
+                    return "done";
+                  });
+                },
+              }),
+            ],
+          }
+        ),
 
-        // Equivalent to <query-results :queryResults={queryResults} />
+        // Display filtered results
         h(queryResults, {
           options: dynamicOptions.value,
           style: { width: "300px" },
+
+          // Click any of the item in the list
           onCustomEvent: (data) => {
-            // console.log("Custom event triggered", data);
-            // Specially quick path for app launcher
             if (content.max == 1) {
-              retValues[content.key] = data;
+              store.setValue(content.key, data.value);
               if (content.instantQuit) {
                 store.clearCurrentSession();
               }
             } else {
-              if (content.params?.server != null) {
-                retValues[content.key] = "";
+              if (content.onSelect != null) {
+                store.setValue(content.key, {});
                 loadingElements.value.push(content.key);
-                const params = {
-                  ...content.params,
-                  queryKey: data.value,
-                };
 
-                querySearchStream("SelectItem", params, (resp) => {
-                  // Type1: get streamed data from the server
+                // Second level search that returns a single item
+                const searchType = content.onSelect?.search ?? "";
+                const params = content.onSelect?.params ?? {};
+                params["QUERY"] = data.value;
+                params["__PARENT_SEARCH_TYPE__"] =
+                  content.options?.search ?? "";
+
+                querySearchCb("*", searchType, params, (resp) => {
                   loadingElements.value = loadingElements.value.filter(
                     (item) => item !== content.key
                   );
                   const v = JSON.parse(resp);
+                  var eos = true;
+
                   if (v.type == "text") {
-                    retValues[content.key] = retValues[content.key] + v.content;
+                    if (v.stream) {
+                      eos = false;
+                    }
+
+                    const prev = store.getReturnValue()[content.key];
+                    const new_v = prev.content
+                      ? prev.content + v.content
+                      : v.content;
+
+                    store.setValue(content.key, {
+                      type: "text",
+                      label: v.label ? v.label : "result",
+                      content: new_v,
+                    });
                   } else {
-                    retValues[content.key] = v;
+                    store.setValue(content.key, v);
+                  }
+
+                  if (eos) {
+                    return "done";
                   }
                 });
               } else {
-                // Select item into a list
                 let item = {
                   id: data.label,
                   name: data.value,
                   status: "finished",
                 };
-                if (retValues[content.key].every((i) => i.name !== item.name)) {
-                  retValues[content.key].push(item);
+                const e = store.getReturnValue()[content.key];
+                if (e.every((i) => i.name !== item.name)) {
+                  e.push(item);
+                  store.setValue(content.key, e);
                 }
               }
             }
@@ -304,8 +223,6 @@ const renderDynamicInput = (content) => {
     }
   );
 };
-
-
 
 const renderContent = (content) => {
   switch (content.type) {
@@ -358,12 +275,24 @@ const renderContent = (content) => {
       );
 
     default:
-      console.log("[ ERROR ] Unknown content type", content.type);
-      return h(
-        NText,
-        { style: { "font-size": "14px" } },
-        { default: () => JSON.stringify(content) }
-      );
+      if (typeof content == "object") {
+        if (Object.keys(content).length > 0) {
+          return h(
+            NText,
+            { style: { "font-size": "14px" } },
+            { default: () => JSON.stringify(content) }
+          );
+        }
+      } else {
+        // if it is an array
+        if (!Array.isArray(content)) {
+          return h(
+            NText,
+            { style: { "font-size": "14px" } },
+            { default: () => JSON.stringify(content) }
+          );
+        }
+      }
   }
 };
 
@@ -395,7 +324,6 @@ const renderTabs = (content) => {
   );
 };
 
-
 const newNotification = (message) => {
   const nRef = notification.create({
     title: () => h("span", message.title),
@@ -411,7 +339,8 @@ const newNotification = (message) => {
           type: "success",
           tertiary: true,
           onClick: () => {
-            store.clearCurrentSession();
+            // store.clearCurrentSession();
+            nRef.destroy();
           },
         },
         {
@@ -437,6 +366,9 @@ const newNotification = (message) => {
         });
       }
       ipcRenderer.removeAllListeners("mouse-hover");
+      nRef.destroy();
+      rawOptions.value = [];
+
       store.clearCurrentSession();
       if (messageQueue.length > 0) {
         enqueue(messageQueue.shift().message);
@@ -454,7 +386,6 @@ const enqueue = (message) => {
       id: newID,
       message: message,
     });
-
   } else {
     newNotification(message);
   }

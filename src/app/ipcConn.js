@@ -92,10 +92,10 @@ export const ipcListener = (mainWindow, assistWindow) => {
     } else if (action === "create-task") {
       addTask(message.appPath, message.taskName, message.content)
 
-    } else if (action === "load-image") {
-      const encode = fs.readFileSync(message.path).toString('base64');
-      const content = `data:image/png;base64,${encode}`
-      assistWindow.webContents.send("image-loaded", content)
+    // } else if (action === "load-image") {
+    //   const encode = fs.readFileSync(message.path).toString('base64');
+    //   const content = `data:image/png;base64,${encode}`
+    //   assistWindow.webContents.send("image-loaded", content)
 
     } else if (action == "uio-event") {
       // E.g., when recording is done or hotkey triggered

@@ -91,9 +91,7 @@ import { h, onMounted, ref } from "vue";
 import { appConfig } from "@/utils/main/config";
 import { EventType } from "@/utils/render/eventTypes";
 import { ipcRenderer } from "electron";
-
-import { genUUID } from "@/utils/render/components/common";
-import { parseCron } from "@/utils/render/parseCron";
+import { genUUID, parseCron } from "@/utils/render/components/common";
 
 import eventBus from "@/utils/render/eventBus";
 import { useI18n } from "vue-i18n";

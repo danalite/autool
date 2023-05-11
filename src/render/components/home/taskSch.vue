@@ -335,7 +335,7 @@ import {
 import { app, ipcRenderer, shell } from "electron";
 
 import { appConfig } from "@/utils/main/config";
-import { parseCron } from "@/utils/render/parseCron";
+import { parseCron } from "@/utils/render/components/common";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();

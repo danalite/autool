@@ -3,28 +3,78 @@ import { Checkbox } from "@vicons/tabler";
 import { h } from "vue";
 import { NButton, NIcon, NSpace, NText } from "naive-ui";
 
-export const querySearch = (query, searchType, params) => {
+export const querySearchCb = (query, searchType, params, callback = () => { }) => {
     return new Promise(function (resolve, reject) {
-      var server = new WebSocket("ws://localhost:5678");
-      server.onopen = function () {
-        server.send(
-          JSON.stringify({
-            event: "I_EVENT_WSS_REQ",
-            value: `${searchType}`,
-            query: query,
-            params: params,
-          })
-        );
-      };
-      server.onerror = function (err) {
-        reject(err);
-      };
-      server.onmessage = function (e) {
-        resolve(e.data);
-        server.close();
-      };
+        var server = new WebSocket("ws://localhost:5678");
+
+        server.onopen = function () {
+            server.send(
+                JSON.stringify({
+                    event: "I_EVENT_WSS_REQ",
+                    value: searchType,
+                    query: query,
+                    params: params,
+                })
+            );
+        };
+        server.onerror = function (err) {
+            reject(err);
+        };
+        server.onmessage = function (e) {
+            const resp = callback(e.data);
+            if (resp == "done") {
+                server.close();
+                // console.log("[ INFO ] querySearchStream done");
+            }
+        };
+
+        resolve({
+            server: server,
+        });
     });
-  }
+}
+
+const registerUioEventCb = (content, callback) => {
+    var callback = "SegmentationRequest";
+    ipcRenderer.send("to-console", {
+        action: "uio-event",
+        source: "canvasWindow",
+        type: "mouseClicked",
+        callback: callback,
+        targetWindow: content.params.window,
+        wallTime: 200,
+    });
+
+    // Triggered every time when user click on the canvas
+    ipcRenderer.on(callback, (event, data) => {
+        let params = {
+            ...content.params,
+            ...data,
+        };
+        callback(params);
+    });
+}
+
+export const parseCron = (cron, num = 25) => {
+
+    let interval = require("cron-parser").parseExpression(cron);
+
+    var count = 0;
+    var nextDates = [];
+    var hasNext = true;
+    while (hasNext && count < num) {
+        try {
+            var obj = interval.next();
+            nextDates.push({ stamp: obj.getTime() });
+            count++;
+        } catch (e) {
+            hasNext = false;
+            break;
+        }
+    }
+    return nextDates;
+}
+
 
 export function traverse(o, func) {
     for (var i in o) {

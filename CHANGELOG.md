@@ -1,5 +1,9 @@
 ## CHANGE LOG
 
+### 2023-05-11
+- Fix dynamic input type
+- Stream return from backend server
+
 ### 2023-05-08
 - Refined the dynamic API spec
 - Use realtime thumbnail for searching images

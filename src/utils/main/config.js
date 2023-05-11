@@ -16,7 +16,6 @@ export const appConfig = new Store({
     'stoppedTasksCache': [],
     'scheduledTasksCache': [],
     'eventsCache': [],
-    'autoRune': {},
     'appHome': '',
     'logPath': '',
     'license': {
@@ -53,12 +52,7 @@ export const appConfig = new Store({
         'label': "AuTool Documents",
         'value': "https://autool.site/en/docs/develop/introduction",
       }],
-    'isLocalServerActive': false,
-    'remoteServer': {
-      'ocr': { 'url': 'http://localhost:8866/predict/ocr_system', 'valid': false },
-      'ui': { 'url': 'http://localhost:8867/ui', 'valid': false },
-      'parser': { 'url': 'http://localhost:8868/parser', 'valid': false },
-    }
+    'isLocalServerActive': false
   }
 })
 

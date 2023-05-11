@@ -1,7 +1,7 @@
 import { h } from "vue";
 import {  NSpace } from "naive-ui";
 import { renderTitle } from "./common";
-import { queryResults } from "@/render/components/assist/cards/queryResults";
+import queryResults from "@/render/components/assist/cards/queryResults";
 
 export const renderImageList = (content) => {
     const options = content.content.map((item) => {
@@ -19,6 +19,10 @@ export const renderImageList = (content) => {
           h(queryResults, {
             options: options,
             style: { width: "290px" },
+            onCustomEvent: (data) => {
+              console.log(data);
+              // store.setValue(content.key, data);
+            }
           }),
         ],
       }
