@@ -183,17 +183,17 @@ const newAppIcon = ref(
 
 const exampleApps = [
   {
+    label: "Unit-Tests",
+    url: "https://github.com/danalite/awesome-autool-scripts/tree/master/danalite/Unit-Tests",
+    description: "A set of test cases for Autool",
+    src: "https://raw.githubusercontent.com/danalite/autool/main/imgs/logo.png",
+    width: 35,
+  },
+  {
     label: "MacOS-display",
     url: "https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display",
     description: "Display the current time and date",
     src: "https://www.macscreenrepair.com/wp-content/uploads/2022/01/2020-Air.jpg",
-    width: 35,
-  },
-  {
-    label: "Mini-Tools",
-    url: "https://github.com/danalite/autool-script-examples/tree/master/danalite/Mini-Tools",
-    description: "A set of cross-platform mini tools",
-    src: "https://raw.githubusercontent.com/danalite/autool/main/imgs/logo.png",
     width: 35,
   },
 ];
@@ -233,7 +233,6 @@ const addNewApp = () => {
   }
   showAddAppModal.value = false;
 };
-
 
 ipcRenderer.on("download", (event, data) => {
   githubFolderLink.value = data;
