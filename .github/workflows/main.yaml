@@ -40,19 +40,19 @@ jobs:
         # https://github.com/actions/runner-images/blob/win22/20230402.1/images/win/Windows2022-Readme.md
         if: matrix.os == 'windows-latest'
         # https://github.com/nodejs/node-gyp/issues/1587
-        # https://github.com/nodejs/node-gyp/issues/1371
         run: |
           yarn config list
           yarn config set msvs_version 2022 --global
-          yarn config rm nodedir
-          yarn config rm devdir 
 
+      # https://github.com/nodejs/node-gyp/issues/1371
       - name: Global dependency
         run: |
           yarn cache clean
           yarn global add node-gyp
           yarn global add @vue/cli
-     
+          yarn config delete nodedir
+          yarn config delete devdir 
+
       - name: Clear cache
         if: matrix.os == 'windows-latest'
         # https://github.com/nodejs/node-gyp/issues/2482
