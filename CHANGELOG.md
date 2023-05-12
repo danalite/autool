@@ -1,5 +1,16 @@
 ## CHANGE LOG
 
+### 2023-05-12
+- Fix node-gpy issue when building on windows
+
+```bash
+gyp: C:\\Users\\runneradmin\\AppData\\Local\\node-gyp\\Cache\\16.20.0\\common.gypi not found (cwd: D:\\a\\autool\\autool\\node_modules\\iconv) while reading includes of binding.gyp while trying to load binding.gyp
+gyp ERR! configure error 
+gyp ERR! stack Error: `gyp` failed with exit code: 1
+gyp ERR! stack     at ChildProcess.onCpExit (C:\\Users\\runneradmin\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\node-gyp\\lib\\configure.js:325:16)
+gyp ERR! stack     at ChildProcess.emit (node:events:513:28)
+```
+
 ### 2023-05-11
 - Fix dynamic input type
 - Stream return from backend server

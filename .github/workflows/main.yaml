@@ -50,19 +50,14 @@ jobs:
           yarn cache clean
           yarn global add node-gyp
           yarn global add @vue/cli
-          yarn config delete nodedir
-          yarn config delete devdir 
 
       - name: Clear cache
         if: matrix.os == 'windows-latest'
-        # https://github.com/nodejs/node-gyp/issues/2482
+        # run setup-node-gyp.ps1
         run: |
-          $path = "$env:LocalAppData\node-gyp\Cache"
-          if (Test-Path -LiteralPath $path) {
-            Remove-Item -LiteralPath $path -Recurse -Verbose
-          } else {
-            "Path doesn't exist: $path"
-          }
+          .\scripts\setup-node-gpy.ps1
+          $folderPath = "$env:USERPROFILE\.node-gyp\16.20.0"
+          yarn config set nodedir $folderPath
       
       - name: Install
         run: |
