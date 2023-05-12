@@ -1,12 +1,17 @@
 import os
 import json
-import pygb
 import tempfile
 
+# https://stackoverflow.com/a/57467550
+import multiprocessing
+multiprocessing.freeze_support()
+
+import pygb
 import requests
 import asyncio
 import random
 
+from PIL import Image
 import websockets
 from libauto import new_task_sch, download
 
@@ -15,8 +20,7 @@ from py_rust_search import get_similar_files
 
 # websocket server states management
 active_conns = dict()
-ts = new_task_sch()
-
+global ts
 
 async def send_http_request(websocket, params):
     files = {'json': ('params', json.dumps(
@@ -214,6 +218,7 @@ async def check_connections():
         if len(active_conns) == 0:
             print("No active connections, exiting...")
             # asyncio.get_event_loop().stop()
+            ts.stop()
             break
 
 
@@ -227,4 +232,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    ts = new_task_sch()
     asyncio.run(main())
