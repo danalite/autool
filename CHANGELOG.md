@@ -1,6 +1,9 @@
 ## CHANGE LOG
 
 ### 2023-05-12
+- Remover hardcoding of task running button in chat session
+- Interactive chat: post process text into elements
+- Interactive chat: click to copy conversation
 - Fix node-gpy issue when building on windows
 
 ```bash

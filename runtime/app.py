@@ -169,8 +169,12 @@ async def websocket_handler(websocket):
         elif worker == "Files":
             q = await search_files_from_dir(message["query"], message["params"])
             await websocket.send(json.dumps(q))
+        
+        elif worker.startswith("cmd://"):
+            out = pygb.run_cmd(worker[6:])
+            await websocket.send(json.dumps(out))
 
-        elif worker.startswith("http"):
+        elif worker.startswith(("http://", "https://")):
             query = message["query"]
             params = message["params"]
 
@@ -187,7 +191,7 @@ async def websocket_handler(websocket):
                     await websocket.send(json.dumps(q))
 
             else:
-                # return a list of options from a remote server
+                # return a list of options
                 # response = requests.get(worker)
                 q = [{"label": "Hipoly 3D Model LoRA", "value": "tes5", "src": "https://imagecache.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/3e28cc7f-dd15-4dbf-0981-b840dc19fc00/width=450/01972-20230410094800-1041864763-models_02_25D_AlstroemeriaMix-fp16.jpeg", "description": "Realistic", "width": 100},
                      {

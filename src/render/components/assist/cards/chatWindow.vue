@@ -22,20 +22,20 @@
             fontSize: '13px',
           }"
         >
-          <div v-for="p in item.content">
+          <div v-for="p in postProc(item.content)">
             <n-button
               v-if="p.startsWith('<button>')"
               type="info"
               size="tiny"
-              @click="start(p)"
             >
               {{ p.replace('<button>', '').replace('</button>', '') }}
             </n-button>
             <audio v-else-if="p.startsWith('<audio>')" src="https://dds.dui.ai/runtime/v1/synthesize?voiceId=ppangf_csn&text=怎么办我的心好痛&speed=1&volume=50&audioType=wav"  controls style="width: 180px; padding:0; margin:0; max-height: 25px;">
               Your browser does not support the element.
             </audio>
+            <n-spin v-else-if="p == ''" size="tiny" />
             <div v-else>
-              {{ p }}
+              <n-text @click="copy(p)">{{ p }}</n-text>
             </div>
           </div>
         </n-space>
@@ -57,6 +57,7 @@
           minRows: 1,
           maxRows: 5,
         }"
+        :disabled="isWaitingResponse"
         placeholder="input..."
         class="input"
         @keyup.enter="send"
@@ -73,7 +74,7 @@
 
 
 <script setup>
-import { h, ref } from "vue";
+import { computed, h, ref } from "vue";
 import {
   NInput,
   NButton,
@@ -82,8 +83,11 @@ import {
   NImage,
   NTag,
   NIcon,
+  NText,
+  NSpin,
   NScrollbar,
 } from "naive-ui";
+
 import { ipcRenderer, shell } from "electron";
 import { Send } from "@vicons/tabler";
 
@@ -99,9 +103,17 @@ const props = defineProps({
 });
 
 const emits = defineEmits(["customEvent"]);
-
 const scrollRef = ref(null);
+
 const text = ref("");
+const isWaitingResponse = computed(() => {
+  return props.messages[props.messages.length - 1].content == "";
+});
+
+const postProc = (content) => {
+  const pattern = /(<link>[^<]*<\/link>)/g; 
+  return content.split(pattern);
+}
 
 const send = () => {
   // console.log(text.value, "@@@@");
@@ -113,8 +125,7 @@ const send = () => {
   const textContent = text.value.trim("\n");
   const message = {
     id: new Date().getTime(),
-    type: "text",
-    content: [textContent],
+    content: textContent,
   };
 
   // lock the input. waiting for the response from agent
@@ -130,15 +141,9 @@ const send = () => {
   element.scrollTop = 0;
 };
 
-// Run the target task
-const start = (button) => {
-  const url = button.replace("<button>", "").replace("</button>", "");
-  const task = {
-    relTaskPath: "Test-Window-Annotate.yaml",
-    absTaskPath:
-      "/Users/hecmay/Desktop/apps/danalite/Unit-Tests/Test-Window-Annotate.yaml",
-  };
-  ipcRenderer.send("event-to-main-win", { action: "run-task", tasks: [task] });
+
+const copy = (text) => {
+  navigator.clipboard.writeText(text);
 };
 </script>
 

@@ -50,7 +50,6 @@ import { h } from "vue";
 import { NImage, NText, NList, NListItem, NScrollbar } from "naive-ui";
 import { shell } from "electron";
 import { Emphasis } from "@vicons/tabler";
-import eventBus from "@/utils/render/eventBus";
 
 const props = defineProps({
   options: {
@@ -96,13 +95,7 @@ const emits = defineEmits(["customEvent"]);
 const clickItem = (option) => {
   emits("customEvent", option);
   if (option.link) {
-    // shell.openExternal(option.link);
-    const task = {
-      relTaskPath: "amazon-login",
-      absTaskPath:
-        "/Users/hecmay/Desktop/apps/danalite/Web-Apps/Automation/bookkeeper/amazon-tracking-orders/amazon-login.yaml",
-    };
-    eventBus.emit("run-task", task);
+    shell.openExternal(option.link);
   }
 };
 </script>

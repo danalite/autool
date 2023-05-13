@@ -102,42 +102,6 @@ const isConsecutiveKeys = (targetKey) => {
   return uioEventEnum[newKeys[0].type] == "keyup" && newKeys.reduce((a, c) => a && (c.keycode == targetKey), true) && (interval < 0.5)
 }
 
-const detectIcon = (e, reception = { width: 600, height: 120 }) => {
-  // https://stackoverflow.com/a/71663530
-  const screenSize = screen.getPrimaryDisplay()['size']
-  const { desktopCapturer } = require('electron')
-  desktopCapturer.getSources({
-    types: ['screen'], thumbnailSize: {
-      height: screenSize.height,
-      width: screenSize.width
-    }
-  }).then(sources => {
-    // https://subscription.packtpub.com/book/mobile/9781838552206/4/ch04lvl1sec34/resizing-and-cropping-the-image
-    let region = {
-      x: Math.max(e.x - reception.width / 2, 0),
-      y: Math.max(e.y - reception.height / 2, 0),
-      width: reception.width,
-      height: reception.height
-    }
-    const content = sources[0].thumbnail.crop(region).toDataURL()
-    // const screenshotPath = path.join(os.tmpdir(), 'screenshot.png')
-    // fs.writeFileSync("/Users/Desktop/test.png", content)
-
-    let payload = { "image": content }
-    const uiServer = appConfig.get('remoteServer.ui')
-
-    axios.post(uiServer, payload).then((resp) => {
-      console.log(resp.data)
-
-    }).catch((err) => {
-      console.log(err)
-    })
-
-  }).catch(err => {
-    console.log(err)
-  })
-}
-
 const hotkeyRegisterUpdateMAT = (event) => {
   keyboardActionTable.push({
     name: `hotkey-${event.taskId}`,
