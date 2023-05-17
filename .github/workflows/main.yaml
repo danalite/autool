@@ -55,8 +55,8 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           .\scripts\setup-node-gpy.ps1
-          $folderPath = "$env:USERPROFILE\.node-gyp\16.20.0"
-          yarn config set nodedir $folderPath
+        # $folderPath = "$env:USERPROFILE\.node-gyp\16.19.1"
+        # yarn config set nodedir $folderPath
       
       - name: Install
         run: |
