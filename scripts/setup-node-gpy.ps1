@@ -1,10 +1,3 @@
-$path = "$env:LocalAppData\node-gyp\Cache"
-if (Test-Path -LiteralPath $path) {
-  Remove-Item -LiteralPath $path -Recurse -Verbose
-} else {
-  "Path doesn't exist: $path"
-}
-
 # https://github.com/nodejs/node-gyp/issues/1371#issuecomment-910729288
 
 # Set the folder path to house 16.20.0 data
