@@ -10,7 +10,7 @@ export const createMainWindow = async (userHeader, iconPath) => {
   const win = new BrowserWindow({
     title: 'AuTool',
     transparent: false,
-    show: true,
+    show: false,
     hasShadow: true,
 
     frame: true,
@@ -42,13 +42,15 @@ export const createMainWindow = async (userHeader, iconPath) => {
   })
 
   if (dim.isCollapsed) {
-    win.setAlwaysOnTop(true, 'floating', 1)
+    // win.setAlwaysOnTop(true, 'floating', 1)
     win.setWindowButtonVisibility(false)
     win.setResizable(false)
   }
 
   win.on('ready-to-show', () => {
-    win.show()
+    if (!appConfig.get('mainWindowDimension.isCollapsed')) {
+      win.show()
+    }
   })
 
   // Load the index.html when not in development

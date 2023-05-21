@@ -1,14 +1,10 @@
 import {
-  screen,
   globalShortcut,
   shell
 } from 'electron'
 
 import { getKeyByValue, parseSequence, uioEventEnum } from '@/utils/main/macroOpt';
 import { uIOhook, UiohookKey } from 'uiohook-napi'
-import { appConfig } from '@/utils/main/config'
-
-const activeWindow = require('active-win');
 
 // queue the incoming IO hook requests
 let ioEventQueue = []
@@ -26,9 +22,8 @@ var mouseActionTables = []
 var isHelperWindowShown = false
 
 
-export const uioStartup = (assistWindow) => {
+export const uioStartup = (mainWindow, assistWindow) => {
   uIOhook.start()
-  // assistWindowMouseWatch(assistWindow)
 
   uIOhook.on('mousemove', async (e) => {
     await Promise.all(mouseActionTables.map(async (action) => {
@@ -74,6 +69,29 @@ export const uioStartup = (assistWindow) => {
   if (!ret) {
     console.log(`[ NodeJS ] hotkey failed`)
   }
+
+  // Press Meta+Meta to resume main window
+  keyboardActionTable.push({
+    name: "key-intrinsic-resume-main",
+    source: "appMain",
+    rule: (e) => {
+      return isConsecutiveKeys(UiohookKey.Meta)
+    },
+    action: (e) => {
+      uIOhook.keyTap(UiohookKey.C, [UiohookKey.Meta])
+      setTimeout(() => {
+        if (mainWindow.isVisible()) {
+          if (mainWindow.isFocused()) {
+            mainWindow.hide()
+          } else {
+            mainWindow.show()
+          }
+        } else {
+          mainWindow.show()
+        }
+      }, 200)
+    }
+  })
 }
 
 const isHotKeyComboPressed = (hotKeyStr) => {
@@ -138,50 +156,6 @@ const keyWaitUpdateMAT = (event) => {
   })
 }
 
-const registerMouseClickedUpdateMAT = (event) => {
-  mouseActionTables.push({
-    name: "click-select-mask",
-    source: event.source,
-    rule: (e) => {
-      // console.log("mouse hover!!! ", e, lastActionTimeStamp)
-      // check if the mouse is hovered and stayed on the target for more than 200ms
-      if (lastActionTimeStamp == 0) {
-        lastActionTimeStamp = e.time
-      }
-      let trigger = e.time - lastActionTimeStamp > 2 * 1e8
-      lastActionTimeStamp = e.time
-      return trigger
-    },
-    action: (e) => {
-      // console.log("mouse hover!!! ", e.x, e.y)
-      // get active window and send relative position
-      activeWindow({}).then((win) => {
-        if (!win) return
-        if (event.targetWindow && win.owner.name != event.targetWindow) return
-
-        // console.log("mouse hover ", win.owner.name, event.targetWindow)
-        let relativeX = e.x - win.bounds.x
-        let relativeY = e.y - win.bounds.y
-        let isOutOfBound = relativeX < 0 || relativeY < 0 || relativeX > win.bounds.width || relativeY > win.bounds.height
-
-        // console.log("mouse hover ", win, relativeX, relativeY)
-        if (!isOutOfBound) {
-          event.callback({
-            type: "mouseClicked",
-            mouseX: relativeX,
-            mouseY: relativeY,
-            x: win.bounds.x,
-            y: win.bounds.y,
-            windowOwner: win.owner.name,
-            windowId: win.id,
-            width: win.bounds.width,
-            height: win.bounds.height
-          })
-        }
-      })
-    }
-  })
-}
 
 const macroRecordUpdateMAT = (options) => {
   // Existing MAT items:
@@ -301,8 +275,7 @@ export const registerUioEvent = (assistWindow, event) => {
         source: "console.appMain",
         rule: (e) => {
           return isConsecutiveKeys(UiohookKey.Meta)
-        }
-        ,
+        },
         action: (e) => {
           console.log("@@", "stop recording macro")
           isMacroRecording = false
@@ -345,9 +318,6 @@ export const registerUioEvent = (assistWindow, event) => {
     keyboardActionTable = keyboardActionTable.filter((item) => {
       return item.name != `hotkey-${event.taskId}`
     })
-
-  } else if (event.type == "mouseClicked") {
-    registerMouseClickedUpdateMAT(event)
 
   } else {
     console.log("@@ Unhandled Uio event", event)

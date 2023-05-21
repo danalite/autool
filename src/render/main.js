@@ -9,9 +9,10 @@ import Directive from './directives'
 import Local from './locale'
 import mitt from 'mitt';
 
+const lang = navigator.language;
 const i18n = createI18n({
     legacy: false,
-    locale: 'en', 
+    locale: lang == 'zh-CN' ? 'zh-CN' : 'en-US', 
     messages: Local
 })
 

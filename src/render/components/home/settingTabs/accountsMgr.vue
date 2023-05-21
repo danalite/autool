@@ -62,7 +62,7 @@
         :options="availableLocales"
       >
         <n-button size="small">
-          {{ $i18n.locale == "zh" ? "简体中文" : "English" }}
+          {{ $i18n.locale == "zh-CN" ? "简体中文" : "English" }}
         </n-button>
       </n-popselect>
     </n-input-group>
@@ -89,8 +89,8 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const availableLocales = [
-  { label: "English", value: "en" },
-  { label: "简体中文", value: "zh" },
+  { label: "English", value: "en-US" },
+  { label: "简体中文", value: "zh-CN" },
 ];
 
 // Open appHome folder

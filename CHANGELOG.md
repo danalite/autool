@@ -1,10 +1,17 @@
 ## CHANGE LOG
 
+### 2023-05-18
+- Make main window hide when inactive (active by long pressing Meta)
+- Make UIO hook more modular
+- Remove task runner from tray menu
+- Move license checking to backend
+- Move window watcher to backend
+
 ### 2023-05-12
 - Remover hardcoding of task running button in chat session
 - Interactive chat: post process text into elements
 - Interactive chat: click to copy conversation
-- Fix node-gpy issue when building on windows
+- Fix `node-gpy` issue when building on windows
 
 ```bash
 gyp: C:\\Users\\runneradmin\\AppData\\Local\\node-gyp\\Cache\\16.20.0\\common.gypi not found (cwd: D:\\a\\autool\\autool\\node_modules\\iconv) while reading includes of binding.gyp while trying to load binding.gyp

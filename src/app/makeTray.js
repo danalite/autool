@@ -71,6 +71,7 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
       },
       checked: true,
     },
+    { type: "separator" },
     {
       label: "Restart",
       click() {
@@ -84,7 +85,7 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         app.quit();
       }
     },
-    ...setupCheckedTasks(mainWindow, icon),
+    // ...setupCheckedTasks(mainWindow, icon),
     {
       label: "Help",
       click: () => {
@@ -108,7 +109,7 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
   }
 
   appIcon.on("click", () => {
-    refreshSelectedTasks();
+    // refreshSelectedTasks();
     appIcon.setContextMenu(buildAppMenu());
     appIcon.popUpContextMenu();
   });

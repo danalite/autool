@@ -1,8 +1,8 @@
-import EnglishOptions from "./en"
-import ChineseOptions from "./zh"
+import EnglishOptions from "./en-US"
+import ChineseOptions from "./zh-CN"
 
 const messages = { 
-    en: EnglishOptions,
-    zh: ChineseOptions
+    "en-US": EnglishOptions,
+    "zh-CN": ChineseOptions
 }
 export default messages

@@ -2,7 +2,7 @@
   "name": "AuTool",
   "license": "GPL v3",
   "private": true,
-  "version": "0.0.18",
+  "version": "0.0.19",
   "author": "vrteee <support@autool.site>",
   "main": "background.js",
   "description": "Software infrastructure for AI adoption",
@@ -26,7 +26,6 @@
     "postuninstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "active-win": "^7.7.2",
     "core-js": "^3.8.3",
     "cron-parser": "^4.7.1",
     "js-yaml": "^4.1.0",

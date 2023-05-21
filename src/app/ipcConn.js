@@ -3,12 +3,20 @@ import { appConfig } from "@/utils/main/config";
 import { addApp, addTask, deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
 import { registerUioEvent } from "@/utils/main/systemHook";
 
-const fs = require('fs');
+// const fs = require('fs');
+var isCollapsed = appConfig.get('mainWindowDimension.isCollapsed')
+
 export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.on('move-main', (event, pos) => {
     let dim = appConfig.get('mainWindowDimension')
     let bounds = dim.isCollapsed ? { width: 590, height: 40 } : { width: dim.width, height: dim.height }
     mainWindow.setBounds({ x: pos.x, y: pos.y, ...bounds })
+  })
+
+  mainWindow.on('blur', () => {
+    if (isCollapsed) {
+      mainWindow.hide()
+    }
   })
 
   // Collapse main console to floating bar
@@ -34,11 +42,12 @@ export const ipcListener = (mainWindow, assistWindow) => {
     setImmediate(updateSize);
 
     if (targetHeight < 100) {
-      mainWindow.setAlwaysOnTop(true, 'floating', 1)
+      isCollapsed = true
       mainWindow.setWindowButtonVisibility(false)
       mainWindow.setResizable(false)
+
     } else {
-      mainWindow.setAlwaysOnTop(false)
+      isCollapsed = false
       mainWindow.setWindowButtonVisibility(true)
       mainWindow.setResizable(true)
     }
@@ -92,10 +101,10 @@ export const ipcListener = (mainWindow, assistWindow) => {
     } else if (action === "create-task") {
       addTask(message.appPath, message.taskName, message.content)
 
-    // } else if (action === "load-image") {
-    //   const encode = fs.readFileSync(message.path).toString('base64');
-    //   const content = `data:image/png;base64,${encode}`
-    //   assistWindow.webContents.send("image-loaded", content)
+      // } else if (action === "load-image") {
+      //   const encode = fs.readFileSync(message.path).toString('base64');
+      //   const content = `data:image/png;base64,${encode}`
+      //   assistWindow.webContents.send("image-loaded", content)
 
     } else if (action == "uio-event") {
       // E.g., when recording is done or hotkey triggered
@@ -123,7 +132,6 @@ export const ipcListener = (mainWindow, assistWindow) => {
               { type: message.type, taskName: message.source, ...ret })
           }
         }
-
       })
     }
   })

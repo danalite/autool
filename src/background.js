@@ -6,8 +6,6 @@ import {
   ipcMain
 } from 'electron'
 
-const axios = require('axios')
-
 import { uioStop } from './utils/main/systemHook'
 import { appConfig, userAgentList } from './utils/main/config'
 
@@ -22,7 +20,6 @@ import { execFile, spawn } from "child_process"
 import { loadApps } from './utils/main/queryTasks';
 import { uioStartup } from "./utils/main/systemHook";
 import { protocolHandler } from './utils/main/protocolHandler';
-import { monitorWindowChange } from './utils/main/windowWatcher';
 
 var fs = require('fs');
 const Store = require("electron-store")
@@ -148,9 +145,8 @@ const init = async () => {
   mainWindow = await createMainWindow(userHeader, iconPath)
   ipcListener(mainWindow, assistWindow)
 
-  uioStartup(assistWindow)
+  uioStartup(mainWindow, assistWindow)
   makeTray(iconPath, mainWindow, assistWindow)
-  monitorWindowChange(assistWindow)
 
   // Setting up app path and server checking
   await appSetup()
@@ -211,8 +207,6 @@ app.whenReady().then(async () => {
         confirmQuit = true
         uioStop()
         app.quit()
-      } else {
-        mainWindow.hide()
       }
     }
   })
@@ -227,10 +221,6 @@ app.whenReady().then(async () => {
 
   app.on("before-quit", async () => {
     // Send stop signal to backend
-    await mainWindow.webContents.send('to-backend', {
-      event: 'I_EVENT_WSS_REQ',
-      action: 'Shutdown'
-    })
     console.log("[ NodeJS ] before-quit!")
     if (!subPyExited) {
       console.log("[ NodeJS ] subPy not exited. Killing...")
@@ -258,32 +248,6 @@ const appSetup = async () => {
   appConfig.set('logPath', logPath + path.sep)
   console.log("[ NodeJS ] appHome: ", appHome)
   console.log("[ NodeJS ] logPath: ", logPath)
-
-  // Validate license 
-  const license = appConfig.get('license')
-  if (license.key !== '') {
-    try {
-      console.log(`[ NodeJS ] Checking license ${license.key}`)
-      const res = await axios.post(`https://api.whop.com/api/v1/licenses/${license.key}/validate`, { metadata: {} }, {
-        headers: {
-          "Authorization": "fe5f45a48bb348cd0cdad3b81dc9fa0def67265a8e",
-          "accept": "application/json",
-          "content-type": 'application/json'
-        }
-      });
-
-      if (res.status === 200) {
-        appConfig.set("license.valid", res.data.valid)
-
-      } else {
-        console.log("[ NodeJS ] failed verifying license")
-      }
-
-    } catch (error) {
-      console.log("[ NodeJS ] failed connecting to whop API")
-      appConfig.set("license.valid", false)
-    }
-  }
 
   const apps = await loadApps(appHome)
   appConfig.set('apps', apps.apps)
