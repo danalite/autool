@@ -22,18 +22,19 @@
             fontSize: '13px',
           }"
         >
-          <div v-for="p in postProc(item.content)">
-            <n-button
-              v-if="p.startsWith('<button>')"
-              type="info"
-              size="tiny"
-            >
+          <div v-for="p in postProc(item)">
+            <n-button v-if="p.startsWith('<button>')" type="info" size="tiny">
               {{ p.replace('<button>', '').replace('</button>', '') }}
             </n-button>
-            <audio v-else-if="p.startsWith('<audio>')" src="https://dds.dui.ai/runtime/v1/synthesize?voiceId=ppangf_csn&text=怎么办我的心好痛&speed=1&volume=50&audioType=wav"  controls style="width: 180px; padding:0; margin:0; max-height: 25px;">
+            <audio
+              v-else-if="p.startsWith('<audio>')"
+              src="https://dds.dui.ai/runtime/v1/synthesize?voiceId=ppangf_csn&text=怎么办我的心好痛&speed=1&volume=50&audioType=wav"
+              controls
+              style="width: 180px; padding: 0; margin: 0; max-height: 25px"
+            >
               Your browser does not support the element.
             </audio>
-            <n-spin v-else-if="p == ''" size="tiny" />
+            <n-spin v-else-if="p == ''" size="tiny" style="padding-top: 5px" />
             <div v-else>
               <n-text @click="copy(p)">{{ p }}</n-text>
             </div>
@@ -74,7 +75,7 @@
 
 
 <script setup>
-import { computed, h, ref } from "vue";
+import { computed, h, ref, onMounted } from "vue";
 import {
   NInput,
   NButton,
@@ -107,16 +108,31 @@ const scrollRef = ref(null);
 
 const text = ref("");
 const isWaitingResponse = computed(() => {
-  return props.messages[props.messages.length - 1].content == "";
+  return props.messages[props.messages.length - 1] == "";
 });
 
 const postProc = (content) => {
-  const pattern = /(<link>[^<]*<\/link>)/g; 
-  return content.split(pattern);
-}
+  try {
+    const pattern = /(<button>[^<]*<\/button>)/g;
+    return content.split(pattern);
+  } catch (e) {
+    return [content];
+  }
+};
+
+onMounted(() => {
+  const l = props.messages.length;
+  if (l % 2 == 0 && l > 0) {
+    const data = {
+      stamp: new Date().toLocaleString(),
+      content: props.messages[l - 1],
+      transient: true,
+    };
+    emits("customEvent", data);
+  }
+});
 
 const send = () => {
-  // console.log(text.value, "@@@@");
   if (text.value.trim() === "") {
     return;
   }
@@ -124,23 +140,20 @@ const send = () => {
   // message from the user
   const textContent = text.value.trim("\n");
   const message = {
-    id: new Date().getTime(),
+    stamp: new Date().toLocaleString(),
     content: textContent,
   };
 
   // lock the input. waiting for the response from agent
   emits("customEvent", message);
-  text.value = "";
-
-  scrollRef.value?.scrollTo({
-    behavior: "smooth",
-    top: 1e5,
-  });
-
-  const element = document.getElementById("scrollbar");
-  element.scrollTop = 0;
+  setTimeout(() => {
+    text.value = "";
+    scrollRef.value?.scrollTo({
+      behavior: "smooth",
+      top: 1e5,
+    });
+  }, 100);
 };
-
 
 const copy = (text) => {
   navigator.clipboard.writeText(text);

@@ -1,75 +1,138 @@
 
 import chatWindow from "@/render/components/assist/cards/chatWindow.vue";
-import { h, ref } from "vue";
+import { h } from "vue";
+import { useStore } from "@/render/store";
 
-const chatHistory = ref([]);
+const store = useStore();
 const webSocketGet = (target, params, callback = () => { }) => {
   return new Promise(function (resolve, reject) {
-      var server = new WebSocket(target);
+    var server = new WebSocket(target);
+    server.onopen = function () {
+      server.send(
+        JSON.stringify(params)
+      );
+    };
+    server.onerror = function (err) {
+      reject(err);
+    };
+    server.onmessage = function (e) {
+      const resp = callback(e.data);
+      if (resp == "__DONE__") {
+        server.close();
+      }
+    };
 
-      server.onopen = function () {
-          server.send(
-              JSON.stringify(params)
-          );
-      };
-      server.onerror = function (err) {
-          reject(err);
-      };
-      server.onmessage = function (e) {
-          const resp = callback(e.data);
-          if (resp == "__DONE__") {
-              server.close();
-          }
-      };
-
-      resolve({
-          server: server,
-      });
+    resolve({
+      server: server,
+    });
   });
 }
 
-
 export const renderChatWindow = (content) => {
-  if (chatHistory.value.length == 0) {
-    const initialMessage = content.params?.init ?? "How can I help you?";
-    chatHistory.value = [{ id: new Date().getTime(), content: initialMessage }]
+  const chatCacheKey = content.key ? content.key : "__CHAT__";
+  if (store.getReturnValue()[chatCacheKey] == null) {
+    store.setValue(chatCacheKey, []);
   }
+
+  if (store.getReturnValue()[chatCacheKey].length == 0) {
+    const chatCache = content.params?.history ?? [];
+    store.setValue(chatCacheKey, chatCache);
+  }
+
   return h(chatWindow, {
-    messages: chatHistory.value,
+    messages: store.getReturnValue()[chatCacheKey],
     style: { width: "100%", height: "100%" },
 
     onCustomEvent: async (data) => {
-      // User input
-      chatHistory.value.push(data);
-      if (data.content == "cmd:clear") {
-        const initialMessage = content.params?.init ?? "How can I help you?";
-        chatHistory.value = [{ id: new Date().getTime(), content: initialMessage }]
+      const v = store.getReturnValue()[chatCacheKey];
+      if (!data.transient) {
+        v.push(data.content);
       }
 
       // Automatic response (empty placeholder)
-      chatHistory.value.push({
-        id: new Date().getTime(),
-        content: "",
-      });
-
-      // Append the response to the chat history
-
-      // Audio player
-      // <audio>https://dds.dui.ai/runtime/v1/synthesize?voiceId=ppangf_csn&text=怎么办&speed=1&volume=50&audioType=wav</audio>
-
-      // Link button to trigger an URL or action (deep link)
-      // <link>autool://download/...</link>
+      v.push("");
+      store.setValue(chatCacheKey, v);
 
       // A simple version: receives all the text from websocket server
       const server = content.params?.server ?? "";
       if (server.startsWith("ws://")) {
-        webSocketGet(server, content.params, (data) => {
-          console.log(data);
-          // chatHistory.value[chatHistory.value.length - 1].content = [data];
-          if (data == "__DONE__") {
+        webSocketGet(server, content.params, (r) => {
+          if (r == "__DONE__") {
             return "__DONE__";
+          } else {
+            const v = store.getReturnValue()[chatCacheKey];
+            v[v.length - 1] = v[v.length - 1] + r;
+            store.setValue(chatCacheKey, v);
           }
         });
+
+      } else if (server.startsWith("http")) {
+        // send a HTTP GET or POST request to server
+        const method = content.params?.method ?? "GET";
+        if (method == "GET") {
+          var url = server + "?";
+          var index = 0;
+          for (const [key, value] of Object.entries(content.params?.data ?? {})) {
+            if (index > 0) {
+              url = url + "&";
+            }
+            index = index + 1;
+            if (key == "QUERY_KEY") {
+              url = url + value + "=" + data;
+            } else {
+              url = url + key + "=" + value;
+            }
+          }
+
+          fetch(url)
+            .then(response => response.json())
+            .then(r => {
+              var append = r;
+              const keys = content.params?.response ?? [];
+              for (const key of keys) {
+                append = append[key];
+              }
+
+              const v = store.getReturnValue()[chatCacheKey];
+              v[v.length - 1] = v[v.length - 1] + String(append);
+              store.setValue(chatCacheKey, v);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+
+        } else if (method == "POST") {
+          const jsonData = content.params?.data ?? {};
+          if (jsonData["QUERY_KEY"] != null) {
+            jsonData[jsonData["QUERY_KEY"]] = data.content;
+          }
+          // console.log("POST data: " + JSON.stringify(jsonData), server);
+
+          fetch(server, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(jsonData),
+          })
+            .then(response => response.json())
+            .then(r => {
+              console.log("POST response: " + JSON.stringify(r), jsonData, data);
+              var append = r;
+              const keys = content.params?.response ?? [];
+              for (const key of keys) {
+                append = append[key];
+              }
+
+              const v = store.getReturnValue()[chatCacheKey];
+              v[v.length - 1] = v[v.length - 1] + String(append);
+              store.setValue(chatCacheKey, v);
+            }
+            ).catch((error) => {
+              console.error('Error:', error);
+            }
+            );
+        }
       }
     },
   });
