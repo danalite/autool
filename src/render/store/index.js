@@ -1,12 +1,12 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { defineStore } from 'pinia'
 import { traverse } from '@/utils/render/components/common'
+import { reactive } from 'vue'
 
 export const useStore = defineStore('app', {
   state: () => {
     return {
       pageCount: 1,
-      activeSession: null,
-      returnValue: {}
+      activeSessions: [],
     }
   },
   actions: {
@@ -21,40 +21,45 @@ export const useStore = defineStore('app', {
       this.pageCount = count
     },
 
-    getCurrentSession() {
-      return this.activeSession
+    hasSession(session) {
+      return this.activeSessions.some((n) => n.session === session)
     },
 
-    getReturnValue() {
-      return this.returnValue
+    getSession(session) {
+      return this.activeSessions.find((n) => n.session === session).nRef
     },
 
-    clearCurrentSession() {
-      if (this.activeSession) {
-        this.activeSession.destroy();
+    getReturnValue(session) {
+      return this.activeSessions.find((n) => n.session === session).returnValue
+    },
+
+    clearSession(session) {
+      const v = this.activeSessions.find((n) => n.session === session)
+      try {
+        v.nRef.destroy()
+      } catch (error) {
+        console.log("Err: nRed.destroy()", error)
       }
-      this.activeSession = null
+      this.activeSessions = this.activeSessions.filter((n) => n.session !== session)
     },
 
-    initializeSession(message, nRef) {
-      this.returnValue = {}
-      // Object.keys(this.returnValue).forEach((key) => {
-      //   delete this.returnValue[key];
-      // });
-
+    initializeSession(session, message, nRef) {
+      const returnValue = reactive({})
       traverse(message.content, (key, value) => {
         if (key == "key") {
-          this.returnValue[value] = null
+          returnValue[value] = null
         }
       });
 
-      if (Object.keys(this.returnValue).length > 0) {
-        this.activeSession = nRef
-      }
+      this.activeSessions.push({
+        session: session,
+        returnValue: returnValue,
+        nRef: nRef
+      })
     },
 
-    setValue(key, value) {
-      this.returnValue[key] = value
+    setValue(session, key, value) {
+      this.activeSessions.find((n) => n.session === session).returnValue[key] = value
     }
   }
 })

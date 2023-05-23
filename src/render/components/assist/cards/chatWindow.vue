@@ -148,11 +148,14 @@ const send = () => {
   emits("customEvent", message);
   setTimeout(() => {
     text.value = "";
+  }, 100);
+
+  setTimeout(() => {
     scrollRef.value?.scrollTo({
       behavior: "smooth",
       top: 1e5,
     });
-  }, 100);
+  }, 500);
 };
 
 const copy = (text) => {

@@ -42,9 +42,7 @@
             :taskEvents="taskEvents"
           ></TaskSch>
 
-          <SettingsPage
-            v-show="activeMenuItem == 'settings'"
-          />
+          <SettingsPage v-show="activeMenuItem == 'settings'" />
 
           <!-- <n-layout-footer
             bordered
@@ -254,10 +252,12 @@ const backendEventHook = (msg) => {
         return task;
       });
       if (value.type === "taskError") {
-        message.error(
-          `Error: ${msg.taskName}. Check "Scheduler > Events for details"`,
-          { duration: 6000 }
-        );
+        if (!appConfig.get("mainWindowDimension.isCollapsed")) {
+          message.error(
+            `Error: ${msg.taskName}. Check "Scheduler > Events for details"`,
+            { duration: 3000 }
+          );
+        }
       }
       break;
 

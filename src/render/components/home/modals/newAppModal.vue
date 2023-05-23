@@ -5,13 +5,6 @@
     </template>
     <div>
       <n-tabs type="segment">
-        <n-tab-pane name="official" :tab="$t('apps.newApp.official')">
-          <queryResults
-            :options="exampleApps"
-            :height="'120px'"
-            @customEvent="customEvent"
-          />
-        </n-tab-pane>
         <n-tab-pane name="download" :tab="$t('apps.newApp.download')">
           <n-space vertical>
             <n-input-group>
@@ -180,28 +173,6 @@ const newAppName = ref("");
 const newAppIcon = ref(
   "https://raw.githubusercontent.com/danalite/autool/main/imgs/logo.png"
 );
-
-const exampleApps = [
-  {
-    label: "Unit-Tests",
-    url: "https://github.com/danalite/awesome-autool-scripts/tree/master/danalite/Unit-Tests",
-    description: "A set of test cases for Autool",
-    src: "https://raw.githubusercontent.com/danalite/autool/main/imgs/logo.png",
-    width: 35,
-  },
-  {
-    label: "MacOS-display",
-    url: "https://github.com/danalite/autool-script-examples/tree/master/danalite/MacOS-Display",
-    description: "Display the current time and date",
-    src: "https://www.macscreenrepair.com/wp-content/uploads/2022/01/2020-Air.jpg",
-    width: 35,
-  },
-];
-
-const customEvent = (data) => {
-  message.success(`Downloading ${data.label}...`, { duration: 3000 });
-  downloadAppFromGithub(data.url);
-};
 
 const addNewApp = () => {
   if (addAppType.value === "download") {

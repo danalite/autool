@@ -5,7 +5,7 @@ import { renderTitle } from "./common";
 import { useStore } from "@/render/store";
 const store = useStore();
 
-export const renderNumberInput = (content, session = null) => {
+export const renderNumberInput = (session, content) => {
     return h(
       NSpace,
       { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
@@ -13,13 +13,13 @@ export const renderNumberInput = (content, session = null) => {
         default: () => [
           renderTitle(content.label),
           h(NInputNumber, {
-            placeholder: content.default,
+            // placeholder: content.default,
             size: "small",
             style: { "font-size": "14px", width: "250px" },
             onUpdateValue: (value) => {
               if (content.key) {
                 // update number in the global store
-                store.setValue(content.key, value);
+                store.setValue(session, content.key, value);
               }
             },
           }),

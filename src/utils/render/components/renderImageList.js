@@ -21,7 +21,7 @@ export const renderImageList = (content) => {
             style: { width: "290px" },
             onCustomEvent: (data) => {
               console.log(data);
-              // store.setValue(content.key, data);
+              // store.setValue(session, content.key, data);
             }
           }),
         ],

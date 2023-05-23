@@ -43,9 +43,8 @@ const notification = useNotification();
 const loadingElements = ref([]);
 const store = useStore();
 
-var messageQueue = [];
-
-const renderList = (content) => {
+// var messageQueue = [];
+const renderList = (session, content) => {
   return h(
     NList,
     {
@@ -63,7 +62,7 @@ const renderList = (content) => {
               style: {},
             },
             {
-              default: () => renderContent(item),
+              default: () => renderContent(session, item),
             }
           )
         ),
@@ -71,7 +70,7 @@ const renderList = (content) => {
   );
 };
 
-const renderDynamicUpdate = (content) => {
+const renderDynamicUpdate = (session, content) => {
   if (content.onSelect != null) {
     return h(
       NSpace,
@@ -81,7 +80,7 @@ const renderDynamicUpdate = (content) => {
           h(NDivider, { dashed: true }),
           loadingElements.value.find((item) => item === content.key)
             ? h(NSpin, { size: "small" })
-            : renderContent(store.getReturnValue()[content.key]),
+            : renderContent(session, store.getReturnValue(session)[content.key]),
         ],
       }
     );
@@ -89,25 +88,19 @@ const renderDynamicUpdate = (content) => {
     return h(NUpload, {
       listType: "image",
       style: { width: "300px" },
-      fileList: store.getReturnValue()[content.key],
+      fileList: store.getReturnValue(session)[content.key],
       onUpdateFileList: (value) => {
         // console.log("[ INFO ] onUpdateChange ", value);
-        store.setValue(content.key, value);
+        store.setValue(session, content.key, value);
       },
     });
   }
 };
 
 const rawOptions = ref([]);
-const dynamicOptions = computed(() => {
-  return rawOptions.value.map((item) => {
-    return { ...item };
-  });
-});
-
-const renderDynamicInput = (content) => {
-  if (store.getReturnValue()[content.key] == null) {
-    store.setValue(content.key, []);
+const renderDynamicInput = (session, content) => {
+  if (store.getReturnValue(session)[content.key] == null) {
+    store.setValue(session, content.key, []);
   }
 
   return h(
@@ -131,7 +124,7 @@ const renderDynamicInput = (content) => {
                   if (value == "") {
                     rawOptions.value = [];
                     if (content.onSelect != null) {
-                      store.setValue(content.key, {});
+                      store.setValue(session, content.key, {});
                     }
                     return;
                   }
@@ -139,7 +132,7 @@ const renderDynamicInput = (content) => {
                   const searchType = content.options?.search ?? "";
                   const params = content.options?.params ?? {};
                   querySearchCb(value, searchType, params, (data) => {
-                    console.log("[ INFO ] querySearchCb", data);
+                    // console.log("[ INFO ] querySearchCb", data);
                     rawOptions.value = JSON.parse(data);
                     return "done";
                   });
@@ -151,19 +144,19 @@ const renderDynamicInput = (content) => {
 
         // Display filtered results
         h(queryResults, {
-          options: dynamicOptions.value,
+          options: rawOptions.value,
           style: { width: "300px" },
 
           // Click any of the item in the list
           onCustomEvent: (data) => {
             if (content.max == 1) {
-              store.setValue(content.key, data.value);
+              store.setValue(session, content.key, data.value);
               if (content.instantQuit) {
-                store.clearCurrentSession();
+                store.getSession(session).destroy();
               }
             } else {
               if (content.onSelect != null) {
-                store.setValue(content.key, {});
+                store.setValue(session, content.key, {});
                 loadingElements.value.push(content.key);
 
                 // Second level search that returns a single item
@@ -185,18 +178,18 @@ const renderDynamicInput = (content) => {
                       eos = false;
                     }
 
-                    const prev = store.getReturnValue()[content.key];
+                    const prev = store.getReturnValue(session)[content.key];
                     const new_v = prev.content
                       ? prev.content + v.content
                       : v.content;
 
-                    store.setValue(content.key, {
+                    store.setValue(session, content.key, {
                       type: "text",
                       label: v.label ? v.label : "result",
                       content: new_v,
                     });
                   } else {
-                    store.setValue(content.key, v);
+                    store.setValue(session, content.key, v);
                   }
 
                   if (eos) {
@@ -209,56 +202,56 @@ const renderDynamicInput = (content) => {
                   name: data.value,
                   status: "finished",
                 };
-                const e = store.getReturnValue()[content.key];
+                const e = store.getReturnValue(session)[content.key];
                 if (e.every((i) => i.name !== item.name)) {
                   e.push(item);
-                  store.setValue(content.key, e);
+                  store.setValue(session, content.key, e);
                 }
               }
             }
           },
         }),
-        renderDynamicUpdate(content),
+        renderDynamicUpdate(session, content),
       ],
     }
   );
 };
 
-const renderContent = (content) => {
+const renderContent = (session, content) => {
   switch (content.type) {
     case "list":
       // console.log("@@@", content)
       if (content.imagePreview == true) {
         return renderImageList(content);
       } else {
-        return renderList(content);
+        return renderList(session, content);
       }
 
     case "tabs":
-      return renderTabs(content);
+      return renderTabs(session, content);
 
     case "select":
       if (content.imagePreview == true) {
-        return renderCarousel(content);
+        return renderCarousel(session, content);
       } else {
-        return renderCheckbox(content);
+        return renderCheckbox(session, content);
       }
 
     // dynamic inputs (search files, HTTP requests, Screen selection)
     case "dynamic":
-      return renderDynamicInput(content);
+      return renderDynamicInput(session, content);
 
     case "interactive":
-      return renderChatWindow(content);
+      return renderChatWindow(session, content);
 
     case "upload":
-      return renderUpload(content);
+      return renderUpload(session, content);
 
     case "text":
-      return renderText(content);
+      return renderText(session, content);
 
     case "number":
-      return renderNumberInput(content);
+      return renderNumberInput(session, content);
 
     case "audio":
     case "video":
@@ -296,7 +289,7 @@ const renderContent = (content) => {
   }
 };
 
-const renderTabs = (content) => {
+const renderTabs = (session, content) => {
   // console.log("renderTabs", content);
   return h(
     NSpace,
@@ -313,7 +306,7 @@ const renderTabs = (content) => {
                   NTabPane,
                   { name: item.tab, tab: item.tab },
                   {
-                    default: () => renderContent(item),
+                    default: () => renderContent(session, item),
                   }
                 );
               }),
@@ -324,12 +317,12 @@ const renderTabs = (content) => {
   );
 };
 
-const newNotification = (message) => {
+const newNotification = (session, message) => {
   const nRef = notification.create({
     title: () => h("span", message.title),
     description: () => "task: " + message.source,
 
-    content: () => renderContent(message.content),
+    content: () => renderContent(session, message.content),
     meta: () => h("span", new Date().toLocaleString()),
     action: () =>
       h(
@@ -339,7 +332,6 @@ const newNotification = (message) => {
           type: "success",
           tertiary: true,
           onClick: () => {
-            // store.clearCurrentSession();
             nRef.destroy();
           },
         },
@@ -358,36 +350,40 @@ const newNotification = (message) => {
         },
       }),
     onAfterLeave: () => {
-      const returnValue = store.getReturnValue();
-      if (Object.keys(returnValue).length > 0) {
+      const returnValue = store.getReturnValue(session);
+      if (Object.keys(returnValue).filter((item) => !item.startsWith("__CHAT__")).length > 0) {
         ipcRenderer.send("event-to-main-win", {
           callback: message.callback,
           data: JSON.stringify(returnValue),
         });
       }
-      ipcRenderer.removeAllListeners("mouse-hover");
-      nRef.destroy();
-      rawOptions.value = [];
 
-      store.clearCurrentSession();
-      if (messageQueue.length > 0) {
-        enqueue(messageQueue.shift().message);
-      }
+      rawOptions.value = [];
+      store.clearSession(session);
+
+      // if (messageQueue.length > 0) {
+      //   enqueue(messageQueue.shift().message);
+      // }
     },
   });
-  store.initializeSession(message, nRef);
+  // cache the notification reference
+  store.initializeSession(session, message, nRef);
 };
 
-const enqueue = (message) => {
-  const newID = message.uuid || genUUID();
 
-  if (store.getCurrentSession() != null) {
-    messageQueue.push({
-      id: newID,
-      message: message,
-    });
+const updateSession = (session, message) => {
+  const nRef = store.getSession(session);
+  nRef.content = () => renderContent(session, message.content);
+}
+
+const enqueue = (message) => {
+  const uuid = message.session || genUUID();
+
+  if (store.hasSession(uuid)) {
+    updateSession(uuid, message);
+
   } else {
-    newNotification(message);
+    newNotification(uuid, message);
   }
 };
 

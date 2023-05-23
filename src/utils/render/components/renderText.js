@@ -5,10 +5,10 @@ import { renderTitle } from "./common";
 import { useStore } from "@/render/store";
 const store = useStore();
 
-const renderInput = (content) => {
-    const v = store.getReturnValue();
+const renderInput = (session, content) => {
+    const v = store.getReturnValue(session);
     if (v[content.key] == null) {
-        store.setValue(content.key, {
+        store.setValue(session, content.key, {
             options: content.advanced?.default ?? [],
             checked: [],
         });
@@ -23,26 +23,26 @@ const renderInput = (content) => {
                     "margin-bottom": "8px",
                 },
                 onCreate: (index) => {
-                    const e = store.getReturnValue()[content.key];
+                    const e = store.getReturnValue(session)[content.key];
                     if (Array.isArray(e.options)) {
                         e.options.splice(index, 0, "");
-                        store.setValue(content.key, e);
+                        store.setValue(session, content.key, e);
                     }
                     return "";
                 },
 
                 onRemove: (index) => {
-                    const e = store.getReturnValue()[content.key];
+                    const e = store.getReturnValue(session)[content.key];
                     if (Array.isArray(e.options)) {
                         e.options.splice(index, 1);
-                        store.setValue(content.key, e);
+                        store.setValue(session, content.key, e);
                     }
                 },
 
                 size: "small",
                 placeholder: content.placeholder,
                 style: { "font-size": "14px" },
-                defaultValue: store.getReturnValue()[content.key].options,
+                defaultValue: store.getReturnValue(session)[content.key].options,
             },
             {
                 default: ({ value, index }) =>
@@ -60,23 +60,23 @@ const renderInput = (content) => {
                                 h(NCheckbox, {
                                     style: { marginRight: "12px" },
                                     onUpdateChecked: (v) => {
-                                        const e = store.getReturnValue()[content.key];
+                                        const e = store.getReturnValue(session)[content.key];
                                         const current = e.options[index];
                                         if (v) {
                                             e.checked.push(current);
                                         } else {
                                             e.checked = e.checked.filter((item) => item !== current);
                                         }
-                                        store.setValue(content.key, e);
+                                        store.setValue(session, content.key, e);
                                     },
                                 }),
                                 h(NInput, {
                                     style: { "font-size": "14px" },
                                     defaultValue: value,
                                     onUpdateValue: (v) => {
-                                        const e = store.getReturnValue()[content.key];
+                                        const e = store.getReturnValue(session)[content.key];
                                         e.options[index] = v;
-                                        store.setValue(content.key, e);
+                                        store.setValue(session, content.key, e);
                                     },
                                     size: "small",
                                     placeholder: content.placeholder,
@@ -90,7 +90,7 @@ const renderInput = (content) => {
         : h(NInput, {
             style: { "font-size": "14px" },
             onUpdateValue: (value) => {
-                store.setValue(content.key, value);
+                store.setValue(session, content.key, value);
             },
             size: "small",
             placeholder: content.placeholder,
@@ -98,7 +98,7 @@ const renderInput = (content) => {
         });
 };
 
-export const renderText = (content) => {
+export const renderText = (session, content) => {
     return h(
         NSpace,
         { vertical: true, style: {} },
@@ -107,7 +107,7 @@ export const renderText = (content) => {
                 renderTitle(content.label),
                 // Text input or a simple text to display
                 content.key != null
-                    ? renderInput(content)
+                    ? renderInput(session, content)
                     : h(
                         NText,
                         {

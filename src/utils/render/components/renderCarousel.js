@@ -6,7 +6,7 @@ import { ExternalLink } from "@vicons/tabler";
 import { useStore } from "@/render/store";
 const store = useStore();
 
-export const renderCarousel = (content) => {
+export const renderCarousel = (session, content) => {
     const options = content.content.map((item) => {
       // if item is of type string, convert it to object
       if (typeof item === "string") {
@@ -83,7 +83,7 @@ export const renderCarousel = (content) => {
                                   left: "8px",
                                 },
                                 onUpdateValue: (select) => {
-                                  const returnValues = store.getReturnValue();
+                                  const returnValues = store.getReturnValue(session);
                                   var v = returnValues[content.key];
                                   if (!v) {
                                     v = [];
@@ -94,7 +94,7 @@ export const renderCarousel = (content) => {
                                   } else {
                                     v.splice(v.indexOf(item), 1);
                                   }
-                                  store.setValue(content.key, v);
+                                  store.setValue(session, content.key, v);
                                 },
                               },
                               {

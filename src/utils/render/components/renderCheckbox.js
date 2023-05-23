@@ -5,7 +5,7 @@ import { renderTitle } from "./common";
 import { useStore } from "@/render/store";
 const store = useStore();
 
-export const renderCheckbox = (content) => {
+export const renderCheckbox = (session, content) => {
     const options = content.content.map((item) => {
       // if item is of type string, convert it to object
       if (typeof item === "string") {
@@ -30,9 +30,9 @@ export const renderCheckbox = (content) => {
             NCheckboxGroup,
             {
               onUpdateValue: (value) => {
-                store.setValue(content.key, value);
+                store.setValue(session, content.key, value);
                 if (content.instantQuit && content.max === 1) {
-                  store.clearCurrentSession();
+                  store.getSession(session).destroy();
                 }
               },
               style: { "margin-left": "30px" },

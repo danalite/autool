@@ -2,7 +2,7 @@
   "name": "AuTool",
   "license": "GPL v3",
   "private": true,
-  "version": "0.0.19",
+  "version": "0.0.20",
   "author": "vrteee <support@autool.site>",
   "main": "background.js",
   "description": "Software infrastructure for AI adoption",

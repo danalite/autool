@@ -1,6 +1,7 @@
 import {
   globalShortcut,
-  shell
+  shell,
+  screen
 } from 'electron'
 
 import { getKeyByValue, parseSequence, uioEventEnum } from '@/utils/main/macroOpt';
@@ -78,7 +79,13 @@ export const uioStartup = (mainWindow, assistWindow) => {
       return isConsecutiveKeys(UiohookKey.Meta)
     },
     action: (e) => {
-      uIOhook.keyTap(UiohookKey.C, [UiohookKey.Meta])
+      // if platform is windows, use Ctrl+C instead
+      if (process.platform == "win32") {
+        uIOhook.keyTap(UiohookKey.C, [UiohookKey.Ctrl])
+      } else {
+        uIOhook.keyTap(UiohookKey.C, [UiohookKey.Meta])
+      }
+
       setTimeout(() => {
         if (mainWindow.isVisible()) {
           if (mainWindow.isFocused()) {
@@ -87,9 +94,26 @@ export const uioStartup = (mainWindow, assistWindow) => {
             mainWindow.show()
           }
         } else {
+          const position = screen.getCursorScreenPoint()
+          mainWindow.setPosition(Math.max(position.x - 300, 0), position.y)
           mainWindow.show()
         }
       }, 200)
+    }
+  })
+
+  keyboardActionTable.push({
+    name: "key-intrinsic-resume-assist",
+    source: "appMain",
+    rule: (e) => {
+      return isConsecutiveKeys(UiohookKey.Shift)
+    },
+    action: (e) => {
+      if (assistWindow.isVisible()) {
+        assistWindow.hide()
+      } else {
+        assistWindow.show()
+      }
     }
   })
 }

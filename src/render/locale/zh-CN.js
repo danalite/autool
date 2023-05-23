@@ -18,7 +18,6 @@ const ChineseOptions = {
             title: '新建应用',
             download: '下载应用',
             blank: '空白应用',
-            official: '社区应用',
             appName: '应用名称',
             appIcon: '应用图标',
             appLink: '应用链接',

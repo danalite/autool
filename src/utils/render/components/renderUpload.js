@@ -4,7 +4,7 @@ import { renderTitle } from "./common";
 import { useStore } from "@/render/store";
 const store = useStore();
 
-export const renderUpload = (content) => {
+export const renderUpload = (session, content) => {
     return h(
       NSpace,
       { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
@@ -21,7 +21,7 @@ export const renderUpload = (content) => {
                 // fileListRef.value = fileList;
                 // console.log("[ INFO ] onChange ", JSON.stringify(fileList));
                 const v = fileList.map((item) => item.file.path);
-                store.setValue(content.key, v);
+                store.setValue(session, content.key, v);
               },
             },
             {

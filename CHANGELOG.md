@@ -1,5 +1,11 @@
 ## CHANGE LOG
 
+### 2023-05-22
+- Add popup window session support. Users can have multiple inputs windows running in parallel
+- Fix the codec issue: https://github.com/danalite/autool/issues/5
+- Remove the selected apps part. Use download links on website instead
+- Rearrange the task scheduling panel
+
 ### 2023-05-18
 - Make main window hide when inactive (active by long pressing Meta)
 - Make UIO hook more modular
