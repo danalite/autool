@@ -62,12 +62,22 @@
       {{ $t("settings.services.EventSource.title") }}
     </n-divider>
 
+    <n-space v-if="networkCache.length > 0">
+      <n-progress
+        :v-for="r in networkCache"
+        type="line"
+        :percentage="30"
+        :indicator-placement="'inside'"
+      />
+    </n-space>
+    <n-empty v-else />
   </n-space>
 </template>
 
 <script setup>
 import {
-  NCard,
+  NProgress,
+  NEmpty,
   NInputGroup,
   NInputGroupLabel,
   NSpace,
@@ -87,11 +97,13 @@ import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
+// Check if license and local server is valid
 const license = ref(appConfig.get("license"));
 const isLocalServerActive = ref(appConfig.get("isLocalServerActive"));
 setInterval(() => {
   isLocalServerActive.value = appConfig.get("isLocalServerActive");
 }, 1000);
 
-
+// Load the network request histories
+const networkCache = ref(appConfig.get("networkCache"));
 </script>

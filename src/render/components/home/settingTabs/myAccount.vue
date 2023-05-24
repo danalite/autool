@@ -1,7 +1,7 @@
 <template>
   <n-space vertical>
     <n-input-group size="small">
-      <n-input-group-label size="small">
+      <n-input-group-label size="small" class="type-btn">
         {{ $t("settings.accounts.license") }}
       </n-input-group-label>
       <n-input
@@ -27,7 +27,7 @@
     </n-input-group>
 
     <n-input-group size="small">
-      <n-input-group-label size="small">
+      <n-input-group-label size="small" class="type-btn">
         {{ $t("settings.accounts.appHome") }}
       </n-input-group-label>
 
@@ -53,7 +53,7 @@
     </n-input-group>
 
     <n-input-group size="small">
-      <n-input-group-label size="small">
+      <n-input-group-label size="small" class="type-btn">
         {{ $t("settings.accounts.language") }}
       </n-input-group-label>
       <n-popselect
@@ -101,3 +101,10 @@ const openAppHome = async () => {
 const appHome = ref(appConfig.get("appHome"));
 const license = ref(appConfig.get("license"));
 </script>
+
+
+<style scoped>
+.type-btn {
+  width: 90px;
+}
+</style>

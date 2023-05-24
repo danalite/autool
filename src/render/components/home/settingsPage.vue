@@ -29,7 +29,7 @@
       </n-layout-sider>
 
       <n-layout content-style="padding: 15px 25px 5px;">
-        <accounts-mgr v-if="subTab == 'accounts'" />
+        <my-account v-if="subTab == 'accounts'" />
         <server-lists v-if="subTab == 'servers'" />
         <canvas-settings v-if="subTab == 'canvas'" />
       </n-layout>
@@ -100,7 +100,7 @@ import {
 
 import serverLists from "./settingTabs/serverLists.vue";
 import canvasSettings from "./settingTabs/canvasSettings.vue";
-import accountsMgr from "./settingTabs/accountsMgr.vue";
+import myAccount from "./settingTabs/myAccount.vue";
 
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";

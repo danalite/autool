@@ -43,7 +43,6 @@ const notification = useNotification();
 const loadingElements = ref([]);
 const store = useStore();
 
-// var messageQueue = [];
 const renderList = (session, content) => {
   return h(
     NList,
@@ -360,10 +359,6 @@ const newNotification = (session, message) => {
 
       rawOptions.value = [];
       store.clearSession(session);
-
-      // if (messageQueue.length > 0) {
-      //   enqueue(messageQueue.shift().message);
-      // }
     },
   });
   // cache the notification reference

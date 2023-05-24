@@ -579,7 +579,6 @@ const saveSetupsToFile = async () => {
 // Create dialog for new tasks
 const showAddTaskModal = ref(false);
 
-
 const cronTemplates = [
   {
     label: "9:15am on Weekdays",

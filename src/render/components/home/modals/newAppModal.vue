@@ -19,14 +19,25 @@
                 placeholder="https://github.com/danalite/apps/tree/master/macos"
               />
             </n-input-group>
+
+            <n-space justify="center">
+              <n-button text color="#db5851" size="small" @click="shell.openExternal('https://autool.site/en/docs/develop/sample/ai-tools')">
+                <template #icon>
+                  <n-icon>
+                    <Apps />
+                  </n-icon>
+                </template>
+                Find more apps on our website
+              </n-button>
+            </n-space>
           </n-space>
         </n-tab-pane>
         <n-tab-pane name="blank" :tab="$t('apps.newApp.blank')">
           <n-space>
             <n-input-group>
-              <n-button size="small" secondary style="padding: 10px 5px 10px">
+              <n-input-group-label size="small">
                 {{ $t("apps.newApp.appName") }}
-              </n-button>
+              </n-input-group-label>
               <n-input
                 v-model:value="newAppAuthor"
                 style="width: 90px"
@@ -41,9 +52,9 @@
               />
             </n-input-group>
             <n-input-group>
-              <n-button size="small" secondary style="padding: 10px 5px 10px">
+              <n-input-group-label size="small">
                 {{ $t("apps.newApp.appIcon") }}
-              </n-button>
+              </n-input-group-label>
               <n-input
                 v-model:value="newAppIcon"
                 size="small"
@@ -114,11 +125,10 @@ import {
 } from "naive-ui";
 
 import { ipcRenderer, shell } from "electron";
-import { ref, h } from "vue";
+import { ref } from "vue";
 import { Apps } from "@vicons/tabler";
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
-import queryResults from "../../assist/cards/queryResults.vue";
 
 const { t } = useI18n();
 const message = useMessage();

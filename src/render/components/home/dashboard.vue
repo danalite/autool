@@ -56,33 +56,8 @@ import { appConfig } from "@/utils/main/config";
 import { request } from "@/utils/render/request";
 
 const store = useStore();
-let { pageCount } = storeToRefs(store);
 
 const message = useMessage();
-let connFailureCount = 0;
-let serverLatency = ref(0);
-
-function testLatency() {
-  var start = new Date().getTime();
-  request({
-    url: "http://173.82.48.51:8080/ping",
-    method: "GET",
-  })
-    .then((res) => {
-      var lat = new Date().getTime() - start;
-      serverLatency.value = lat;
-      connFailureCount = 0;
-    })
-    .catch((err) => {
-      serverLatency.value = 0;
-      if (connFailureCount === 0) {
-        connFailureCount++;
-        message.error(
-          "Cannot reach remote server. Please check internet connection"
-        );
-      }
-    });
-}
 
 const handleDrag = (pos) => {
   ipcRenderer.send("move-main", {
@@ -97,15 +72,6 @@ const handleCollapse = () => {
   appConfig.set("mainWindowDimension.isCollapsed", true);
 };
 
-onMounted(() => {
-  testLatency();
-  let timer = setInterval(() => {
-    testLatency();
-    if (connFailureCount > 5) {
-      clearInterval(timer);
-    }
-  }, 5000);
-});
 </script>
 
 <style scoped>

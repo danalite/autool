@@ -16,6 +16,7 @@ export const appConfig = new Store({
     'stoppedTasksCache': [],
     'scheduledTasksCache': [],
     'eventsCache': [],
+    'networkCache': [],
     'appHome': '',
     'logPath': '',
     'license': {
@@ -41,11 +42,6 @@ export const appConfig = new Store({
         'isChecked': true,
         'label': "TinyWow Toolbox",
         'value': "https://tinywow.com/",
-      },
-      {
-        'isChecked': true,
-        'label': "Todo Lists",
-        'value': "https://tasks-app-aridsm.netlify.app",
       },
       {
         'isChecked': true,

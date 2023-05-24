@@ -79,7 +79,7 @@ const ChineseOptions = {
             },
 
             EventSource: {
-                title: '消息源',
+                title: '网络请求',
             },
 
         },

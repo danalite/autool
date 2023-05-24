@@ -18,9 +18,9 @@ const EnglishOptions = {
             title: 'New App',
             download: 'Download',
             blank: 'Empty',
-            appName: 'App Name',
-            appIcon: 'App Icon',
-            appLink: 'App Link',
+            appName: 'appName',
+            appIcon: 'appIcon',
+            appLink: 'Link',
         },
         newTask: {
             title: 'New Task to',
@@ -64,14 +64,14 @@ const EnglishOptions = {
     settings: {
         title: "Settings",
         accounts: {
-            title: 'Accounts',
+            title: 'Account',
             license: 'License',
             appHome: 'App Home',
             language: 'Language'
         },
 
         services: {
-            title: 'Services',
+            title: 'Service',
             taskServer: {
                 title: 'Task Server',
                 local: 'Local worker',
@@ -79,7 +79,7 @@ const EnglishOptions = {
             },
 
             EventSource: {
-                title: 'Message Subscription',
+                title: 'Network Requests',
             },
 
         },
