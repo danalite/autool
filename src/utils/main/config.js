@@ -4,7 +4,7 @@ export const appConfig = new Store({
   defaults: {
     'mainWindowDimension': {
       isCollapsed: false,
-      width: 590,
+      width: 600,
       height: 300
     },
     'mainWindowPosition': {
@@ -27,7 +27,6 @@ export const appConfig = new Store({
     },
     'isTaskSchMenuCollapsed': true,
     'isSettingsMenuCollapsed': true,
-    'pathSeparator': '/',
     'taskSch': {
       'showType': 'running',
     },

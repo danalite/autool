@@ -9,7 +9,7 @@ var isCollapsed = appConfig.get('mainWindowDimension.isCollapsed')
 export const ipcListener = (mainWindow, assistWindow) => {
   ipcMain.on('move-main', (event, pos) => {
     let dim = appConfig.get('mainWindowDimension')
-    let bounds = dim.isCollapsed ? { width: 590, height: 40 } : { width: dim.width, height: dim.height }
+    let bounds = dim.isCollapsed ? { width: 600, height: 40 } : { width: dim.width, height: dim.height }
     mainWindow.setBounds({ x: pos.x, y: pos.y, ...bounds })
   })
 

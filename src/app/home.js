@@ -16,7 +16,7 @@ export const createMainWindow = async (userHeader, iconPath) => {
     frame: true,
     resizable: true,
     closable: true,
-    minWidth: 590,
+    minWidth: 600,
     minHeight: 40,
 
     titleBarStyle: 'hidden',
@@ -28,7 +28,7 @@ export const createMainWindow = async (userHeader, iconPath) => {
 
     x: pos.x || (currentScreen.width - dim.width) / 2,
     y: pos.y || (currentScreen.height - dim.height) / 2,
-    width: dim.isCollapsed ? 590 : dim.width,
+    width: dim.isCollapsed ? 600 : dim.width,
     height: dim.isCollapsed ? 40 : dim.height,
     icon: iconPath,
 

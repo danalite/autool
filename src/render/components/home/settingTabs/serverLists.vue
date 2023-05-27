@@ -70,14 +70,14 @@
         :indicator-placement="'inside'"
       />
     </n-space>
-    <n-empty v-else />
+    <n-result size="small" status="warning" style="padding-bottom:20px" />
   </n-space>
 </template>
 
 <script setup>
 import {
   NProgress,
-  NEmpty,
+  NResult,
   NInputGroup,
   NInputGroupLabel,
   NSpace,

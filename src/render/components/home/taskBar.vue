@@ -42,7 +42,7 @@
           type="success"
           secondary
           size="tiny"
-          style="margin-right: 0px; width: 155px"
+          style="margin-right: 0px; width: 160px"
           @click="runTargetTask($event, taskName)"
         >
           <n-ellipsis style="max-width: 160px" :tooltip="false">
@@ -176,7 +176,7 @@ const decreasePage = () => {
 // reLoad local apps before collapse
 const taskPage = ref("1");
 const selectedTasks = ref([]);
-const pathSeparator = ref(appConfig.get("pathSeparator"));
+const pathSeparator = process.platform == "win32" ? "\\" : "/";
 
 const selectedTaskNames = computed(() => {
   return selectedTasks.value.map(

@@ -68,7 +68,7 @@ const handleDrag = (pos) => {
 
 const handleCollapse = () => {
   store.pageReset(0);
-  ipcRenderer.send("main-win-collapse", { width: 590, height: 40 });
+  ipcRenderer.send("main-win-collapse", { width: 600, height: 40 });
   appConfig.set("mainWindowDimension.isCollapsed", true);
 };
 

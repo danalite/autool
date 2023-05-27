@@ -36,13 +36,11 @@
 
           <TaskSch
             v-show="activeMenuItem == 'scheduler'"
-            @runTask="runTask($event)"
-            @stopTask="stopTask($event)"
             :tasksStatusTable="tasksStatusTable"
             :taskEvents="taskEvents"
           ></TaskSch>
 
-          <SettingsPage v-show="activeMenuItem == 'settings'" />
+          <settings-index v-show="activeMenuItem == 'settings'" />
 
           <!-- <n-layout-footer
             bordered
@@ -58,7 +56,7 @@
 
 <script setup>
 import Dashboard from "./dashboard.vue";
-import SettingsPage from "./settingsPage.vue";
+import SettingsIndex from "./settingsIndex.vue";
 
 import TaskBar from "./taskBar.vue";
 import AppLists from "./appLists.vue";
@@ -391,7 +389,6 @@ const runTask = async (task) => {
 };
 
 const stopTask = (task) => {
-  // console.log("stopTask", task);
   var isHotkeyTask = false;
   var isScheduledTask = false;
   tasksStatusTable.value = tasksStatusTable.value.map((t) => {
@@ -438,10 +435,14 @@ const stopTask = (task) => {
   }
 };
 
-// Handle events from node process and task bar
 eventBus.on("run-task", (task) => {
-  console.log("run-task", task);
+  // console.log("run-task", task);
   runTask(task);
+});
+
+eventBus.on("stop-task", (task) => {
+  // console.log("stop-task", task);
+  stopTask(task);
 });
 
 ipcRenderer.on("to-main-win", (event, message) => {

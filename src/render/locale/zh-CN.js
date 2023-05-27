@@ -51,14 +51,8 @@ const ChineseOptions = {
         later: {
             title: '稍后运行',
         },
-        hotkey: {
-            title: '快捷键',
-        },
-        stopped: {
-            title: '已停止',
-        },
         events: {
-            title: '事件',
+            title: '历史数据',
         }
     },
     settings: {

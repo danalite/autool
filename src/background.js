@@ -251,7 +251,6 @@ const appSetup = async () => {
 
   const apps = await loadApps(appHome)
   appConfig.set('apps', apps.apps)
-  appConfig.set('pathSeparator', path.sep)
 
   // Gather and confirm whether to autostart tasks
   let taskNames = apps.autostart.map((e) => e.relTaskPath.split(path.sep).slice(-1)[0])

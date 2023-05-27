@@ -29,248 +29,12 @@
       </n-layout-sider>
 
       <n-layout content-style="padding: 15px 25px 5px;">
-        <n-space v-if="showEmptyIcon" style="margin-top: 80px" justify="center">
-          <n-empty :description="$t('scheduler.active.emptyText')"> </n-empty>
-        </n-space>
+        <task-history v-if="taskSchTab == 'events'" :taskEvents="props.taskEvents" :stoppedTasks="stoppedTasks" />
+        
+        <task-queued v-if="taskSchTab == 'scheduled'" :hotkeyTasks="hotkeyTasks" :scheduledTasks="scheduledTasks" @runTask="runTask($event)" />
 
-        <n-space v-if="taskSchTab == 'events'" justify="center">
-          <n-timeline size="large">
-            <n-timeline-item
-              v-for="e in eventItems"
-              :key="e.key"
-              :type="e.type"
-              :title="e.title"
-              :content="e.content"
-              :time="new Date(e.time).toLocaleString()"
-            />
-          </n-timeline>
-        </n-space>
+        <task-active v-if="taskSchTab == 'running'" :runningTasks="runningTasks" />
 
-        <n-space v-if="taskSchTab == 'running'">
-          <n-card
-            v-for="(task, taskIndex) in runningTasks"
-            size="small"
-            style="width: 300px"
-            :key="taskIndex"
-          >
-            <n-space :size="[4, 2]" justify="space-between">
-              <n-space>
-                <n-icon
-                  size="20"
-                  v-if="task.options?.includes('remote')"
-                  style="padding-right: 3px"
-                >
-                  <Cloud color="#409eff" />
-                </n-icon>
-                <n-icon size="20" v-else style="padding-right: 3px">
-                  <DevicesPc style="color: #409eff" />
-                </n-icon>
-
-                <n-button
-                  :text="true"
-                  size="small"
-                  @click="openTask(task.taskPath)"
-                >
-                  <n-ellipsis style="max-width: 155px">
-                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
-                  </n-ellipsis>
-                </n-button>
-              </n-space>
-              <n-button
-                :text="true"
-                :bordered="false"
-                type="success"
-                style="margin-left: 0px"
-                size="tiny"
-              >
-                {{ task.id.slice(0, 8) }}
-              </n-button>
-            </n-space>
-
-            <n-space justify="space-between">
-              <n-ellipsis style="max-width: 185px">
-                {{ new Date(task.stamp).toLocaleString() }}
-              </n-ellipsis>
-              <n-button size="tiny" type="error" @click="() => stopTask(task)">
-                {{ $t("apps.common.stop") }}
-              </n-button>
-            </n-space>
-          </n-card>
-        </n-space>
-
-        <n-space v-if="taskSchTab == 'scheduled'">
-          <n-card
-            v-for="(task, taskIndex) in scheduledTasks"
-            size="small"
-            style="width: 300px"
-            :key="taskIndex"
-          >
-            <n-space :size="[0, 0]" justify="space-between">
-              <n-space>
-                <n-icon
-                  size="20"
-                  v-if="task.options?.includes('remote')"
-                  style="padding-right: 3px"
-                >
-                  <Cloud color="#409eff" />
-                </n-icon>
-                <n-icon size="20" v-else style="padding-right: 3px">
-                  <DevicesPc style="color: #409eff" />
-                </n-icon>
-
-                <n-button :text="true" size="small">
-                  <n-ellipsis style="max-width: 155px">
-                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
-                  </n-ellipsis>
-                </n-button>
-              </n-space>
-              <n-button
-                :text="true"
-                :bordered="false"
-                type="success"
-                style="margin-left: 0px"
-                size="tiny"
-              >
-                {{ task.id.slice(0, 8) }}
-              </n-button>
-            </n-space>
-
-            <n-space justify="space-between">
-              <n-countdown
-                :duration="getNextRunTime(task, taskIndex)"
-                @finish="() => runTask(task, taskIndex)"
-              />
-              <n-button
-                secondary
-                size="tiny"
-                type="error"
-                @click="() => stopTask(task)"
-              >
-                Clear
-              </n-button>
-            </n-space>
-          </n-card>
-        </n-space>
-
-        <n-space v-if="taskSchTab == 'hotkeys'">
-          <n-card
-            v-for="(task, taskIndex) in hotkeyTasks"
-            size="small"
-            style="width: 300px"
-            :key="taskIndex"
-          >
-            <n-space :size="[4, 2]" justify="space-between">
-              <n-space>
-                <n-icon
-                  size="20"
-                  v-if="task.options?.includes('remote')"
-                  style="padding-right: 3px"
-                >
-                  <Cloud color="#409eff" />
-                </n-icon>
-                <n-icon size="20" v-else style="padding-right: 3px">
-                  <DevicesPc style="color: #409eff" />
-                </n-icon>
-
-                <n-button :text="true" size="small">
-                  <n-ellipsis style="max-width: 155px">
-                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
-                  </n-ellipsis>
-                </n-button>
-              </n-space>
-
-              <n-button
-                :text="true"
-                :bordered="false"
-                type="success"
-                style="margin-left: 0px"
-                size="tiny"
-              >
-                {{ task.id.slice(0, 8) }}
-              </n-button>
-            </n-space>
-
-            <n-space justify="center">
-              <n-button secondary type="success" size="tiny">
-                {{ task.hotkey }}
-              </n-button>
-              <n-button
-                secondary
-                size="tiny"
-                type="error"
-                @click="() => stopTask(task)"
-              >
-                {{ $t("apps.common.clear") }}
-              </n-button>
-            </n-space>
-          </n-card>
-        </n-space>
-
-        <n-space v-if="taskSchTab == 'stopped'">
-          <n-card
-            v-for="(task, taskIndex) in stoppedTasks"
-            size="small"
-            :key="taskIndex"
-          >
-            <n-space :size="[4, 2]" justify="space-between">
-              <n-space>
-                <n-icon
-                  size="20"
-                  v-if="task.options?.includes('remote')"
-                  style="padding-right: 3px"
-                >
-                  <Cloud color="#409eff" />
-                </n-icon>
-                <n-icon size="20" v-else style="padding-right: 3px">
-                  <DevicesPc style="color: #409eff" />
-                </n-icon>
-
-                <n-button
-                  :text="true"
-                  size="small"
-                  @click="openTask(task.taskPath)"
-                >
-                  <n-ellipsis style="max-width: 155px; width: 155px">
-                    {{ task.taskName.split(pathSeparator).slice(-1)[0] }}
-                  </n-ellipsis>
-                </n-button>
-                <n-button
-                  :text="true"
-                  :bordered="false"
-                  type="success"
-                  style="margin-left: 0px"
-                  size="tiny"
-                >
-                  {{ task.id.slice(0, 8) }}
-                </n-button>
-              </n-space>
-            </n-space>
-
-            <n-space justify="space-between">
-              <n-text>
-                {{ new Date(task.stamp).toLocaleString() }}
-              </n-text>
-              <n-button
-                secondary
-                size="tiny"
-                :type="
-                  task.status == 'taskFinish'
-                    ? 'success'
-                    : task.status == 'stopped'
-                    ? 'warning'
-                    : 'error'
-                "
-                @click="() => quickAction(task)"
-              >
-                {{
-                  task.status == "taskFinish" || task.status == "stopped"
-                    ? $t("apps.task.rerun")
-                    : $t("apps.task.debug")
-                }}
-              </n-button>
-            </n-space>
-          </n-card>
-        </n-space>
       </n-layout>
     </n-layout>
   </n-layout-content>
@@ -310,33 +74,21 @@ import {
   NRadio,
 } from "naive-ui";
 
-import { ref, nextTick, h, computed, onMounted, onBeforeUnmount } from "vue";
+import { ref, h, computed, onBeforeUnmount } from "vue";
 import {
-  Copyright,
-  BrandAndroid,
-  Keyboard,
-  Clock,
-  Cloud,
-  Pencil,
-  CloudDownload,
-  DevicesPc,
-  Plus,
-  Trash,
-  FileReport,
-  Search,
-  Box,
-  Run,
   Alarm,
   PlayerPlay,
-  PlayerStop,
-  MailForward,
+  History,
 } from "@vicons/tabler";
 
 import { app, ipcRenderer, shell } from "electron";
 
 import { appConfig } from "@/utils/main/config";
-import { parseCron } from "@/utils/render/components/common";
 import { useI18n } from "vue-i18n";
+
+import taskHistory from "./schedulerTabs/taskHistory.vue"
+import taskQueued from "./schedulerTabs/taskQueued.vue"
+import taskActive from "./schedulerTabs/taskActive.vue"
 
 const { t } = useI18n();
 const props = defineProps({
@@ -348,40 +100,6 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(["runTask", "stopTask"]);
-const message = useMessage();
-
-const activeAppIndex = ref(-1);
-const genEventType = (item, source) => {
-  if (item.type === "taskError") {
-    return "error";
-  } else {
-    if (source === "console") {
-      return "success";
-    } else {
-      return "info";
-    }
-  }
-};
-
-const genEventContent = (item, taskName) => {
-  switch (item.type) {
-    case "taskFinish":
-      return item.message;
-
-    case "taskError":
-      return item.message;
-
-    // Inward events
-    case "runTask":
-      return `enqueue "${taskName}"`;
-
-    default:
-      return item.type;
-  }
-};
-
-const pathSeparator = ref(appConfig.get("pathSeparator"));
 const collapsed = ref(appConfig.get("isTaskSchMenuCollapsed"));
 const taskSchTab = ref("running");
 
@@ -406,70 +124,12 @@ const menuOptions = [
     icon: renderIcon(Alarm),
   },
   {
-    label: () => t("scheduler.hotkey.title"),
-    key: "hotkeys",
-    icon: renderIcon(Keyboard),
-  },
-  {
-    label: () => t("scheduler.stopped.title"),
-    key: "stopped",
-    icon: renderIcon(PlayerStop),
-  },
-  {
     label: () => t("scheduler.events.title"),
     key: "events",
-    icon: renderIcon(MailForward),
+    icon: renderIcon(History, "#ffa700"),
   },
 ];
 
-const getNextRunTime = (task, index) => {
-  let nextRunTime = task.nextDates;
-  let now = new Date().getTime();
-  for (let i = 0; i < nextRunTime.length; i++) {
-    if (nextRunTime[i].stamp - now > 0) {
-      return nextRunTime[i].stamp - now;
-    }
-  }
-
-  let nextDates = parseCron(task.startTime);
-  scheduledTasks.value[index].nextDates = nextDates;
-  return nextDates[0].stamp - now;
-};
-
-let eventsCache = appConfig.get("eventsCache");
-const eventItems = computed(() => {
-  let events = props.taskEvents.map((e) => {
-    return {
-      title: `${e.event} (${e.uuid.slice(0, 8)})`,
-      content: genEventContent(e.value, e.taskName),
-      key: e.stamp,
-      type: genEventType(e.value, e.source),
-      time: e.stamp,
-    };
-  });
-
-  events = eventsCache.concat(events);
-  events.sort((a, b) => b.time - a.time);
-  if (events.length > 50) {
-    events = events.slice(0, 50);
-  }
-  appConfig.set("eventsCache", events);
-  return events;
-});
-
-const showEmptyIcon = computed(() => {
-  if (taskSchTab.value === "running") {
-    return runningTasks.value.length === 0;
-  } else if (taskSchTab.value === "scheduled") {
-    return scheduledTasks.value.length === 0;
-  } else if (taskSchTab.value === "hotkeys") {
-    return hotkeyTasks.value.length === 0;
-  } else if (taskSchTab.value === "stopped") {
-    return stoppedTasks.value.length === 0;
-  } else {
-    return eventItems.value.length === 0;
-  }
-});
 
 const runningTasks = computed(() => {
   let running = props.tasksStatusTable.filter((t) => t.status === "running");
@@ -479,7 +139,6 @@ const runningTasks = computed(() => {
   return running;
 });
 
-// (active) tasks listening for hotkey
 const hotkeyTasks = computed(() => {
   let hotkeys = props.tasksStatusTable.filter((t) => t.status === "listening");
   if (hotkeys.length > 20) {
@@ -489,7 +148,6 @@ const hotkeyTasks = computed(() => {
   return hotkeys;
 });
 
-// (active) tasks scheduled ahead of time
 const scheduledTasks = computed(() => {
   let scheduled = props.tasksStatusTable.filter(
     (t) => t.status === "scheduled"
@@ -523,36 +181,17 @@ const stoppedTasks = computed(() => {
   return stopped;
 });
 
-// Send a stop signal to the background task
-const stopTask = (task) => {
-  // message.warning(`Stopping task ${task.taskName}...`);
-  emits("stopTask", task);
-};
 
 // When a scheduled task is ready to run
-const runTask = (task, index) => {
+const runTask = (e) => {
+  const task = e.task;
   if (task.startTime) {
-    scheduledTasks.value[index].nextDates.shift();
+    scheduledTasks.value[e.index].nextDates.shift();
   }
   let newTask = { ...task, startTime: null, hotkey: null };
   emits("runTask", newTask);
 };
 
-// Open the log file of a task
-const quickAction = (task) => {
-  if (task.status == "taskFinish" || task.status == "stopped") {
-    let newTask = { relTaskPath: task.taskName, absTaskPath: task.taskPath };
-    emits("runTask", newTask);
-  } else {
-    let shortName = task.taskName.split(pathSeparator.value).slice(-1)[0];
-    let logPath = appConfig.get("logPath") + shortName + ".txt";
-    shell.openExternal(`vscode://file/${logPath}`);
-  }
-};
-
-const openTask = (taskPath) => {
-  shell.openExternal(`vscode://file/${taskPath}`);
-};
 </script>
   
 <style scoped>

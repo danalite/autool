@@ -113,7 +113,7 @@
                   "
                 />
 
-                <n-space style="gap: 8px 2px">
+                <n-space style="gap: 8px 2px" justify="center">
                   <n-button
                     secondary
                     :bordered="false"
@@ -122,7 +122,7 @@
                     @click="runTask(task, taskIndex)"
                     style="text-align: left"
                   >
-                    <n-ellipsis style="width: 100%; max-width: 100%">
+                    <n-ellipsis style="width: 100%; max-width: 300px">
                       {{
                         task.relTaskPath.includes("/")
                           ? task.relTaskPath.split("/")[1]

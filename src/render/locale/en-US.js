@@ -49,16 +49,10 @@ const EnglishOptions = {
             emptyText: 'No active tasks',
         },
         later: {
-            title: 'Scheduled',
-        },
-        hotkey: {
-            title: 'Hotkey',
-        },
-        stopped: {
-            title: 'Stopped',
+            title: 'Schedule',
         },
         events: {
-            title: 'Events',
+            title: 'History',
         }
     },
     settings: {
