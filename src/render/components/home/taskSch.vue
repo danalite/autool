@@ -81,14 +81,13 @@ import {
   History,
 } from "@vicons/tabler";
 
-import { app, ipcRenderer, shell } from "electron";
-
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
 
 import taskHistory from "./schedulerTabs/taskHistory.vue"
 import taskQueued from "./schedulerTabs/taskQueued.vue"
 import taskActive from "./schedulerTabs/taskActive.vue"
+import eventBus from "@/utils/render/eventBus";
 
 const { t } = useI18n();
 const props = defineProps({
@@ -189,7 +188,7 @@ const runTask = (e) => {
     scheduledTasks.value[e.index].nextDates.shift();
   }
   let newTask = { ...task, startTime: null, hotkey: null };
-  emits("runTask", newTask);
+  eventBus.emit("run-task", newTask);
 };
 
 </script>

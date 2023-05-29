@@ -13,6 +13,8 @@ const ChineseOptions = {
             debug: '任务记录',
             delete: '删除任务',
             rerun: '重新运行',
+            noHotkeyTasks: '没有快捷键任务',
+            noScheduledTasks: '没有定时任务',
         },
         newApp: {
             title: '新建应用',
@@ -50,9 +52,13 @@ const ChineseOptions = {
         },
         later: {
             title: '稍后运行',
+            waiting: '等待中',
+            hotkeys: '快捷键',
         },
         events: {
             title: '历史数据',
+            trace: '事件',
+            finished: '任务',
         }
     },
     settings: {

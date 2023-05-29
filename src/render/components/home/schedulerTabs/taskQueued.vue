@@ -1,10 +1,18 @@
 <template>
-  <n-tabs default-value="hotkey" size="medium" justify-content="space-evenly" type="segment">
-    <n-tab-pane name="scheduled" tab="Timed">
+  <n-tabs default-value="hotkey" size="medium" justify-content="space-evenly" type="segment" animated>
+    <n-tab-pane name="scheduled" :tab="$t('scheduler.later.waiting')">
+      <n-result
+        v-if="props.scheduledTasks.length === 0"
+        status="404"
+        style="margin-top: 20px"
+        :title="$t('apps.task.noScheduledTasks')"
+      />
+
       <n-card
         v-for="(task, taskIndex) in props.scheduledTasks"
         size="small"
         :key="taskIndex"
+        style="margin-bottom: 10px"
         hoverable
       >
         <n-space :size="[0, 0]" justify="space-between">
@@ -54,12 +62,19 @@
       </n-card>
     </n-tab-pane>
 
-    <n-tab-pane name="hotkey" tab="Hotkeys">
+    <n-tab-pane name="hotkey" :tab="$t('scheduler.later.hotkeys')">
+      <n-result
+        v-if="props.hotkeyTasks.length === 0"
+        status="404"
+        style="margin-top: 20px"
+        :title="$t('apps.task.noHotkeyTasks')"
+      />
       <n-card
         v-for="(task, taskIndex) in props.hotkeyTasks"
         size="small"
         :key="taskIndex"
         hoverable
+        style="margin-bottom: 10px"
       >
         <n-space :size="[4, 2]" justify="space-between">
           <n-space>
@@ -111,7 +126,7 @@
 </template>
 
 <script setup>
-import { NSpace, NButton, NCard, NIcon, NTabs, NTabPane, NEllipsis, NCountdown } from "naive-ui";
+import { NSpace, NButton, NCard, NIcon, NTabs, NTabPane, NEllipsis, NCountdown, NResult } from "naive-ui";
 import { Cloud, DevicesPc } from "@vicons/tabler";
 import { parseCron } from "@/utils/render/components/common";
 

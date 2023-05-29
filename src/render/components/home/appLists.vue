@@ -113,7 +113,7 @@
                   "
                 />
 
-                <n-space style="gap: 8px 2px" justify="center">
+                <n-space style="gap: 8px 2px">
                   <n-button
                     secondary
                     :bordered="false"
@@ -284,13 +284,14 @@
           type="info"
           size="tiny"
           v-if="quickSetupTarget == 'startTime'"
+          @click="shell.openExternal('https://crontab.guru/')"
         >
           <template #icon>
             <n-icon>
               <Alarm />
             </n-icon>
           </template>
-          More cron samples
+          Browse samples
         </n-button>
         <n-button size="small" @click="showSetupModal = false">Cancel</n-button>
         <n-button size="small" type="primary" @click="saveSetupsToFile">

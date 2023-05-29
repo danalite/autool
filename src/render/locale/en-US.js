@@ -13,6 +13,8 @@ const EnglishOptions = {
             debug: 'Debug',
             delete: 'Delete Task',
             rerun: 'Rerun',
+            noHotkeyTasks: 'No Hotkey Tasks',
+            noScheduledTasks: 'No Scheduled Tasks',
         },
         newApp: {
             title: 'New App',
@@ -50,9 +52,13 @@ const EnglishOptions = {
         },
         later: {
             title: 'Schedule',
+            waiting: 'Waiting',
+            hotkeys: 'Hotkeys',
         },
         events: {
             title: 'History',
+            trace: 'Events',
+            finished: 'Tasks',
         }
     },
     settings: {

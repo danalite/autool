@@ -4,8 +4,9 @@
     size="medium"
     justify-content="space-evenly"
     type="segment"
+    animated
   >
-    <n-tab-pane name="events" tab="Events">
+    <n-tab-pane name="events" :tab="$t('scheduler.events.trace')">
       <n-space
         v-if="eventItems.length == 0"
         style="margin-top: 80px"
@@ -28,7 +29,7 @@
       </n-space>
     </n-tab-pane>
 
-    <n-tab-pane name="stopped" tab="Tasks">
+    <n-tab-pane name="stopped" :tab="$t('scheduler.events.finished')">
       <n-card
         v-for="(task, taskIndex) in props.stoppedTasks"
         size="small"

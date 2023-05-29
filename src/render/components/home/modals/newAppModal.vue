@@ -4,7 +4,7 @@
       <div style="padding-left: 10px">{{ $t("apps.newApp.title") }}</div>
     </template>
     <div>
-      <n-tabs type="segment">
+      <n-tabs type="segment" animated @update:value="changeType($event)">
         <n-tab-pane name="download" :tab="$t('apps.newApp.download')">
           <n-space vertical>
             <n-input-group>
@@ -21,13 +21,22 @@
             </n-input-group>
 
             <n-space justify="center">
-              <n-button text color="#db5851" size="small" @click="shell.openExternal('https://autool.site/en/docs/develop/sample/ai-tools')">
+              <n-button
+                text
+                color="#db5851"
+                size="small"
+                @click="
+                  shell.openExternal(
+                    'https://autool.site/en/docs/develop/sample/ai-tools'
+                  )
+                "
+              >
                 <template #icon>
                   <n-icon>
                     <Apps />
                   </n-icon>
                 </template>
-                Find more apps on our website
+                Browse apps gallery
               </n-button>
             </n-space>
           </n-space>
@@ -51,7 +60,7 @@
                 placeholder="new-app-name"
               />
             </n-input-group>
-            <n-input-group>
+            <n-input-group style="padding-top: 3px;">
               <n-input-group-label size="small">
                 {{ $t("apps.newApp.appIcon") }}
               </n-input-group-label>
@@ -190,7 +199,7 @@ const addNewApp = () => {
       githubFolderLink.value === "" ||
       !githubFolderLink.value.startsWith("http")
     ) {
-      message.warning(`INVALID: ${githubFolderLink.value}`);
+      message.warning(`INVALID github link: \"${githubFolderLink.value}\"`);
       return;
     }
     downloadAppFromGithub(githubFolderLink.value);
@@ -219,4 +228,8 @@ ipcRenderer.on("download", (event, data) => {
   githubFolderLink.value = data;
   downloadAppFromGithub(data);
 });
+
+const changeType = (type) => {
+  addAppType.value = type;
+};
 </script>
