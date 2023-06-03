@@ -1,5 +1,21 @@
 ## CHANGE LOG
 
+## 2023-06-02
+- App list refresher after downloading apps
+
+## 2023-05-31
+- index: use CSP style to connect WSS server
+- index: use wrapper function to pass events to UIO hook or assist window
+- cleanup: removed unnecessary IPC hooks in main process
+- bug fix: wrong hotkey is triggered when double pressed Meta
+- iohook: change `hotkeyRemove` to `cleanupTask`
+- API: use `event.on` to replace `user.input(area)`
+
+### 2023-05-29
+- Vocabulary learning app (using pure CSV + local SQLite database for tracing)
+- Fix issues in RTE libauto
+- Prepare for public release
+
 ### 2023-05-22
 - Add popup window session support. Users can have multiple inputs windows running in parallel
 - Fix the codec issue: https://github.com/danalite/autool/issues/5

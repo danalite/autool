@@ -14,7 +14,7 @@ const EnglishOptions = {
             delete: 'Delete Task',
             rerun: 'Rerun',
             noHotkeyTasks: 'No Hotkey Tasks',
-            noScheduledTasks: 'No Scheduled Tasks',
+            noScheduledTasks: 'No Schedules',
         },
         newApp: {
             title: 'New App',

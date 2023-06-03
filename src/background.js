@@ -150,7 +150,6 @@ const init = async () => {
 
   // Setting up app path and server checking
   await appSetup()
-  mainWindow.webContents.send('start-wss-backend', {})
 }
 
 app.whenReady().then(async () => {

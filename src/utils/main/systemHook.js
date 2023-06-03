@@ -123,15 +123,15 @@ const isHotKeyComboPressed = (hotKeyStr) => {
   let length = targetKeys.length
 
   if (keyStrokesWindow.length < length) return false
-  let newKeys = [...keyStrokesWindow].reverse().slice(0, 4)
+  let pressedKeys = [...keyStrokesWindow].reverse().slice(0, 4)
 
   let match = 0
   for (let i = 0; i < length; i++) {
-    if (targetKeys[i] == getKeyByValue(newKeys[i].keycode) && uioEventEnum[newKeys[i].type] == "keydown") {
+    if (targetKeys[i] == getKeyByValue(pressedKeys[i].keycode) && uioEventEnum[pressedKeys[i].type] == "keydown") {
       match++
     }
   }
-  // console.log("match ", targetKeys, newKeys.map((k) => getKeyByValue(k.keycode)), match)
+  // console.log("match ", targetKeys, pressedKeys.map((k) => getKeyByValue(k.keycode)), match)
   return match == length
 }
 
@@ -332,7 +332,6 @@ export const registerUioEvent = (assistWindow, event) => {
     // When macro recording is on, queue the event
     if (isMacroRecording) {
       ioEventQueue.push(event)
-
     } else {
       hotkeyRegisterUpdateMAT(event)
     }
@@ -341,6 +340,31 @@ export const registerUioEvent = (assistWindow, event) => {
     // console.log("@@ remove Hotkey", event)
     keyboardActionTable = keyboardActionTable.filter((item) => {
       return item.name != `hotkey-${event.taskId}`
+    })
+
+  } else if (event.type == "__KEY_PRESSED__" ) {
+    keyboardActionTable.push({
+      name: `event-${event.taskId}`,
+      source: event.source, 
+      rule: (e) => {
+        const keys = event.options.keys
+        // console.log(getKeyByValue(e.keycode), keys)
+        return keys.includes(getKeyByValue(e.keycode))
+      },
+      action: (e) => {
+        const keycode = getKeyByValue(e.keycode)
+        event.callback({
+          type: "keyPressed",
+          taskId: event.taskId,
+          source: event.source,
+          return: keycode
+        })
+      }
+    })
+  
+  } else if (event.type == "eventRemoval" ) {
+    keyboardActionTable = keyboardActionTable.filter((item) => {
+      return item.name != `event-${event.taskId}`
     })
 
   } else {

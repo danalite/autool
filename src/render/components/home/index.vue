@@ -72,13 +72,10 @@ import {
   NIcon,
   NButton,
   NMenu,
-  NTag,
-  NBadge,
-  NAvatar,
   useMessage,
 } from "naive-ui";
 
-import { PlayerPlay, Apps, HeartRateMonitor, Settings } from "@vicons/tabler";
+import { Apps, HeartRateMonitor, Settings } from "@vicons/tabler";
 
 import { useStore } from "@/render/store";
 import { storeToRefs } from "pinia";
@@ -139,13 +136,11 @@ onMounted(() => {
     apps.value = appsLocal;
   }
 
-  ipcRenderer.once("start-wss-backend", () => {
-    setTimeout(() => {
-      if (wsConn === null) {
-        setupWsConn();
-      }
-    }, 800);
-  });
+  setTimeout(() => {
+    if (wsConn === null) {
+      setupWsConn();
+    }
+  }, 800);
 
   setInterval(() => {
     let status = false;
@@ -181,9 +176,9 @@ onMounted(() => {
     appConfig.get("stoppedTasksCache")
   );
 
+  // Reload hotkeys (long-living until removed manually by users)
   setTimeout(() => {
     hotkeyTasksCache.forEach((task) => {
-      // console.log("Registering hotkey: ", task);
       tasksStatusTable.value.push(task);
       ipcRenderer.send("to-console", {
         action: "uio-event",
@@ -205,31 +200,6 @@ const sendMessageToBackend = (msg) => {
   }
 };
 
-const ProcessTarget = Object.freeze({
-  AssistWindow: 0,
-  MainWindow: 1,
-  Backend: 2,
-  MainProcess: 3,
-});
-
-// Proxy message to backend, assist-window, or node process
-const proxyMsg = (target, msg) => {
-  switch (target) {
-    case ProcessTarget.MainProcess:
-      ipcRenderer.send("to-console", msg);
-      break;
-    case ProcessTarget.AssistWindow:
-      ipcRenderer.invoke("to-assist", msg);
-      break;
-    case ProcessTarget.MainWindow:
-      ipcRenderer.invoke("to-main", msg);
-      break;
-    case ProcessTarget.Backend:
-      sendMessageToBackend(msg);
-      break;
-  }
-};
-
 // Task management constructs
 const taskEvents = ref([]);
 const tasksStatusTable = ref([]);
@@ -241,7 +211,6 @@ const backendEventHook = (msg) => {
 
   const taskId = msg.uuid;
   switch (msg.event) {
-    // 1. Update task status in GUI
     case EventType.O_EVENT_TASK_STATUS:
       tasksStatusTable.value = tasksStatusTable.value.map((task) => {
         if (task.id === taskId) {
@@ -259,21 +228,8 @@ const backendEventHook = (msg) => {
       }
       break;
 
-    case EventType.O_EVENT_HOOK_REQ:
-      // blocking (keyWait)
-      // non-blocking: event.on(__KEY__, configs)
-      ipcRenderer.send("to-console", {
-        action: "uio-event",
-        type: value.type,
-        source: msg.taskName,
-        taskId: msg.uuid,
-        options: [value.key],
-      });
-      break;
-
     // Non-blocking: send to assist window
     case EventType.O_EVENT_WINDOW_REQ:
-    case EventType.O_EVENT_USER_NOTIFY:
       ipcRenderer.send("to-assist-window", {
         source: msg.taskName,
         ...value,
@@ -281,8 +237,8 @@ const backendEventHook = (msg) => {
       break;
 
     case EventType.O_EVENT_USER_INPUT:
-      // Blocking: waiting for user input
       let callback = `callback-${taskId}`;
+      // resumeTask from assist window
       ipcRenderer.once(callback, (event, data) => {
         sendMessageToBackend({
           event: EventType.I_EVENT_TASK_REQ,
@@ -295,21 +251,41 @@ const backendEventHook = (msg) => {
         });
       });
 
-      // Wait for mouse action trigger from systemHook
-      if (value.type === "area") {
-        ipcRenderer.send("to-console", {
-          source: msg.taskName,
-          callback: callback,
-          ...value,
-        });
-      } else {
-        // Wait for user input (input/select option)
-        ipcRenderer.send("to-assist-window", {
-          source: msg.taskName,
-          callback: callback,
-          ...value,
-        });
+      // Start pop-up window and wait for callback
+      ipcRenderer.send("to-assist-window", {
+        source: msg.taskName,
+        callback: callback,
+        ...value,
+      });
+      break;
+
+    case EventType.O_EVENT_BUS_REQ:
+      if (
+        value.eventName == "__KEY_PRESSED__" ||
+        value.eventName == "__MOUSE_CLICKED__"
+      ) {
+        // Register key/mouse events and wait for callback
+        // Other event listeners reside in RTE libauto
+        if (value.type === "event-register") {
+          ipcRenderer.send("to-console", {
+            taskId: taskId,
+            action: "uio-event",
+            type: value.eventName,
+            source: msg.taskName,
+            options: value.params,
+          });
+        }
+        // console.log("O_EVENT_BUS_REQ", JSON.stringify(value));
       }
+      break;
+
+    case "__EXIT__":
+      ipcRenderer.send("to-console", {
+        taskId: taskId,
+        action: "uio-event",
+        type: "eventRemoval",
+        source: msg.taskName,
+      });
       break;
 
     default:
@@ -318,7 +294,6 @@ const backendEventHook = (msg) => {
   }
 };
 
-// Actions: start tasks
 const runTask = async (task) => {
   const taskId = genUUID();
   let tasksStatus = {
@@ -368,7 +343,7 @@ const runTask = async (task) => {
     tasksStatusTable.value.push(tasksStatus);
     message.success(`"${task.relTaskPath}"" bind with ${task.hotkey}`);
 
-    // The hotkey remains registered until the task is stopped
+    // runTask: register a hotkey uio event
     ipcRenderer.send("to-console", {
       action: "uio-event",
       type: "hotkeyWait",
@@ -410,7 +385,7 @@ const stopTask = (task) => {
   }
 
   if (isHotkeyTask) {
-    // Unregister hotkey bind with the task
+    // stopTask: unregister hotkey bind with the task
     ipcRenderer.send("to-console", {
       action: "uio-event",
       type: "hotkeyRemove",
@@ -418,7 +393,7 @@ const stopTask = (task) => {
       source: task.relTaskPath,
     });
   } else {
-    // Cancel task running in the backend
+    // stopTask: let backend cancel if the task is running
     let newEvent = {
       event: EventType.I_EVENT_TASK_REQ,
       uuid: task.id,
@@ -454,12 +429,19 @@ ipcRenderer.on("to-main-win", (event, message) => {
 });
 
 ipcRenderer.on("uio-callback", (event, message) => {
-  if (message.type === "keyWait") {
+  if (message.type === "hotkeyWait") {
+    let task = tasksStatusTable.value.find((t) => t.id === message.taskId);
+    runTask({
+      relTaskPath: task.taskName,
+      absTaskPath: task.taskPath,
+    });
+  } else {
+    // resumeTask from uio-hook (main process)
     let newEvent = {
       event: EventType.I_EVENT_TASK_REQ,
       uuid: message.taskId,
       taskName: message.source,
-      source: "console.uio-hook",
+      source: "main",
       value: {
         type: "resumeTask",
         return: message.return,
@@ -468,15 +450,6 @@ ipcRenderer.on("uio-callback", (event, message) => {
     };
     taskEvents.value.push(newEvent);
     sendMessageToBackend(newEvent);
-    return;
-  } else if (message.type === "hotkeyWait") {
-    // Run a new task with hotkey attribute disabled
-    let task = tasksStatusTable.value.find((t) => t.id === message.taskId);
-    // console.log("hotkey", message, task);
-    runTask({
-      relTaskPath: task.taskName,
-      absTaskPath: task.taskPath,
-    });
   }
 });
 
