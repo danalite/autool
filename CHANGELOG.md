@@ -1,15 +1,25 @@
 ## CHANGE LOG
 
+## 23-06-10
+- Customize select component (to make it copyable)
+- Add dummy placeholder images if carousel has less than 3 images
+- Adjust the style of checkbox texts
+
+## 23-06-09
+- Support multiple event watching in a single task
+- Tested database API support (write and query CSV)
+- Tested `__KEY_PRESSED__` event with keyboard tracking task 
+
 ## 2023-06-02
 - App list refresher after downloading apps
 
 ## 2023-05-31
-- index: use CSP style to connect WSS server
-- index: use wrapper function to pass events to UIO hook or assist window
-- cleanup: removed unnecessary IPC hooks in main process
-- bug fix: wrong hotkey is triggered when double pressed Meta
-- iohook: change `hotkeyRemove` to `cleanupTask`
-- API: use `event.on` to replace `user.input(area)`
+- Update home page: use CSP style to connect WSS server
+- Update home page: use wrapper function to pass events to UIO hook or assist window
+- Update cleanup: removed unnecessary IPC hooks in main process
+- Update bug fix: wrong hotkey is triggered when double pressed Meta
+- Update iohook: change `hotkeyRemove` to `cleanupTask`
+- Update API: use `event.on` to replace `user.input(area)`
 
 ### 2023-05-29
 - Vocabulary learning app (using pure CSV + local SQLite database for tracing)

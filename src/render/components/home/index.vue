@@ -265,14 +265,14 @@ const backendEventHook = (msg) => {
         value.eventName == "__MOUSE_CLICKED__"
       ) {
         // Register key/mouse events and wait for callback
-        // Other event listeners reside in RTE libauto
         if (value.type === "event-register") {
           ipcRenderer.send("to-console", {
             taskId: taskId,
             action: "uio-event",
             type: value.eventName,
             source: msg.taskName,
-            options: value.params,
+            params: value.params,
+            argsName: value.argsName,
           });
         }
         // console.log("O_EVENT_BUS_REQ", JSON.stringify(value));

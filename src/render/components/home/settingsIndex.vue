@@ -39,42 +39,14 @@
     
 <script setup>
 import {
-  NCard,
-  NInputGroup,
-  NInputGroupLabel,
   NLayout,
-  NPopselect,
-  NLayoutFooter,
-  NLayoutHeader,
   NLayoutSider,
   NLayoutContent,
-  NDropdown,
-  NCheckbox,
-  NEllipsis,
-  NSpace,
   NIcon,
-  NCountdown,
-  NTimeline,
-  NTimelineItem,
-  NDynamicInput,
-  NInput,
-  NButton,
-  NMenu,
-  NDivider,
-  NTag,
-  NBadge,
-  NAvatar,
-  NText,
-  NList,
-  NListItem,
-  NTooltip,
-  NCheckboxGroup,
-  NModal,
-  NRadio,
-  NSwitch,
+  NMenu
 } from "naive-ui";
 
-import { ref, nextTick, h, computed, onMounted, reactive } from "vue";
+import { ref, h, computed, onMounted, reactive } from "vue";
 import {
   Copyright,
   BrandAndroid,
@@ -134,9 +106,6 @@ const menuOptions = [
     icon: renderIcon(PictureInPictureOff),
   }
 ];
-
-
-
 </script>
     
 <style scoped>

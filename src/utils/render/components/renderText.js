@@ -40,7 +40,6 @@ const renderInput = (session, content) => {
                 },
 
                 size: "small",
-                placeholder: content.placeholder,
                 style: { "font-size": "14px" },
                 defaultValue: store.getReturnValue(session)[content.key].options,
             },

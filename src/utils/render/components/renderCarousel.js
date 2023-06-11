@@ -1,29 +1,44 @@
 import { h } from "vue";
-import { NButton, NIcon, NSpace, NText, NCarousel, NCarouselItem, NSwitch } from "naive-ui";
+import { NButton, NIcon, NSpace, NCarousel, NCarouselItem, NSwitch, NEmpty } from "naive-ui";
 import { renderTitle, handleCopyImg } from "./common";
 import { ExternalLink } from "@vicons/tabler";
 
+import { shell } from "electron";
 import { useStore } from "@/render/store";
 const store = useStore();
 
 export const renderCarousel = (session, content) => {
-    const options = content.content.map((item) => {
-      // if item is of type string, convert it to object
-      if (typeof item === "string") {
-        return {
-          label: item,
-          value: item,
-        };
-      } else {
-        return item;
-      }
-    });
-    return h(
-      NSpace,
-      { style: { "margin-top": "5px", "margin-bottom": "2px" } },
-      {
-        default: () => [
-          content.label ? renderTitle(content.label) : null,
+  const options = content.content.map((item) => {
+    // if item is of type string, convert it to object
+    if (typeof item === "string") {
+      return {
+        label: item,
+        value: item,
+      };
+    } else {
+      return item;
+    }
+  });
+
+  // append values if options length is less than 3
+  if (options.length < 3) {
+    for (let i = options.length; i < 3; i++) {
+      options.push({
+        label: i.toString(),
+        value: "https://raw.githubusercontent.com/danalite/autool/main/docs/banner.png"
+      });
+    }
+  }
+
+  return h(
+    NSpace,
+    { vertical: true, style: { "margin-top": "5px", "margin-bottom": "2px" } },
+    {
+      default: () => [
+        content.label ? renderTitle(content.label) : null,
+        options.length == 0 ? h(NSpace, {
+          style: { "margin-left": "100px", "margin-top": "20px" }
+        }, { default: () => h(NEmpty, { description: "No data" }) }) :
           h(
             NCarousel,
             {
@@ -32,7 +47,7 @@ export const renderCarousel = (session, content) => {
                 "transform: translateX(-150%) translateZ(-800px);",
               "next-slide-style":
                 "transform: translateX(50%) translateZ(-800px);",
-              style: { height: "180px", width: "290px" },
+              style: { height: "180px", width: "290px", marginTop: "10px" },
               "show-dots": false,
             },
             {
@@ -74,33 +89,33 @@ export const renderCarousel = (session, content) => {
                         ),
                         content.key != null
                           ? h(
-                              NSwitch,
-                              {
-                                round: false,
-                                style: {
-                                  position: "absolute",
-                                  bottom: "8px",
-                                  left: "8px",
-                                },
-                                onUpdateValue: (select) => {
-                                  const returnValues = store.getReturnValue(session);
-                                  var v = returnValues[content.key];
-                                  if (!v) {
-                                    v = [];
-                                  }
-
-                                  if (select) {
-                                    v.push(item);
-                                  } else {
-                                    v.splice(v.indexOf(item), 1);
-                                  }
-                                  store.setValue(session, content.key, v);
-                                },
+                            NSwitch,
+                            {
+                              round: false,
+                              style: {
+                                position: "absolute",
+                                bottom: "8px",
+                                left: "8px",
                               },
-                              {
-                                default: () => null,
-                              }
-                            )
+                              onUpdateValue: (select) => {
+                                const returnValues = store.getReturnValue(session);
+                                var v = returnValues[content.key];
+                                if (!v) {
+                                  v = [];
+                                }
+
+                                if (select) {
+                                  v.push(item);
+                                } else {
+                                  v.splice(v.indexOf(item), 1);
+                                }
+                                store.setValue(session, content.key, v);
+                              },
+                            },
+                            {
+                              default: () => null,
+                            }
+                          )
                           : null,
                       ],
                     }
@@ -108,7 +123,7 @@ export const renderCarousel = (session, content) => {
                 }),
             }
           ),
-        ],
-      }
-    );
-  };
+      ],
+    }
+  );
+};

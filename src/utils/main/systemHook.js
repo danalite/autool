@@ -5,7 +5,7 @@ import {
 } from 'electron'
 
 import { getKeyByValue, parseSequence, uioEventEnum } from '@/utils/main/macroOpt';
-import { uIOhook, UiohookKey } from 'uiohook-napi'
+import { uIOhook, UiohookKey, EventType } from 'uiohook-napi';
 
 // queue the incoming IO hook requests
 let ioEventQueue = []
@@ -347,17 +347,42 @@ export const registerUioEvent = (assistWindow, event) => {
       name: `event-${event.taskId}`,
       source: event.source, 
       rule: (e) => {
-        const keys = event.options.keys
-        // console.log(getKeyByValue(e.keycode), keys)
-        return keys.includes(getKeyByValue(e.keycode))
+        const keys = event.params.keys || []
+        // console.log(getKeyByValue(e.keycode), keys, keys.length)
+        if (keys.length == 0) {
+          return e.type == EventType.EVENT_KEY_PRESSED
+        
+        } else {
+          return keys.some((key) => {
+            if (key.includes("+")) {
+              return isHotKeyComboPressed(key)
+
+            } else {
+              return key == getKeyByValue(e.keycode) && e.type == EventType.EVENT_KEY_PRESSED
+            }
+          })
+        }        
       },
       action: (e) => {
-        const keycode = getKeyByValue(e.keycode)
+        var keycode = getKeyByValue(e.keycode)
+        const keys = event.params.keys || []
+
+        if (keys.length > 0) {
+          // TODO: this is a hack, need to fix it
+          keycode = keys.find((key) => {
+            return key.includes(getKeyByValue(e.keycode))
+          })
+        }
+
         event.callback({
           type: "keyPressed",
           taskId: event.taskId,
           source: event.source,
-          return: keycode
+          return: {
+            argsName: event.argsName || "__ARGS__",
+            params: keycode,
+            source_event: event.type
+          }
         })
       }
     })
