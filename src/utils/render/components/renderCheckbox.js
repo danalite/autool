@@ -6,7 +6,6 @@ import { useStore } from "@/render/store";
 import { Copy } from "@vicons/tabler";
 
 const store = useStore();
-
 export const renderCheckbox = (session, content) => {
   const options = content.content.map((item) => {
     // if item is of type string, convert it to object
@@ -71,6 +70,7 @@ export const renderCheckbox = (session, content) => {
                                   h(NSpace, {
                                     style: {
                                       "margin-top": "0px",
+                                      "margin-right": "12px",
                                       "padding-left": "8px",
                                       "padding-right": "8px",
                                       "background-color": "rgba(220,220,220,0.2)",
@@ -110,8 +110,6 @@ export const renderCheckbox = (session, content) => {
                                   h(NIcon, { depth: 3, color: "green" }, { default: () => h(Copy) })
                               })
                           ],
-
-
                         }
                       )
                     ),

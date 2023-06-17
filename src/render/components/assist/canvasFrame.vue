@@ -105,7 +105,7 @@ onMounted(() => {
     window.addEventListener("DOMNodeInserted", () => {
       refreshElements();
     });
-  }, 3000);
+  }, 1000);
 });
 
 function waitForElm(selector) {

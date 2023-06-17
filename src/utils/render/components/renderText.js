@@ -1,5 +1,6 @@
 import { h } from "vue";
 import { NCheckbox, NDynamicInput, NInput, NSpace, NText } from "naive-ui";
+import interactiveArray from "@/render/components/assist/cards/interactiveArray.vue";
 
 import { renderTitle } from "./common";
 import { useStore } from "@/render/store";
@@ -97,7 +98,28 @@ const renderInput = (session, content) => {
         });
 };
 
+// renderROT: render read-only text
+const renderReadOnlyText = (content) => {
+    if (Array.isArray(content)) {
+        return h(interactiveArray, { array: content });
+    } else {
+        return h(
+            NText,
+            {
+                style: {
+                    "font-size": "14px",
+                    "line-height": "0px",
+                },
+            },
+            { default: () => content }
+        )
+    }
+
+}
+
 export const renderText = (session, content) => {
+    // The content can be string or an array of strings
+
     return h(
         NSpace,
         { vertical: true, style: {} },
@@ -107,16 +129,7 @@ export const renderText = (session, content) => {
                 // Text input or a simple text to display
                 content.key != null
                     ? renderInput(session, content)
-                    : h(
-                        NText,
-                        {
-                            style: {
-                                "font-size": "14px",
-                                "line-height": "0px",
-                            },
-                        },
-                        { default: () => content.content }
-                    ),
+                    : renderReadOnlyText(content.content),
             ],
         }
     );

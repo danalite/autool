@@ -1,6 +1,6 @@
 <template>
   <div>
-    <task-bar v-if="pageCount == 0"></task-bar>
+    <task-bar v-if="pageCount == 0" />
     <n-layout position="absolute" v-show="pageCount > 0">
       <n-layout has-sider position="absolute" style="bottom: 0px">
         <n-layout-sider

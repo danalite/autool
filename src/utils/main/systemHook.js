@@ -388,6 +388,7 @@ export const registerUioEvent = (assistWindow, event) => {
     })
   
   } else if (event.type == "eventRemoval" ) {
+    // console.log("=== (uioHook) removed Event", event)
     keyboardActionTable = keyboardActionTable.filter((item) => {
       return item.name != `event-${event.taskId}`
     })

@@ -1,5 +1,17 @@
 ## CHANGE LOG
 
+## 23-06-16
+- Fix the LOAD ERROR for assist window: https://github.com/electron/electron/issues/17526
+- Fix `__KEY_PRESSED__` not cleared after task is cancelled
+
+## 23-06-15
+- Update db.write API to support batch filtering
+- Adjust the interactive array UI. Put hidden text in centric position
+
+## 23-06-12
+- App screen time recorder plugin
+- French vocabulary learning plugin
+
 ## 23-06-10
 - Customize select component (to make it copyable)
 - Add dummy placeholder images if carousel has less than 3 images

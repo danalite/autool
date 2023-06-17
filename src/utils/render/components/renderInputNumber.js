@@ -1,5 +1,5 @@
 import { h } from "vue";
-import { NInputNumber, NSpace, NText } from "naive-ui";
+import { NInputNumber, NSpace, NText, NSlider } from "naive-ui";
 import { renderTitle } from "./common";
 
 import { useStore } from "@/render/store";
@@ -12,6 +12,16 @@ export const renderNumberInput = (session, content) => {
       {
         default: () => [
           renderTitle(content.label),
+          content.range ? h(NSlider, {
+            size: "small",
+            step: 10,
+            onUpdateValue: (value) => {
+              if (content.key) {
+                store.setValue(session, content.key, value);
+              }
+            },
+            style: { "font-size": "14px", width: "250px" },
+          }) :
           h(NInputNumber, {
             // placeholder: content.default,
             size: "small",
