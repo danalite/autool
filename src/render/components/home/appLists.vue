@@ -303,7 +303,6 @@
 
   <newTaskModal ref="myNewTaskModal" />
   <newAppModal ref="myNewAppModal"/>
-
 </template>
 
 <script setup>

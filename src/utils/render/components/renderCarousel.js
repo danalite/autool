@@ -20,14 +20,11 @@ export const renderCarousel = (session, content) => {
     }
   });
 
-  // append values if options length is less than 3
-  if (options.length < 3) {
-    for (let i = options.length; i < 3; i++) {
-      options.push({
-        label: i.toString(),
-        value: "https://raw.githubusercontent.com/danalite/autool/main/docs/banner.png"
-      });
-    }
+  if (options.length == 1) {
+    options.push({
+      label: "placeholder",
+      value: "https://raw.githubusercontent.com/danalite/autool/main/docs/banner.png"
+    });
   }
 
   return h(
@@ -38,7 +35,7 @@ export const renderCarousel = (session, content) => {
         content.label ? renderTitle(content.label) : null,
         options.length == 0 ? h(NSpace, {
           style: { "margin-left": "100px", "margin-top": "20px" }
-        }, { default: () => h(NEmpty, { description: "No data" }) }) :
+        }, { default: () => h(NEmpty, { description: "No images" }) }) :
           h(
             NCarousel,
             {

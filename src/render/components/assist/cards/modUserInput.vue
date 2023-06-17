@@ -153,6 +153,7 @@ const renderDynamicInput = (session, content) => {
               if (content.instantQuit) {
                 store.getSession(session).destroy();
               }
+              
             } else {
               if (content.onSelect != null) {
                 store.setValue(session, content.key, {});
@@ -162,8 +163,7 @@ const renderDynamicInput = (session, content) => {
                 const searchType = content.onSelect?.search ?? "";
                 const params = content.onSelect?.params ?? {};
                 params["QUERY"] = data.value;
-                params["__PARENT_SEARCH_TYPE__"] =
-                  content.options?.search ?? "";
+                params["__PARENT_SEARCH_TYPE__"] = content.options?.search ?? "";
 
                 querySearchCb("*", searchType, params, (resp) => {
                   loadingElements.value = loadingElements.value.filter(

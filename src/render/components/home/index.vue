@@ -207,7 +207,9 @@ const tasksStatusTable = ref([]);
 const backendEventHook = (msg) => {
   const value = msg.value;
   msg.stamp = new Date().getTime();
-  taskEvents.value.push({ source: "backend", ...msg });
+  if (msg.event != "__EXIT__") {
+    taskEvents.value.push({ source: "backend", ...msg });
+  }
 
   const taskId = msg.uuid;
   switch (msg.event) {
@@ -394,10 +396,11 @@ const stopTask = (task) => {
     });
   } else {
     // stopTask: let backend cancel if the task is running
+    const taskName =  task.taskName || task.relTaskPath;
     let newEvent = {
       event: EventType.I_EVENT_TASK_REQ,
       uuid: task.id,
-      taskName: task.relTaskPath,
+      taskName: taskName,
       source: "console",
       value: {
         type: "cancelTask",

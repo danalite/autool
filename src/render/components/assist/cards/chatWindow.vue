@@ -164,5 +164,14 @@ const send = () => {
 const copy = (text) => {
   navigator.clipboard.writeText(text);
 };
+
+onMounted(() => {
+  setTimeout(() => {
+    scrollRef.value?.scrollTo({
+      behavior: "smooth",
+      top: 1e5,
+    });
+  }, 500);
+});
 </script>
 

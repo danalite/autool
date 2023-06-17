@@ -85,10 +85,6 @@ import { PlaylistAdd } from "@vicons/tabler";
 import { onMounted, ref } from "vue";
 import { appConfig } from "@/utils/main/config";
 
-document.title = "Canvas";
-document.getElementsByTagName("html")[0].style.height = "100%";
-document.getElementsByTagName("body")[0].style.height = "100%";
-
 let assistWinSize = appConfig.get("assistWinSize");
 const canvasWidth = ref(assistWinSize.width);
 
@@ -96,6 +92,10 @@ const options = ref([]);
 const selectType = ref("https://www.google.com/");
 
 onMounted(() => {
+  document.title = "Canvas";
+  document.getElementsByTagName("html")[0].style.height = "100%";
+  document.getElementsByTagName("body")[0].style.height = "100%";
+
   setTimeout(() => {
     window.addEventListener("DOMContentLoaded", () => {
       // console.log("@@", "DOMContentLoaded");

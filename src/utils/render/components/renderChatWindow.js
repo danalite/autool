@@ -30,17 +30,18 @@ const webSocketGet = (target, params, callback = () => { }) => {
 
 export const renderChatWindow = (session, content) => {
   const chatCacheKey = content.key ? content.key : "__CHAT__";
+  const inputChatHistory = content.params?.history ?? [];
   if (store.getReturnValue(session)[chatCacheKey] == null) {
     store.setValue(session, chatCacheKey, []);
   }
 
-  if (store.getReturnValue(session)[chatCacheKey].length == 0) {
-    const chatCache = content.params?.history ?? [];
-    store.setValue(session, chatCacheKey, chatCache);
-  }
-
+  // if (store.getReturnValue(session)[chatCacheKey].length == 0) {
+  //   const chatCache = content.params?.history ?? [];
+  //   store.setValue(session, chatCacheKey, chatCache);
+  // }
+  
   return h(chatWindow, {
-    messages: store.getReturnValue(session)[chatCacheKey],
+    messages: inputChatHistory.concat(store.getReturnValue(session)[chatCacheKey]),
     style: { width: "100%", height: "100%" },
 
     onCustomEvent: async (data) => {
@@ -55,6 +56,7 @@ export const renderChatWindow = (session, content) => {
 
       // A simple version: receives all the text from websocket server
       const server = content.params?.server ?? "";
+      console.log("[ Chat ] requesting from server: " + server);
       if (server.startsWith("ws://")) {
         webSocketGet(server, content.params, (r) => {
           if (r == "__DONE__") {
@@ -97,8 +99,12 @@ export const renderChatWindow = (session, content) => {
               v[v.length - 1] = v[v.length - 1] + String(append);
               store.setValue(session, chatCacheKey, v);
             })
+
             .catch(error => {
-              console.error('Error:', error);
+              // console.error('Error:', error);
+              const v = store.getReturnValue(session)[chatCacheKey];
+              v[v.length - 1] = v[v.length - 1] + String(error);
+              store.setValue(session, chatCacheKey, v);
             });
 
         } else if (method == "POST") {
@@ -129,7 +135,9 @@ export const renderChatWindow = (session, content) => {
               store.setValue(session, chatCacheKey, v);
             }
             ).catch((error) => {
-              console.error('Error:', error);
+              const v = store.getReturnValue(session)[chatCacheKey];
+              v[v.length - 1] = v[v.length - 1] + String(error);
+              store.setValue(session, chatCacheKey, v);
             }
             );
         }

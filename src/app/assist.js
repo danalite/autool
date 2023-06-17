@@ -53,7 +53,7 @@ export const createAssistWindow = async (userHeader) => {
   if (process.env.npm_lifecycle_event === "electron:serve") {
     assistWin.webContents.openDevTools()
     try {
-      await assistWin.loadURL('http://localhost:8080/#/assist')
+      await assistWin.webContents.loadURL('http://localhost:8080/#/assist', { userAgent: userHeader })
     } catch (error) {
       console.log(error)
     }

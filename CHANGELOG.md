@@ -1,7 +1,28 @@
 ## CHANGE LOG
 
+## 23-06-17
+- Auto-downloading unit test cases
+- Fix the history indexing issue. It causes flushing errors.
+- Fix the `setAttribute` issue. Likely to be caused by the module references (i.e., newAppWindow)?
+
+```js
+Uncaught (in promise) DOMException: Failed to execute 'setAttribute' on 'Element': '0' is not a valid attribute name.
+```
+
 ## 23-06-16
 - Fix the LOAD ERROR for assist window: https://github.com/electron/electron/issues/17526
+
+```js
+Error: ERR_ABORTED (-3) loading 'http://localhost:8080/#/assist'
+    at rejectAndCleanup (node:electron/js2c/browser_init:161:7647)
+    at EventEmitter.navigationListener (node:electron/js2c/browser_init:161:7953)
+    at EventEmitter.emit (node:events:527:28) {
+  errno: -3,
+  code: 'ERR_ABORTED',
+  url: 'http://localhost:8080/#/assist'
+}
+```
+
 - Fix `__KEY_PRESSED__` not cleared after task is cancelled
 
 ## 23-06-15

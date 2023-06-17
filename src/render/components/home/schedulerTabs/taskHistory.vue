@@ -18,8 +18,8 @@
       <n-space justify="center">
         <n-timeline size="large">
           <n-timeline-item
-            v-for="e in eventItems"
-            :key="e.key"
+            v-for="(e, index) in eventItems"
+            :key="index"
             :type="e.type"
             :title="e.title"
             :content="e.content"
@@ -143,25 +143,32 @@ const genEventType = (item, source) => {
 };
 
 const genEventContent = (item, taskName) => {
-  switch (item.type) {
+  const itemType = item?.type || "NULL";
+  switch (itemType) {
     case "taskFinish":
       return item.message;
 
     case "taskError":
       return item.message;
 
-    // Inward events
     case "runTask":
       return `enqueue "${taskName}"`;
+    
+    case "cancelTask":
+      return `cancel "${taskName}"`;
 
     default:
-      return item.type;
+      return itemType;
   }
 };
 
 let eventsCache = appConfig.get("eventsCache");
 const eventItems = computed(() => {
   let events = props.taskEvents.map((e) => {
+    // if (e.taskName == undefined) {
+    //   console.log("@@@ Undefined event value: ", JSON.stringify(e));
+    //   console.log("@@@ Undefined event value: ", JSON.stringify(props.taskEvents));
+    // }
     return {
       title: `${e.event} (${e.uuid.slice(0, 8)})`,
       content: genEventContent(e.value, e.taskName),
