@@ -1,17 +1,16 @@
+# https://stackoverflow.com/a/57467550
+from multiprocessing import freeze_support
+freeze_support()
+
 import os
 import json
 import tempfile
-
-# https://stackoverflow.com/a/57467550
-import multiprocessing
-multiprocessing.freeze_support()
 
 import pygb
 import requests
 import asyncio
 import random
 
-from PIL import Image
 import websockets
 from libauto import new_task_sch, download
 
@@ -100,7 +99,9 @@ async def loopMain(websocket):
                 await websocket.ping()
             except websockets.exceptions.ConnectionClosed:
                 print(
-                    f"[WARNING] Mainloop ConnectionClosed {websocket}. Exiting MainLoop executor...")
+                    f"[WARNING] {websocket} no longer alive. Exiting...")
+                del active_conns[websocket]
+                print(f"[INFO] Active connections: {active_conns}")
                 break
 
             frontend_event = asyncio.ensure_future(websocket.recv())
@@ -113,15 +114,7 @@ async def loopMain(websocket):
 
             if frontend_event in done:
                 message = json.loads(frontend_event.result())
-                if message["event"] == "I_EVENT_WSS_REQ":
-                    action = message["action"]
-                    if action == "Shutdown":
-                        for conn in active_conns.keys():
-                            await conn.close()
-                        # asyncio.get_event_loop().stop()
-                        break
-                else:
-                    ts.event_proxy.resolve(message)
+                ts.event_proxy.resolve(message)
 
             else:
                 frontend_event.cancel()
@@ -138,7 +131,9 @@ async def loopMain(websocket):
             await asyncio.sleep(random.random() * 0.2)
 
     except websockets.exceptions.ConnectionClosed:
-        print(f"[WARNING] ConnectionClosed {websocket}")
+        del active_conns[websocket]
+        print(f"[WARNING] ConnectionClosed {websocket}. Exiting MainLoop executor...")
+        print(f"[INFO] Active connections: {active_conns}")
 
 
 async def websocket_handler(websocket):
@@ -152,6 +147,9 @@ async def websocket_handler(websocket):
 
     except websockets.exceptions.ConnectionClosed:
         del active_conns[websocket]
+        print(f"[WARNING] ConnectionClosed {websocket}. Exiting...")
+        print(f"[INFO] Active connections: {active_conns}")
+
 
     else:
         if worker == "MainLoop":
@@ -169,7 +167,7 @@ async def websocket_handler(websocket):
         elif worker == "Files":
             q = await search_files_from_dir(message["query"], message["params"])
             await websocket.send(json.dumps(q))
-        
+
         elif worker.startswith("cmd://"):
             out = pygb.run_cmd(worker[6:])
             await websocket.send(json.dumps(out))
@@ -218,12 +216,18 @@ async def websocket_handler(websocket):
 async def check_connections():
     # Check for active WebSocket connections
     while True:
-        await asyncio.sleep(10)
-        if len(active_conns) == 0:
+        await asyncio.sleep(15)
+        if len(active_conns) == 0: 
             print("No active connections, exiting...")
             # asyncio.get_event_loop().stop()
             ts.stop()
             break
+
+
+def is_port_in_use(port: int) -> bool:
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
 
 
 async def main():
@@ -236,5 +240,8 @@ async def main():
 
 
 if __name__ == "__main__":
+    if is_port_in_use(5678):
+        exit("Port 5678 is already in use. Exiting...")
+
     ts = new_task_sch()
     asyncio.run(main())

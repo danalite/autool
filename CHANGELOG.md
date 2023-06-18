@@ -1,6 +1,13 @@
 ## CHANGE LOG
 
+## 23-06-18
+- Fix pyinstaller multiprocessing issue: https://stackoverflow.com/q/33405338
+- RM debug interface for each task. Move it to appHome/background.log
+- Fix the issue in app to make it quit if no active connections in 15 seconds
+
 ## 23-06-17
+- Fix background app stuck issue (and not showing popup windows) when startup
+- Fix python UTF8 encoding issue
 - Auto-downloading unit test cases
 - Fix the history indexing issue. It causes flushing errors.
 - Fix the `setAttribute` issue. Likely to be caused by the module references (i.e., newAppWindow)?

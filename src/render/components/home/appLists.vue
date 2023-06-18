@@ -483,11 +483,6 @@ const taskItemOptions = [
     key: "d1",
   },
   {
-    label: () => t('apps.task.debug'),
-    key: "showLog",
-    icon: renderIcon(FileReport, { color: "#FAD02C" }),
-  },
-  {
     label: () => t('apps.task.delete'),
     key: "delete",
     icon: renderIcon(Trash, { color: "#db2544" }),
@@ -503,8 +498,10 @@ const handleTaskAction = async (key) => {
   showDropdownRef.value = false;
   if (key === "run") {
     runTask(activeSelectedTask.value, -1);
+
   } else if (key === "edit") {
     shell.openExternal(`vscode://file/${activeSelectedTask.value.absTaskPath}`);
+    
   } else if (key === "delete") {
     ipcRenderer.send("to-console", {
       action: "delete-task",
@@ -515,9 +512,7 @@ const handleTaskAction = async (key) => {
 
     ipcRenderer.send("to-console", { action: "reload-apps" });
     // message.info(`delete task ${activeSelectedTask.value.relTaskPath}`);
-  } else if (key === "showLog") {
-    // message.info("Show log");
-  }
+  } 
 };
 
 const handleContextMenu = (e, task) => {

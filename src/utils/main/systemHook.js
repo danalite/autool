@@ -398,6 +398,6 @@ export const registerUioEvent = (assistWindow, event) => {
   }
 }
 
-export const uioStop = async () => {
+export const uioStop = () => {
   uIOhook.stop()
 }

@@ -113,6 +113,7 @@ import {
   NCard,
   NButton,
 } from "naive-ui";
+
 import { Cloud, DevicesPc } from "@vicons/tabler";
 import { computed } from "vue";
 import { shell } from "electron";
@@ -188,15 +189,13 @@ const eventItems = computed(() => {
 });
 
 const pathSeparator = process.platform === "win32" ? "\\" : "/";
-
-// Open task source code
 const openTask = (taskPath) => {
   shell.openExternal(`vscode://file/${taskPath}`);
 };
 
 const debugTask = (task) => {
-  let shortName = task.taskName.split(pathSeparator.value).slice(-1)[0];
-  let logPath = appConfig.get("logPath") + shortName + ".txt";
+  // let shortName = task.taskName.split(pathSeparator).slice(-1)[0];
+  let logPath = appConfig.get("appHome") + pathSeparator + "background.log";
   shell.openExternal(`vscode://file/${logPath}`);
 };
 

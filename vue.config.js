@@ -23,7 +23,7 @@ module.exports = defineConfig({
     electronBuilder: {
       nodeIntegration: true,
       builderOptions: {
-        productName: "autool",
+        productName: "AuTool",
         appId: "com.autool.app",
         copyright: "Danalite PTE LTD",
         extraResources: [

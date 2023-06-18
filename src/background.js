@@ -2,7 +2,7 @@ import {
   app,
   dialog,
   systemPreferences,
-  BrowserWindow, Menu,
+  BrowserWindow, 
   ipcMain
 } from 'electron'
 
@@ -45,23 +45,8 @@ if (process.defaultApp) {
   app.setAsDefaultProtocolClient('autool')
 }
 
-const dockMenu = Menu.buildFromTemplate([
-  {
-    label: 'New Window',
-    click() { console.log('New Window') }
-  }, {
-    label: 'New Window with Settings',
-    submenu: [
-      { label: 'Basic' },
-      { label: 'Pro' }
-    ]
-  },
-  { label: 'New Command...' }
-])
 
-// Backend PyWebsocket server
 let subPy = null;
-let subPyExited = false
 let confirmQuit = false
 
 const PY_SRC_FOLDER = "../runtime"
@@ -83,34 +68,43 @@ const getPythonScriptPath = () => {
 };
 
 const startPythonSubprocess = () => {
-  let script = getPythonScriptPath();
-  if (!devMode) {
-    console.log("[ NodeJS ] prodMode. " + script)
-    subPy = execFile(script, []);
-
-  } else {
-    console.log("[ NodeJS ] devMode. python -u " + script)
-    subPy = spawn('python', ['-u', script], { detached: true });
+  if (subPy != null) {
+    console.log("[ NodeJS ] Python subprocess already started. PID ", subPy.pid);
+    return;
   }
 
+  let script = getPythonScriptPath();
+  let appHome = appConfig.get('appHome')
+  let out = fs.openSync(path.join(appHome, 'background.log'), 'a');
+  let err = fs.openSync(path.join(appHome, 'background.log'), 'a');
+
+  if (!devMode) {
+    subPy = spawn(script, [], {
+      detached: true,
+      env: {
+        ...process.env,
+        'PYTHONIOENCODING': 'utf8',
+        'LANG': 'en_US.UTF-8'
+      },
+      stdio: ['ignore', out, err],
+    });
+
+  } else {
+    subPy = spawn('python', ['-u', script],
+      {
+        detached: true,
+        stdio: ['ignore', out, err],
+      });
+  }
+  subPy.unref();
   console.log("[ Backend ] websocket server started. PID ", subPy.pid);
-
-  subPy.on('exit', function (code, signal) {
-    console.log('[ NodeJS ] process exited with ' +
-      `code ${code} and signal ${signal}`);
-    subPyExited = true
-  });
-
-  subPy.stdout.on('data', (data) => {
-    console.log(`\n[ Backend ] ${data}`);
-  });
-
-  // Pipe subprocess output to main std.out
-  subPy.stderr.pipe(process.stdout)
 };
 
 const init = async () => {
-  startPythonSubprocess()
+  // if (process.platform === "darwin") {
+  //   let enabled = systemPreferences.isTrustedAccessibilityClient(true)
+  //   console.log("[ NodeJS ] OSX accessibility status: ", enabled)
+  // }
 
   // Electron deep links
   const gotTheLock = app.requestSingleInstanceLock()
@@ -136,16 +130,11 @@ const init = async () => {
     protocolHandler(url, mainWindow)
   })
 
-  if (process.platform === "darwin") {
-    // let enabled = systemPreferences.isTrustedAccessibilityClient(true)
-    // console.log("[ NodeJS ] OSX accessibility status: ", enabled)
-  }
-
+  startPythonSubprocess()
   assistWindow = await createAssistWindow(userHeader)
   mainWindow = await createMainWindow(userHeader, iconPath)
-  ipcListener(mainWindow, assistWindow)
 
-  uioStartup(mainWindow, assistWindow)
+  ipcListener(mainWindow, assistWindow)
   makeTray(iconPath, mainWindow, assistWindow)
 
   // Setting up app path and server checking
@@ -156,10 +145,10 @@ app.whenReady().then(async () => {
   await init()
   if (process.platform === "darwin") {
     app.dock.setIcon(iconPath)
-    app.dock.setMenu(dockMenu)
     app.dock.show()
   }
-
+  
+  uioStartup(mainWindow, assistWindow)
   app.on('activate', async () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -206,6 +195,7 @@ app.whenReady().then(async () => {
         confirmQuit = true
         uioStop()
         app.quit()
+        process.exit(0)
       }
     }
   })
@@ -218,15 +208,15 @@ app.whenReady().then(async () => {
     }
   });
 
-  app.on("before-quit", async () => {
-    // Send stop signal to backend
-    console.log("[ NodeJS ] before-quit!")
-    if (!subPyExited) {
-      console.log("[ NodeJS ] subPy not exited. Killing...")
-      subPy.kill('SIGTERM')
-    }
-    process.exit(0)
-  })
+  // app.on("before-quit", async () => {
+  //   // Send stop signal to backend
+  //   console.log("[ NodeJS ] before-quit!")
+  //   // if (!subPyExited) {
+  //   //   console.log("[ NodeJS ] subPy not exited. Killing...")
+  //   //   subPy.kill('SIGTERM')
+  //   // }
+  //   process.exit(0)
+  // })
 
 })
 
@@ -239,14 +229,7 @@ const appSetup = async () => {
     fs.mkdirSync(appHome, { recursive: true });
   }
   appConfig.set('appHome', appHome)
-
-  let logPath = path.join(userPath, 'logs')
-  if (!fs.existsSync(logPath)) {
-    fs.mkdirSync(logPath, { recursive: true });
-  }
-  appConfig.set('logPath', logPath + path.sep)
   console.log("[ NodeJS ] appHome: ", appHome)
-  console.log("[ NodeJS ] logPath: ", logPath)
 
   const apps = await loadApps(appHome)
   appConfig.set('apps', apps.apps)
