@@ -205,20 +205,24 @@ export const loadApps = async (appDir) => {
     // Read tasks in parallel without forEach
     await Promise.all(appJson.tasks.map(async (task, taskIndex) => {
       let taskFile = path.join(appEntry, task)
-      var taskItem = {
-        'key': taskIndex,
-        'relTaskPath': task.replace('.yaml', ''), // relative path
-        'absTaskPath': taskFile, // absolute path
-        'appPath': appEntry,     // app path (dir)
-        'app': appJson.app,
-        'author': appJson.author,
-      }
+      // Check if task file exists
+      if (fs.existsSync(taskFile)) {
+        var taskItem = {
+          'key': taskIndex,
+          'relTaskPath': task.replace('.yaml', ''), // relative path
+          'absTaskPath': taskFile, // absolute path
+          'appPath': appEntry,     // app path (dir)
+          'app': appJson.app,
+          'author': appJson.author,
+        }
 
-      await parseTask(taskFile, taskItem)
-      if (taskItem.options.includes("autostart")) {
-        autostartTasks.push(taskItem)
+        await parseTask(taskFile, taskItem)
+        const options = taskItem.options || []
+        if (options.includes('autostart')) {
+          autostartTasks.push(taskItem)
+        }
+        taskList.push(taskItem)
       }
-      taskList.push(taskItem)
     }))
 
 

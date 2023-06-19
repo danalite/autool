@@ -1,20 +1,29 @@
 ## CHANGE LOG
 
 ## 23-06-18
+- Add ShowDevTools options
 - Fix pyinstaller multiprocessing issue: https://stackoverflow.com/q/33405338
 - RM debug interface for each task. Move it to appHome/background.log
 - Fix the issue in app to make it quit if no active connections in 15 seconds
+- Fix the `setAttribute` issue. Caused by WsConnSetup function in index page
+
+```js
+Uncaught (in promise) DOMException: Failed to execute 'setAttribute' on 'Element': '0' is not a valid attribute name.
+```
+
+- Caught warning in electron-builder (not fixed yet) 
+
+```shell
+DeprecationWarning: Invalid 'main' field in '/Users/hecmay/Desktop/autoo/dist_electron/package.json' of 'background.js'. Please either fix that or report it to the module author
+(Use `Electron --trace-deprecation ...` to show where the warning was created)
+```
 
 ## 23-06-17
 - Fix background app stuck issue (and not showing popup windows) when startup
 - Fix python UTF8 encoding issue
 - Auto-downloading unit test cases
 - Fix the history indexing issue. It causes flushing errors.
-- Fix the `setAttribute` issue. Likely to be caused by the module references (i.e., newAppWindow)?
 
-```js
-Uncaught (in promise) DOMException: Failed to execute 'setAttribute' on 'Element': '0' is not a valid attribute name.
-```
 
 ## 23-06-16
 - Fix the LOAD ERROR for assist window: https://github.com/electron/electron/issues/17526

@@ -42,12 +42,6 @@
 
           <settings-index v-show="activeMenuItem == 'settings'" />
 
-          <!-- <n-layout-footer
-            bordered
-            position="absolute"
-            style="height: 25px; padding: 0px; background-color: #f5f5f5"
-          >
-          </n-layout-footer> -->
         </n-layout>
       </n-layout>
     </n-layout>
@@ -114,12 +108,10 @@ function setupWsConn() {
     };
 
     wsConn.onerror = (e) => {
-      message.error("wsConn error", JSON.stringify(e), { duration: 8000 });
+      console.log("wsConn error", JSON.stringify(e));
     };
   } catch (e) {
-    message.error("wsConn error in setup", JSON.stringify(e), {
-      duration: 8000,
-    });
+    console.log("wsConn error in setup", JSON.stringify(e));
   }
 }
 

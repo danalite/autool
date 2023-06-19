@@ -2,7 +2,7 @@
   <n-result
     status="404"
     v-if="props.runningTasks.length == 0"
-    title="No active tasks"
+    :title="$t('scheduler.active.emptyText')"
     style="margin-top: 20px"
     size="medium"
   >
@@ -64,6 +64,9 @@ import { NSpace, NButton, NCard, NIcon, NResult, NEllipsis } from "naive-ui";
 import { Cloud, DevicesPc } from "@vicons/tabler";
 
 import eventBus from "@/utils/render/eventBus";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 const props = defineProps({
   runningTasks: {
     type: Array,

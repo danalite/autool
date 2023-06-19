@@ -106,6 +106,10 @@ const init = async () => {
   //   console.log("[ NodeJS ] OSX accessibility status: ", enabled)
   // }
 
+  ipcMain.on('backend-server-reboot', (event, arg) => {
+    startPythonSubprocess()
+  })
+
   // Electron deep links
   const gotTheLock = app.requestSingleInstanceLock()
   if (!gotTheLock) {
@@ -147,7 +151,7 @@ app.whenReady().then(async () => {
     app.dock.setIcon(iconPath)
     app.dock.show()
   }
-  
+
   uioStartup(mainWindow, assistWindow)
   app.on('activate', async () => {
     // On macOS it's common to re-create a window in the app when the

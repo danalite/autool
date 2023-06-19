@@ -23,12 +23,19 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         }
       },
       { type: "separator" },
+      // {
+      //   label: "Restart",
+      //   click() {
+      //     app.relaunch();
+      //     app.quit();
+      //   },
+      // },
       {
-        label: "Restart",
-        click() {
-          app.relaunch();
-          app.quit();
-        },
+        label: "Show DevTools",
+        click: () => {
+          assistWindow.toggleDevTools();
+          mainWindow.toggleDevTools();
+        }
       },
       {
         label: "Exit",

@@ -22,6 +22,7 @@
         secondary
         :bordered="false"
         :type="isLocalServerActive ? 'success' : 'error'"
+        @click="reactivateLocalServer"
         size="small"
       >
         <n-icon v-if="!isLocalServerActive" size="16">
@@ -95,6 +96,7 @@ import { Check, Refresh } from "@vicons/tabler";
 
 import { appConfig } from "@/utils/main/config";
 import { useI18n } from "vue-i18n";
+import { ipcRenderer } from "electron";
 const { t } = useI18n();
 
 // Check if license and local server is valid
@@ -106,4 +108,11 @@ setInterval(() => {
 
 // Load the network request histories
 const networkCache = ref(appConfig.get("networkCache"));
+
+// Send a message to main process to  
+const reactivateLocalServer = () => {
+  if (!isLocalServerActive.value) {
+    ipcRenderer.send("backend-server-reboot", {});
+  } 
+};
 </script>
