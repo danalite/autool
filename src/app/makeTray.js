@@ -1,4 +1,5 @@
-import { app, Menu, nativeImage, Tray, shell, dialog } from "electron";
+import { app, Menu, nativeImage, Tray, shell } from "electron";
+import { appConfig } from "@/utils/main/config";
 
 // Create a status page (task scheduled or running. notifications etc.)
 export const makeTray = (iconPath, mainWindow, assistWindow) => {
@@ -33,12 +34,21 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
       {
         label: "Show DevTools",
         click: () => {
-          assistWindow.toggleDevTools();
-          mainWindow.toggleDevTools();
+          // open devtools if not open
+          if (!assistWindow.isDevToolsOpened()) {
+            assistWindow.webContents.openDevTools();
+          }
+          if (!mainWindow.isDevToolsOpened()) {
+            mainWindow.webContents.openDevTools();
+          }
+
+          const pathSeparator = process.platform === "win32" ? "\\" : "/";
+          let logPath = appConfig.get("appHome") + pathSeparator + "background.log";
+          shell.openExternal("vscode://file/" + logPath);
         }
       },
       {
-        label: "Exit",
+        label: "Exit AuTool",
         click() {
           app.quit();
         }

@@ -64,7 +64,7 @@ const EnglishOptions = {
     settings: {
         title: "Settings",
         accounts: {
-            title: 'Account',
+            title: 'Profile',
             license: 'License',
             appHome: 'App Home',
             language: 'Language'

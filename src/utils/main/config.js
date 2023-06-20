@@ -18,6 +18,7 @@ export const appConfig = new Store({
     'eventsCache': [],
     'networkCache': [],
     'appHome': '',
+    'defaultAppHome': '',
     'license': {
       'key': 'A-384DE2-821F87EF-AA2833W',
       'valid': false,

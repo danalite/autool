@@ -1,6 +1,13 @@
 ## CHANGE LOG
 
+## 23-06-19
+- DeepLink testing (separate branch for windows and mac/linux)
+- Interactive list application: holiday countdowns, TODO list, vocabulary learning, amazon deals (click item to trigger locally registered events, or show additional content)
+- New components to show trends over data array.
+
+
 ## 23-06-18
+- Support custom appHome
 - Add ShowDevTools options
 - Fix pyinstaller multiprocessing issue: https://stackoverflow.com/q/33405338
 - RM debug interface for each task. Move it to appHome/background.log

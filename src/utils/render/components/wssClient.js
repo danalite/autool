@@ -8,7 +8,7 @@ export const wssClientCb = (callback = () => { }) => {
             server.send(
                 JSON.stringify({
                     event: EventType.I_EVENT_WSS_REQ,
-                    value: "MainLoop",
+                    value: "__MAIN__",
                 })
             );
             console.log("Connected to backend server.");

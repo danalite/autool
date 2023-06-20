@@ -42,6 +42,13 @@
 
           <settings-index v-show="activeMenuItem == 'settings'" />
 
+          <!-- <n-layout-footer
+            bordered
+            position="absolute"
+            style="height: 25px; padding: 0px; background-color: #f5f5f5"
+          >
+          </n-layout-footer> -->
+
         </n-layout>
       </n-layout>
     </n-layout>
@@ -102,7 +109,7 @@ function setupWsConn() {
     wsConn.onopen = (event) => {
       sendMessageToBackend({
         event: EventType.I_EVENT_WSS_REQ,
-        value: "MainLoop",
+        value: "__MAIN__",
       });
       console.log("Connected to backend server.");
     };
@@ -188,7 +195,7 @@ const sendMessageToBackend = (msg) => {
     wsConn.send(JSON.stringify(msg));
   } catch (e) {
     wsConn = null;
-    message.error("wsConn error", JSON.stringify(e), { duration: 8000 });
+    console.log("wsConn error in sendMessageToBackend", JSON.stringify(e));
   }
 };
 

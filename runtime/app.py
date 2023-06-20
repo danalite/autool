@@ -100,7 +100,6 @@ async def loopMain(websocket):
             except websockets.exceptions.ConnectionClosed:
                 print(
                     f"[WARNING] {websocket} no longer alive. Exiting...")
-                del active_conns[websocket]
                 print(f"[INFO] Active connections: {active_conns}")
                 break
 
@@ -131,8 +130,7 @@ async def loopMain(websocket):
             await asyncio.sleep(random.random() * 0.2)
 
     except websockets.exceptions.ConnectionClosed:
-        del active_conns[websocket]
-        print(f"[WARNING] ConnectionClosed {websocket}. Exiting MainLoop executor...")
+        print(f"[WARNING] ConnectionClosed {websocket}. Exiting __MAIN__ executor...")
         print(f"[INFO] Active connections: {active_conns}")
 
 
@@ -146,22 +144,19 @@ async def websocket_handler(websocket):
         worker = message["value"]
 
     except websockets.exceptions.ConnectionClosed:
-        del active_conns[websocket]
         print(f"[WARNING] ConnectionClosed {websocket}. Exiting...")
-        print(f"[INFO] Active connections: {active_conns}")
-
 
     else:
-        if worker == "MainLoop":
+        if worker == "__MAIN__":
             await loopMain(websocket)
 
-        elif worker == "Download":
+        elif worker == "__DOWNLOAD__":
             try:
-                download(message["appUrl"], message["appHome"])
-                ack = "Success"
+                url = message["url"]
+                download(url, message["appHome"])
+                ack = f"Successfully downloaded {url}"
             except Exception as e:
                 ack = "Error: " + str(e)
-
             await websocket.send(json.dumps({"event": "O_EVENT_WSS_RESP", "message": ack}))
 
         elif worker == "Files":
@@ -212,6 +207,9 @@ async def websocket_handler(websocket):
                 q = [_ for _ in q if message["query"] in _["label"]]
                 await websocket.send(json.dumps(q))
 
+    del active_conns[websocket]
+    print(f"[INFO] Active connections: {active_conns}")
+
 
 async def check_connections():
     # Check for active WebSocket connections
@@ -222,6 +220,11 @@ async def check_connections():
             # asyncio.get_event_loop().stop()
             ts.stop()
             break
+
+        elif len(active_conns) > 1:
+            print("===== Multiple Wss Connections =====")
+            for k, v in active_conns.items():
+                print(f"[INFO] {k}", dir(k))
 
 
 def is_port_in_use(port: int) -> bool:

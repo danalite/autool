@@ -211,7 +211,7 @@ const runTargetTask = (e, taskName) => {
   loadingTask.value = taskName;
   setTimeout(() => {
     loadingTask.value = "";
-  }, 1500);
+  }, 1800);
 };
 
 // total width = 333px. gap = 12px

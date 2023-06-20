@@ -164,15 +164,16 @@ const downloadAppFromGithub = (link) => {
     wsConn.onmessage = (event) => {
       wsConn.close();
       wsConn = null;
-      // const data = JSON.parse(event.data);
-      message.success(event.data);
+      const data = JSON.parse(event.data);
+      message.success(data.message);
       ipcRenderer.send("to-console", { action: "reload-apps" });
     };
+
     wsConn.onopen = (event) => {
       wsConn.send(
         JSON.stringify({
           event: "I_EVENT_WSS_REQ",
-          value: "Download",
+          value: "__DOWNLOAD__",
           appUrl: link,
           appHome: appConfig.get("appHome"),
         })

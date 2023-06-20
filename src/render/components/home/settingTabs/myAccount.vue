@@ -34,7 +34,6 @@
       <n-input
         size="small"
         v-model:value="appHome"
-        disabled
         type="text"
         style="width: 240px"
       />
@@ -43,7 +42,6 @@
         secondary
         @click="openAppHome"
         :bordered="false"
-        :type="'success'"
         size="small"
       >
         <n-icon size="16">
@@ -84,9 +82,11 @@ import { ref } from "vue";
 import { shell } from "electron";
 import { appConfig } from "@/utils/main/config";
 import { Refresh, Check } from "@vicons/tabler";
-
+import { useMessage } from "naive-ui";
 import { useI18n } from "vue-i18n";
+
 const { t } = useI18n();
+const message = useMessage();
 
 const availableLocales = [
   { label: "English", value: "en-US" },
@@ -95,7 +95,17 @@ const availableLocales = [
 
 // Open appHome folder
 const openAppHome = async () => {
-    shell.openPath(appHome.value);
+    shell.openPath(appHome.value).then((res) => {
+      if (res === "") {
+        appConfig.set("appHome", appHome.value);
+        message.success("Successfully updated appHome.")
+
+      } else {
+        console.log("[ERROR]: ", res);
+        message.error("Failed to open invalid path")
+        appHome.value = appConfig.get("defaultAppHome");
+      }      
+    });
 };
 
 const appHome = ref(appConfig.get("appHome"));

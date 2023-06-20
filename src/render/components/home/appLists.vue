@@ -122,7 +122,7 @@
                     @click="runTask(task, taskIndex)"
                     style="text-align: left"
                   >
-                    <n-ellipsis style="width: 100%; max-width: 300px">
+                    <n-ellipsis style="width: 100%; max-width: 200px">
                       {{
                         task.relTaskPath.includes("/")
                           ? task.relTaskPath.split("/")[1]
@@ -385,7 +385,7 @@ const runTask = (task, index) => {
     loadingTaskIndex.value = index;
     setTimeout(() => {
       loadingTaskIndex.value = -1;
-    }, 1000);
+    }, 1800);
   }
   emits("runTask", task);
 };

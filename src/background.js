@@ -2,7 +2,7 @@ import {
   app,
   dialog,
   systemPreferences,
-  BrowserWindow, 
+  BrowserWindow,
   ipcMain
 } from 'electron'
 
@@ -16,10 +16,11 @@ import {
   makeTray
 } from "./app";
 
-import { execFile, spawn } from "child_process"
+import { spawn } from "child_process"
 import { loadApps } from './utils/main/queryTasks';
 import { uioStartup } from "./utils/main/systemHook";
-import { protocolHandler } from './utils/main/protocolHandler';
+
+import { protocolHandler } from './utils/main/deeplink';
 
 var fs = require('fs');
 const Store = require("electron-store")
@@ -67,16 +68,35 @@ const getPythonScriptPath = () => {
   return path.join(__dirname, PY_SRC_FOLDER, PY_MODULE.slice(0, -3));
 };
 
+const checkProcessRunning = (pid) => {
+  // https://stackoverflow.com/a/57286834
+  try {
+    return process.kill(pid, 0);
+  } catch (error) {
+    console.error(error);
+    return error.code === 'EPERM';
+  }
+}
+
 const startPythonSubprocess = () => {
   if (subPy != null) {
-    console.log("[ NodeJS ] Python subprocess already started. PID ", subPy.pid);
-    return;
+    if (checkProcessRunning(subPy.pid)) {
+      console.log("[ NodeJS ] Python subprocess already started. PID ", subPy.pid);
+      return;
+    }
   }
 
   let script = getPythonScriptPath();
   let appHome = appConfig.get('appHome')
-  let out = fs.openSync(path.join(appHome, 'background.log'), 'a');
-  let err = fs.openSync(path.join(appHome, 'background.log'), 'a');
+  let logPath = path.join(appHome, 'background.log')
+
+  // Size in bytes
+  if (fs.statSync(logPath).size > 1024 * 1024) {
+    fs.unlinkSync(logPath)
+  }
+
+  let out = fs.openSync(logPath, 'a');
+  let err = fs.openSync(logPath, 'a');
 
   if (!devMode) {
     subPy = spawn(script, [], {
@@ -111,28 +131,31 @@ const init = async () => {
   })
 
   // Electron deep links
-  const gotTheLock = app.requestSingleInstanceLock()
-  if (!gotTheLock) {
-    app.quit()
-  } else {
-    app.on('second-instance', (event, commandLine, workingDirectory) => {
-      // Someone tried to run a second instance, we should focus our window.
-      if (mainWindow) {
-        if (mainWindow.isMinimized()) mainWindow.restore()
-        mainWindow.focus()
-      }
-      // the commandLine is array of strings in which last element is deep link url
-      // the url str ends with /
-      // dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop().slice(0, -1)}`)
+  if (process.platform === "win32") {
+    const gotTheLock = app.requestSingleInstanceLock()
+    if (!gotTheLock) {
+      app.quit()
+    } else {
+      app.on('second-instance', (event, commandLine, workingDirectory) => {
+        // Someone tried to run a second instance, we should focus our window.
+        if (mainWindow) {
+          if (mainWindow.isMinimized()) mainWindow.restore()
+          mainWindow.focus()
+        }
+        // the commandLine is array of strings in which last element is deep link url
+        // the url str ends with /
+        // dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop().slice(0, -1)}`)
 
-      let url = commandLine.pop().slice(0, -1)
+        let url = commandLine.pop().slice(0, -1)
+        protocolHandler(url, mainWindow)
+      })
+    }
+  } else {
+    app.on('open-url', (event, url) => {
+      // dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
       protocolHandler(url, mainWindow)
     })
   }
-  app.on('open-url', (event, url) => {
-    // dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
-    protocolHandler(url, mainWindow)
-  })
 
   startPythonSubprocess()
   assistWindow = await createAssistWindow(userHeader)
@@ -228,11 +251,16 @@ app.whenReady().then(async () => {
 const appSetup = async () => {
   let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
 
-  let appHome = path.join(userPath, 'scripts')
-  if (!fs.existsSync(appHome)) {
-    fs.mkdirSync(appHome, { recursive: true });
+  let appHome = appConfig.get('appHome')
+  let defaultAppHome = path.join(userPath, 'scripts')
+  appConfig.set('defaultAppHome', defaultAppHome)
+  if (!appHome) {
+    appHome = defaultAppHome
+    if (!fs.existsSync(appHome)) {
+      fs.mkdirSync(appHome, { recursive: true });
+    }
+    appConfig.set('appHome', appHome)
   }
-  appConfig.set('appHome', appHome)
   console.log("[ NodeJS ] appHome: ", appHome)
 
   const apps = await loadApps(appHome)
