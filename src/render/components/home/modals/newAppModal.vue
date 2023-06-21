@@ -60,7 +60,7 @@
                 placeholder="new-app-name"
               />
             </n-input-group>
-            <n-input-group style="padding-top: 3px;">
+            <n-input-group style="padding-top: 3px">
               <n-input-group-label size="small">
                 {{ $t("apps.newApp.appIcon") }}
               </n-input-group-label>
@@ -141,9 +141,7 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 const message = useMessage();
-
 const numApps = ref(0);
-const appsToDownload = ref([]);
 
 const showAddAppModal = ref(false);
 const show = () => {
@@ -155,22 +153,13 @@ defineExpose({
   show,
 });
 
-let wsConn = null;
-const downloadAppFromGithub = (link) => {
-  try {
-    if (wsConn === null) {
-      wsConn = new WebSocket("ws://localhost:5678");
-    }
-    wsConn.onmessage = (event) => {
-      wsConn.close();
-      wsConn = null;
-      const data = JSON.parse(event.data);
-      message.success(data.message);
-      ipcRenderer.send("to-console", { action: "reload-apps" });
-    };
+const downloadApp = (link) => {
+  message.loading(`Downloading ${link}...`, { duration: 2000 });
+  return new Promise(function (resolve, reject) {
+    var server = new WebSocket("ws://localhost:5678");
 
-    wsConn.onopen = (event) => {
-      wsConn.send(
+    server.onopen = function () {
+      server.send(
         JSON.stringify({
           event: "I_EVENT_WSS_REQ",
           value: "__DOWNLOAD__",
@@ -179,10 +168,27 @@ const downloadAppFromGithub = (link) => {
         })
       );
     };
-  } catch (e) {
-    console.log(e);
-    message.warning(`Failed downloading ${link}...`);
-  }
+    server.onerror = function (err) {
+      console.log(err);
+      message.warning(`Failed downloading ${link}...`);
+      reject(err);
+    };
+    server.onmessage = function (e) {
+      const data = JSON.parse(e.data);
+
+      if (data.success) {
+        message.success(data.message);
+        ipcRenderer.send("to-console", { action: "reload-apps" });
+      } else {
+        message.error(data.message);
+      }
+      server.close();
+    };
+
+    resolve({
+      server: server,
+    });
+  });
 };
 
 const addAppType = ref("download");
@@ -203,7 +209,7 @@ const addNewApp = () => {
       message.warning(`INVALID github link: \"${githubFolderLink.value}\"`);
       return;
     }
-    downloadAppFromGithub(githubFolderLink.value);
+    downloadApp(githubFolderLink.value);
   } else {
     if (
       newAppName.value === "" ||
@@ -226,8 +232,7 @@ const addNewApp = () => {
 };
 
 ipcRenderer.on("download", (event, data) => {
-  githubFolderLink.value = data;
-  downloadAppFromGithub(data);
+  downloadApp(data);
 });
 
 const changeType = (type) => {

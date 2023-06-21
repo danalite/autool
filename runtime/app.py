@@ -151,13 +151,19 @@ async def websocket_handler(websocket):
             await loopMain(websocket)
 
         elif worker == "__DOWNLOAD__":
+            success = True
             try:
-                url = message["url"]
+                url = message["appUrl"]
                 download(url, message["appHome"])
                 ack = f"Successfully downloaded {url}"
+                
             except Exception as e:
+                success = False
                 ack = "Error: " + str(e)
-            await websocket.send(json.dumps({"event": "O_EVENT_WSS_RESP", "message": ack}))
+
+            await websocket.send(json.dumps({
+                "event": "O_EVENT_WSS_RESP", 
+                "message": ack, "success": success}))
 
         elif worker == "Files":
             q = await search_files_from_dir(message["query"], message["params"])
@@ -224,7 +230,7 @@ async def check_connections():
         elif len(active_conns) > 1:
             print("===== Multiple Wss Connections =====")
             for k, v in active_conns.items():
-                print(f"[INFO] {k}", dir(k))
+                print(f"[INFO] {k}", k.closed)
 
 
 def is_port_in_use(port: int) -> bool:

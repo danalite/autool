@@ -1,5 +1,10 @@
 ## CHANGE LOG
 
+## 23-06-20
+- `interactive list`: it shares the same queryResult VM as dynamic component. The difference is the postAction part. `dynamic` will put the clicked items into a pool, but interactive list can trigger some more actions (e.g., open a new window, or show a popup window)
+- button option for `dynamic` element. It allows you to start searching when clicking the button, or start searching instantly 
+- track network requests (post network related events to index.vue)
+
 ## 23-06-19
 - DeepLink testing (separate branch for windows and mac/linux)
 - Interactive list application: holiday countdowns, TODO list, vocabulary learning, amazon deals (click item to trigger locally registered events, or show additional content)
