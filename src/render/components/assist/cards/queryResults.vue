@@ -9,37 +9,42 @@
         v-for="option in props.options"
         :key="option.label"
         :style="{
-          paddingTop: '4px',
-          paddingBottom: '4px',
+          paddingTop: '6px',
+          paddingBottom: '6px',
           margin: '0px',
           cursor: 'pointer',
         }"
         @click="clickItem(option)"
       >
         <div style="display: flex; align-items: center">
-          <img
+          <n-image
             :width="option.width || 35"
             lazy
-            :style="{
+            :previewed-img-props="{
+              maxHeight: '35px',
               borderRadius: '4px',
-              // objectFit: 'cover',
-              // objectPosition: 'top',
+              objectFit: 'cover',
+              objectPosition: 'top',
             }"
             :src="option.src || createImgUrl(option.ext)"
             preview-disabled
           />
-          <div style="margin-left: 12px; padding: 4px 0">
-            <div>{{ option.label }}</div>
-            <n-text
-              depth="3"
-              tag="div"
-              :class="{
-                emphasis: option.description != undefined,
-              }"
-              >{{ option.description || "description" }}</n-text
-            >
-          </div>
+          <n-space
+            style="
+              margin-left: 12px;
+              padding: 4px 0;
+              font-size: small;
+              line-height: 15px;
+              max-width: 230px;
+            "
+          >
+            <n-text>{{ option.label }}</n-text>
+          </n-space>
         </div>
+        <n-tag depth="3" size="small" type="success" :bordered="false"
+          style="font-size: small; line-height: 15px; margin-top: 7px;">
+          {{ option.description || "description" }}
+        </n-tag>
       </n-list-item>
     </n-scrollbar>
   </n-list>
@@ -47,9 +52,19 @@
 
 <script setup>
 import { h } from "vue";
-import { NImage, NText, NList, NListItem, NScrollbar } from "naive-ui";
+import {
+  NImage,
+  NText,
+  NSpace,
+  NList,
+  NListItem,
+  NScrollbar,
+  NButton,
+  NIcon,
+  NTag
+} from "naive-ui";
 import { shell } from "electron";
-import { Emphasis } from "@vicons/tabler";
+import { PlayerPlay, Trash } from "@vicons/tabler";
 
 const props = defineProps({
   options: {
@@ -99,9 +114,3 @@ const clickItem = (option) => {
   }
 };
 </script>
-
-<style scoped>
-/* .emphasis {
-  color: #df4040;
-} */
-</style>

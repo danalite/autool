@@ -48,7 +48,6 @@
             style="height: 25px; padding: 0px; background-color: #f5f5f5"
           >
           </n-layout-footer> -->
-
         </n-layout>
       </n-layout>
     </n-layout>
@@ -124,17 +123,16 @@ function setupWsConn() {
 
 // On startup load apps
 const apps = ref([]);
-let failureCount = 0;
-onMounted(() => {
-  let dim = appConfig.get("mainWindowDimension");
-  let openPage = dim.isCollapsed ? 0 : 1;
-  store.pageReset(openPage);
+let dim = appConfig.get("mainWindowDimension");
+let openPage = dim.isCollapsed ? 0 : 1;
+store.pageReset(openPage);
 
-  let appsLocal = appConfig.get("apps");
-  if (appsLocal) {
-    apps.value = appsLocal;
-  }
+let appsLocal = appConfig.get("apps");
+if (appsLocal) {
+  apps.value = appsLocal;
+}
 
+onMounted(async () => {
   setTimeout(() => {
     if (wsConn === null) {
       setupWsConn();
@@ -150,12 +148,7 @@ onMounted(() => {
     }
     appConfig.set("isLocalServerActive", status);
     if (status === false) {
-      if (failureCount > 3) {
-        // message.error("Local server is not active.");
-        setupWsConn();
-      } else {
-        failureCount++;
-      }
+      setupWsConn();
     }
   }, 1000);
 
@@ -176,17 +169,19 @@ onMounted(() => {
   );
 
   // Reload hotkeys (long-living until removed manually by users)
-  setTimeout(() => {
-    hotkeyTasksCache.forEach((task) => {
-      tasksStatusTable.value.push(task);
-      ipcRenderer.send("to-console", {
-        action: "uio-event",
-        type: "hotkeyWait",
-        source: task.taskName,
-        taskId: task.id,
-        hotkey: task.hotkey,
-      });
-    });
+  setTimeout(async () => {
+    await Promise.all(
+      hotkeyTasksCache.map(async (task) => {
+        tasksStatusTable.value.push(task);
+        ipcRenderer.send("to-console", {
+          action: "uio-event",
+          type: "hotkeyWait",
+          source: task.taskName,
+          taskId: task.id,
+          hotkey: task.hotkey,
+        });
+      })
+    );
   }, 2000);
 });
 
@@ -195,7 +190,11 @@ const sendMessageToBackend = (msg) => {
     wsConn.send(JSON.stringify(msg));
   } catch (e) {
     wsConn = null;
-    console.log("wsConn error in sendMessageToBackend", JSON.stringify(e));
+    console.log(
+      "wsConn error in sendMessageToBackend",
+      JSON.stringify(msg),
+      JSON.stringify(e)
+    );
   }
 };
 
@@ -395,7 +394,7 @@ const stopTask = (task) => {
     });
   } else {
     // stopTask: let backend cancel if the task is running
-    const taskName =  task.taskName || task.relTaskPath;
+    const taskName = task.taskName || task.relTaskPath;
     let newEvent = {
       event: EventType.I_EVENT_TASK_REQ,
       uuid: task.id,

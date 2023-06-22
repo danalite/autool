@@ -350,6 +350,7 @@ import {
   Trash,
   FileReport,
   Search,
+  Copy,
   Box,
   PlaylistAdd,
 } from "@vicons/tabler";
@@ -479,6 +480,11 @@ const taskItemOptions = [
     icon: renderIcon(Pencil, { color: "#2685c2" }),
   },
   {
+    label: () => t('apps.task.copyPath'),
+    key: "copyPath",
+    icon: renderIcon(Copy, { color: "#FAD02C" }),
+  },
+  {
     type: "divider",
     key: "d1",
   },
@@ -501,6 +507,10 @@ const handleTaskAction = async (key) => {
 
   } else if (key === "edit") {
     shell.openExternal(`vscode://file/${activeSelectedTask.value.absTaskPath}`);
+  
+  } else if (key === "copyPath") {
+    navigator.clipboard.writeText(activeSelectedTask.value.absTaskPath);
+    message.success(`Copied ${activeSelectedTask.value.absTaskPath}`);
     
   } else if (key === "delete") {
     ipcRenderer.send("to-console", {

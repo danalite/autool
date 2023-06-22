@@ -71,10 +71,8 @@ def process_window_capture(params):
     ret = {"image": output_path, **params}
 
 
-async def search_files_from_dir(query, params):
-    location = params["location"]
+async def search_files_from_dir(location, query, params):
     resp = []
-
     for _ in get_similar_files(query, location):
         ext = os.path.splitext(_)[-1]
         entry = {"label": _.split(os.sep)[-1], "value": _, "ext": ext}
@@ -165,9 +163,13 @@ async def websocket_handler(websocket):
                 "event": "O_EVENT_WSS_RESP", 
                 "message": ack, "success": success}))
 
-        elif worker == "Files":
-            q = await search_files_from_dir(message["query"], message["params"])
-            await websocket.send(json.dumps(q))
+        elif worker.startswith("file://"):
+            location = worker[7:]
+            if location.startswith("localhost/"):
+                location = location[10:]
+                q = await search_files_from_dir(location, message["query"], message["params"])
+                await websocket.send(json.dumps(q))
+
 
         elif worker.startswith("cmd://"):
             out = pygb.run_cmd(worker[6:])
@@ -229,9 +231,10 @@ async def check_connections():
 
         elif len(active_conns) > 1:
             print("===== Multiple Wss Connections =====")
-            for k, v in active_conns.items():
-                print(f"[INFO] {k}", k.closed)
-
+            sockets = list(active_conns.keys())
+            for socket in sockets:
+                await socket.close()
+            active_conns.clear()
 
 def is_port_in_use(port: int) -> bool:
     import socket

@@ -9,9 +9,10 @@ const EnglishOptions = {
             delete: 'Delete',
         },
         task: {
-            edit: 'Edit Task',
+            edit: 'Edit',
+            copyPath: 'Copy Path',
             debug: 'Debug',
-            delete: 'Delete Task',
+            delete: 'Delete',
             rerun: 'Rerun',
             noHotkeyTasks: 'No Hotkey Tasks',
             noScheduledTasks: 'No Schedules',

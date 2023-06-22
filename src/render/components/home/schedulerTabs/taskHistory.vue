@@ -194,7 +194,6 @@ const openTask = (taskPath) => {
 };
 
 const debugTask = (task) => {
-  // let shortName = task.taskName.split(pathSeparator).slice(-1)[0];
   let logPath = appConfig.get("appHome") + pathSeparator + "background.log";
   shell.openExternal(`vscode://file/${logPath}`);
 };

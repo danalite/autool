@@ -206,7 +206,7 @@ const addNewApp = () => {
       githubFolderLink.value === "" ||
       !githubFolderLink.value.startsWith("http")
     ) {
-      message.warning(`INVALID github link: \"${githubFolderLink.value}\"`);
+      message.warning(`INVALID link: \"${githubFolderLink.value}\"`);
       return;
     }
     downloadApp(githubFolderLink.value);

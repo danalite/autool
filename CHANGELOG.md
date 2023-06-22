@@ -1,5 +1,13 @@
 ## CHANGE LOG
 
+
+# 23-06-22
+- Upgrade electron to 23
+- Fix selenium issue: press keys and ssl certificate error
+- Added deeplink downloading script support
+- Update queryResult UI
+- Fix redundant socket client running issue in app.py
+
 ## 23-06-20
 - `interactive list`: it shares the same queryResult VM as dynamic component. The difference is the postAction part. `dynamic` will put the clicked items into a pool, but interactive list can trigger some more actions (e.g., open a new window, or show a popup window)
 - button option for `dynamic` element. It allows you to start searching when clicking the button, or start searching instantly 

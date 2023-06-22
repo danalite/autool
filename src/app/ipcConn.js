@@ -1,4 +1,4 @@
-import { ipcMain, app } from "electron";
+import { ipcMain } from "electron";
 import { appConfig } from "@/utils/main/config";
 import { addApp, addTask, deleteApp, deleteTask, loadApps, updateTaskYaml } from '@/utils/main/queryTasks';
 import { registerUioEvent } from "@/utils/main/systemHook";

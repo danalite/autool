@@ -1,7 +1,6 @@
 import {
   app,
   dialog,
-  systemPreferences,
   BrowserWindow,
   ipcMain
 } from 'electron'
@@ -121,16 +120,11 @@ const startPythonSubprocess = () => {
 };
 
 const init = async () => {
-  // if (process.platform === "darwin") {
-  //   let enabled = systemPreferences.isTrustedAccessibilityClient(true)
-  //   console.log("[ NodeJS ] OSX accessibility status: ", enabled)
-  // }
-
   ipcMain.on('backend-server-reboot', (event, arg) => {
     startPythonSubprocess()
   })
 
-  // Electron deep links
+  // deep links
   if (process.platform === "win32") {
     const gotTheLock = app.requestSingleInstanceLock()
     if (!gotTheLock) {
@@ -144,7 +138,6 @@ const init = async () => {
         }
         // the commandLine is array of strings in which last element is deep link url
         // the url str ends with /
-        // dialog.showErrorBox('Welcome Back', `You arrived from: ${commandLine.pop().slice(0, -1)}`)
 
         let url = commandLine.pop().slice(0, -1)
         protocolHandler(url, mainWindow)
@@ -152,7 +145,6 @@ const init = async () => {
     }
   } else {
     app.on('open-url', (event, url) => {
-      // dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
       protocolHandler(url, mainWindow)
     })
   }
@@ -199,8 +191,12 @@ app.whenReady().then(async () => {
     var width = size[0];
     var height = size[1];
 
-    appConfig.set('mainWindowDimension.width', width)
-    appConfig.set('mainWindowDimension.height', height)
+    if (height < 200) {
+      mainWindow.webContents.send('collapse-main', {})
+    } else {
+      appConfig.set('mainWindowDimension.width', width)
+      appConfig.set('mainWindowDimension.height', height)
+    }
   });
 
   mainWindow.on('close', (e) => {
@@ -234,16 +230,6 @@ app.whenReady().then(async () => {
       app.quit();
     }
   });
-
-  // app.on("before-quit", async () => {
-  //   // Send stop signal to backend
-  //   console.log("[ NodeJS ] before-quit!")
-  //   // if (!subPyExited) {
-  //   //   console.log("[ NodeJS ] subPy not exited. Killing...")
-  //   //   subPy.kill('SIGTERM')
-  //   // }
-  //   process.exit(0)
-  // })
 
 })
 

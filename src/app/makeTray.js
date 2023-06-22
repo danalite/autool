@@ -1,5 +1,6 @@
-import { app, Menu, nativeImage, Tray, shell } from "electron";
+import { app, Menu, nativeImage, Tray, shell, dialog } from "electron";
 import { appConfig } from "@/utils/main/config";
+import pkg from "../../package.json";
 
 // Create a status page (task scheduled or running. notifications etc.)
 export const makeTray = (iconPath, mainWindow, assistWindow) => {
@@ -48,18 +49,27 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
         }
       },
       {
-        label: "Exit AuTool",
+        label: "Report Issue",
+        click: () => {
+          shell.openExternal("https://github.com/danalite/autool/issues");
+        }
+      },
+      { type: "separator" },
+      {
+        label: "About",
         click() {
-          app.quit();
+          dialog.showMessageBox({
+            title: "DanaLite AuTool",
+            message: "AuTool: Minimal Desktop Extension System",
+            detail: `version: ${pkg.version}`
+          });
         }
       },
       {
-        label: "Help",
-        click: () => {
-          process.nextTick(() => {
-            shell.openExternal("https://github.com/danalite/autool/issues");
-          });
-        },
+        label: "Quit",
+        click() {
+          process.exit(0);
+        }
       },
     ]);
   }

@@ -66,6 +66,10 @@ const handleDrag = (pos) => {
   });
 };
 
+ipcRenderer.on("collapse-main", () => {
+  handleCollapse();
+});
+
 const handleCollapse = () => {
   store.pageReset(0);
   ipcRenderer.send("main-win-collapse", { width: 600, height: 40 });

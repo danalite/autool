@@ -10,6 +10,7 @@ const ChineseOptions = {
         },
         task: {
             edit: '编辑任务',
+            copyPath: '复制路径',
             debug: '任务记录',
             delete: '删除任务',
             rerun: '重新运行',

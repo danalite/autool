@@ -9,6 +9,7 @@ import {
   NInput,
   NInputGroup,
   NButton,
+  NIcon,
   NAvatar,
   NDivider,
   NText,
@@ -20,7 +21,8 @@ import {
   useNotification,
 } from "naive-ui";
 
-import { h, ref, computed } from "vue";
+import { Search } from "@vicons/tabler";
+import { h, ref } from "vue";
 import { ipcRenderer } from "electron";
 
 import { genUUID, querySearchCb } from "@/utils/render/components/common";
@@ -137,6 +139,14 @@ const renderDynamicInput = (session, content) => {
                   });
                 },
               }),
+              h(NButton, {
+                size: "small",
+                round: true,
+                type: "primary",
+                style: { "font-size": "14px" },
+              }, {
+                default: () => h(NIcon, { size: 14 }, { default: () => h(Search) })
+              })
             ],
           }
         ),
