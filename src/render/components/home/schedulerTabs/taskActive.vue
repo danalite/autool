@@ -1,15 +1,13 @@
 <template>
-  <n-result
-    status="404"
-    v-if="props.runningTasks.length == 0"
+  <n-alert
     :title="$t('scheduler.active.emptyText')"
+    type="warning"
+    :bordered="false"
+    v-if="props.runningTasks.length == 0"
     style="margin-top: 20px"
-    size="medium"
   >
-    <template #footer>
-      <n-button>Start new tasks?</n-button>
-    </template>
-  </n-result>
+    Try starting a new tasks
+  </n-alert>
 
   <n-card
     v-for="(task, taskIndex) in props.runningTasks"
@@ -60,7 +58,7 @@
 </template>
 
 <script setup>
-import { NSpace, NButton, NCard, NIcon, NResult, NEllipsis } from "naive-ui";
+import { NSpace, NButton, NCard, NIcon, NAlert, NEllipsis } from "naive-ui";
 import { Cloud, DevicesPc } from "@vicons/tabler";
 
 import eventBus from "@/utils/render/eventBus";
@@ -71,7 +69,7 @@ const props = defineProps({
   runningTasks: {
     type: Array,
     required: true,
-  }
+  },
 });
 
 const pathSeparator = process.platform == "win32" ? "\\" : "/";
@@ -79,5 +77,4 @@ const pathSeparator = process.platform == "win32" ? "\\" : "/";
 const stopTask = (task) => {
   eventBus.emit("stop-task", task);
 };
-
 </script>

@@ -464,13 +464,15 @@ const handleAppAction = async (key, app) => {
   
   } else if (key === "edit") {
     shell.openPath(app.path);
-    // shell.openExternal(`vscode://file/${app.path}`);
 
   } else if (key == "new") {
     let appName = props.apps[activeAppIndex.value].app
     let appPath = props.apps[activeAppIndex.value].path
     myNewTaskModal.value.show(appName, appPath);
-  }
+
+  } else if (key == "update") {
+    console.log("update app", app.url);
+  } 
 };
 
 const taskItemOptions = [

@@ -22,7 +22,7 @@ export const querySearchCb = (query, searchType, params, callback = () => { }) =
         };
         server.onmessage = function (e) {
             const resp = callback(e.data);
-            if (resp == "done") {
+            if (resp == "__DONE__") {
                 server.close();
                 // console.log("[ INFO ] querySearchStream done");
             }

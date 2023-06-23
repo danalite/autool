@@ -1,5 +1,10 @@
 <template>
-  <n-list v-show="props.options.length > 0" hoverable :show-divider="false">
+  <n-list
+    v-show="props.options.length > 0"
+    hoverable
+    style="margin-top: 10px"
+    :show-divider="false"
+  >
     <n-scrollbar
       :style="{
         maxHeight: props.height,
@@ -41,13 +46,27 @@
             <n-text>{{ option.label }}</n-text>
           </n-space>
         </div>
-        <n-tag depth="3" size="small" type="success" :bordered="false"
-          style="font-size: small; line-height: 15px; margin-top: 7px;">
+        <n-tag
+          depth="3"
+          size="small"
+          type="success"
+          :bordered="false"
+          style="font-size: small; line-height: 15px; margin-top: 7px"
+        >
           {{ option.description || "description" }}
         </n-tag>
       </n-list-item>
     </n-scrollbar>
   </n-list>
+  <n-alert
+    type="info"
+    v-show="!props.searchState && props.options.length == 0"
+    :bordered="false"
+    style="margin-top: 10px"
+  >
+    No results
+  </n-alert>
+  <n-spin v-show="props.searchState" style="margin-top: 20px" size="small" />
 </template>
 
 <script setup>
@@ -61,7 +80,10 @@ import {
   NScrollbar,
   NButton,
   NIcon,
-  NTag
+  NTag,
+  NResult,
+  NSpin,
+  NAlert,
 } from "naive-ui";
 import { shell } from "electron";
 import { PlayerPlay, Trash } from "@vicons/tabler";
@@ -73,7 +95,11 @@ const props = defineProps({
   },
   height: {
     type: String,
-    default: "280px",
+    default: "360px",
+  },
+  searchState: {
+    type: Boolean,
+    default: false,
   },
 });
 

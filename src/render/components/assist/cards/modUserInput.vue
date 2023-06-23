@@ -72,7 +72,7 @@ const renderList = (session, content) => {
 };
 
 const renderDynamicUpdate = (session, content) => {
-  if (content.onSelect != null) {
+  if (content.postSearch != null) {
     return h(
       NSpace,
       { vertical: true },
@@ -81,7 +81,10 @@ const renderDynamicUpdate = (session, content) => {
           h(NDivider, { dashed: true }),
           loadingElements.value.find((item) => item === content.key)
             ? h(NSpin, { size: "small" })
-            : renderContent(session, store.getReturnValue(session)[content.key]),
+            : renderContent(
+                session,
+                store.getReturnValue(session)[content.key]
+              ),
         ],
       }
     );
@@ -98,11 +101,14 @@ const renderDynamicUpdate = (session, content) => {
   }
 };
 
-const rawOptions = ref([]);
 const renderDynamicInput = (session, content) => {
   if (store.getReturnValue(session)[content.key] == null) {
     store.setValue(session, content.key, []);
   }
+  const instantShow = content.options?.instantShow ?? false;
+  const inputKey = `__INPUT_${session}__`;
+  const rawOptionsKey = `__RAW_OPTIONS_${session}__`;
+  const searchStateKey = `__SEARCH_STATE_${session}__`;
 
   return h(
     NSpace,
@@ -120,41 +126,64 @@ const renderDynamicInput = (session, content) => {
                 placeholder: "Search",
                 size: "small",
                 round: true,
+                placeholder: instantShow ? "Input" : "Enter to search",
                 style: { "font-size": "14px", width: "250px" },
                 onUpdateValue: (value) => {
                   if (value == "") {
-                    rawOptions.value = [];
-                    if (content.onSelect != null) {
+                    store.setValue(session, rawOptionsKey, []);
+                    if (content.postSearch != null) {
                       store.setValue(session, content.key, {});
                     }
                     return;
                   }
-                  // Top-level search returning a list
-                  const searchType = content.options?.search ?? "";
-                  const params = content.options?.params ?? {};
-                  querySearchCb(value, searchType, params, (data) => {
-                    // console.log("[ INFO ] querySearchCb", data);
-                    rawOptions.value = JSON.parse(data);
-                    return "done";
-                  });
+                  store.setValue(session, inputKey, value);
+
+                  // Top-level search
+                  if (instantShow) {
+                    const searchType = content.options?.search ?? "";
+                    const params = content.options?.params ?? {};
+                    querySearchCb(value, searchType, params, (data) => {
+                      // console.log("[ INFO ] querySearchCb", data);
+                      store.setValue(session, rawOptionsKey, JSON.parse(data));
+                      return "__DONE__";
+                    });
+                  }
+                },
+                onKeyup(e) {
+                  if (e.key == "Enter") {
+                    const v = store.getReturnValue(session)[inputKey];
+                    const searchType = content.options?.search ?? "";
+                    const params = content.options?.params ?? {};
+                    store.setValue(session, searchStateKey, true);
+                    querySearchCb(v, searchType, params, (data) => {
+                      store.setValue(session, rawOptionsKey, JSON.parse(data));
+                      store.setValue(session, searchStateKey, false);
+                      return "__DONE__";
+                    });
+                  }
                 },
               }),
-              h(NButton, {
-                size: "small",
-                round: true,
-                type: "primary",
-                style: { "font-size": "14px" },
-              }, {
-                default: () => h(NIcon, { size: 14 }, { default: () => h(Search) })
-              })
+              h(
+                NButton,
+                {
+                  size: "small",
+                  round: true,
+                  type: "primary",
+                  style: { "font-size": "14px" },
+                },
+                {
+                  default: () =>
+                    h(NIcon, { size: 14 }, { default: () => h(Search) }),
+                }
+              ),
             ],
           }
         ),
 
         // Display filtered results
         h(queryResults, {
-          options: rawOptions.value,
-          style: { width: "300px" },
+          options: store.getReturnValue(session)[rawOptionsKey],
+          searchState: store.getReturnValue(session)[searchStateKey],
 
           // Click any of the item in the list
           onCustomEvent: (data) => {
@@ -163,18 +192,18 @@ const renderDynamicInput = (session, content) => {
               if (content.instantQuit) {
                 store.getSession(session).destroy();
               }
-              
             } else {
-              if (content.onSelect != null) {
+              if (content.postSearch != null) {
                 store.setValue(session, content.key, {});
                 loadingElements.value.push(content.key);
 
-                // Second level search that returns a single item
-                const searchType = content.onSelect?.search ?? "";
-                const params = content.onSelect?.params ?? {};
+                // postSearch rendering logic
+                const searchType = content.postSearch?.search ?? "";
+                const params = content.postSearch?.params ?? {};
                 params["QUERY"] = data.value;
-                params["__PARENT_SEARCH_TYPE__"] = content.options?.search ?? "";
-
+                params["__PARENT_SEARCH_TYPE__"] =
+                  content.options?.search ?? "";
+            
                 querySearchCb("*", searchType, params, (resp) => {
                   loadingElements.value = loadingElements.value.filter(
                     (item) => item !== content.key
@@ -202,7 +231,7 @@ const renderDynamicInput = (session, content) => {
                   }
 
                   if (eos) {
-                    return "done";
+                    return "__DONE__";
                   }
                 });
               } else {
@@ -360,14 +389,18 @@ const newNotification = (session, message) => {
       }),
     onAfterLeave: () => {
       const returnValue = store.getReturnValue(session);
-      if (Object.keys(returnValue).filter((item) => !item.startsWith("__CHAT__")).length > 0) {
+      for (const key in returnValue) {
+        if (key.startsWith("__") && key.endsWith("__")) {
+          delete returnValue[key];
+        }
+      }
+      // console.log("userOptions", Object.keys(returnValue));
+      if (Object.keys(returnValue).length > 0) {
         ipcRenderer.send("event-to-main-win", {
           callback: message.callback,
           data: JSON.stringify(returnValue),
         });
       }
-
-      rawOptions.value = [];
       store.clearSession(session);
     },
   });
@@ -375,18 +408,16 @@ const newNotification = (session, message) => {
   store.initializeSession(session, message, nRef);
 };
 
-
 const updateSession = (session, message) => {
   const nRef = store.getSession(session);
   nRef.content = () => renderContent(session, message.content);
-}
+};
 
 const enqueue = (message) => {
   const uuid = message.session || genUUID();
 
   if (store.hasSession(uuid)) {
     updateSession(uuid, message);
-
   } else {
     newNotification(uuid, message);
   }

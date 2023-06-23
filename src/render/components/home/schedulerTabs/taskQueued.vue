@@ -1,10 +1,11 @@
 <template>
   <n-tabs default-value="hotkey" size="medium" justify-content="space-evenly" type="segment" animated>
     <n-tab-pane name="scheduled" :tab="$t('scheduler.later.waiting')">
-      <n-result
+      <n-alert
+        type="warning"
+        :bordered="false"
         v-if="props.scheduledTasks.length === 0"
-        status="404"
-        style="margin-top: 20px"
+        style="margin-top: 10px"
         :title="$t('apps.task.noScheduledTasks')"
       />
 
@@ -63,10 +64,11 @@
     </n-tab-pane>
 
     <n-tab-pane name="hotkey" :tab="$t('scheduler.later.hotkeys')">
-      <n-result
+      <n-alert
+        type="warning"
+        :bordered="false"
         v-if="props.hotkeyTasks.length === 0"
-        status="404"
-        style="margin-top: 20px"
+        style="margin-top: 10px"
         :title="$t('apps.task.noHotkeyTasks')"
       />
       <n-card
@@ -126,7 +128,7 @@
 </template>
 
 <script setup>
-import { NSpace, NButton, NCard, NIcon, NTabs, NTabPane, NEllipsis, NCountdown, NResult } from "naive-ui";
+import { NSpace, NButton, NCard, NIcon, NTabs, NTabPane, NEllipsis, NCountdown, NAlert } from "naive-ui";
 import { Cloud, DevicesPc } from "@vicons/tabler";
 import { parseCron } from "@/utils/render/components/common";
 

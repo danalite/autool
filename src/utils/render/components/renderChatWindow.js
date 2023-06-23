@@ -29,7 +29,9 @@ const webSocketGet = (target, params, callback = () => { }) => {
 }
 
 export const renderChatWindow = (session, content) => {
-  const chatCacheKey = content.key ? content.key : "__CHAT__";
+  // Need to cache the chat history even if user does not need response
+  const chatCacheKey = content.key ? content.key : `__CHAT_${session}__`;
+
   const inputChatHistory = content.params?.history ?? [];
   if (store.getReturnValue(session)[chatCacheKey] == null) {
     store.setValue(session, chatCacheKey, []);
@@ -79,7 +81,7 @@ export const renderChatWindow = (session, content) => {
               url = url + "&";
             }
             index = index + 1;
-            if (key == "QUERY_KEY") {
+            if (key == "__QUERY_KEY__") {
               url = url + value + "=" + data;
             } else {
               url = url + key + "=" + value;
@@ -109,8 +111,8 @@ export const renderChatWindow = (session, content) => {
 
         } else if (method == "POST") {
           const jsonData = content.params?.data ?? {};
-          if (jsonData["QUERY_KEY"] != null) {
-            jsonData[jsonData["QUERY_KEY"]] = data.content;
+          if (jsonData["__QUERY_KEY__"] != null) {
+            jsonData[jsonData["__QUERY_KEY__"]] = data.content;
           }
           // console.log("POST data: " + JSON.stringify(jsonData), server);
 

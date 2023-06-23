@@ -5,6 +5,7 @@ freeze_support()
 import os
 import json
 import tempfile
+from copy import deepcopy
 
 import pygb
 import requests
@@ -17,35 +18,84 @@ from libauto import new_task_sch, download
 from io import BytesIO
 from py_rust_search import get_similar_files
 
+
 # websocket server states management
 active_conns = dict()
 global ts
 
-async def send_http_request(websocket, params):
-    files = {'json': ('params', json.dumps(
-        params), 'application/json')}
 
-    if "file" in params:
-        files['file'] = ('file', open(
-            params["file"], 'rb'), 'application/octet-stream')
-    stream = params["stream"] if "stream" in params else False
-
-    response = requests.post(
-        params["server"], files=files, stream=stream)
-
-    if response.status_code == 200:
-        if stream:
-            for chunk in response.iter_content(chunk_size=30):
-                if chunk:
-                    v = chunk.decode('utf-8')
-                    print(v, end='', flush=True)
-                    await websocket.send(json.dumps({'text': v}))
-
-        else:
-            ret = response.json()
-            await websocket.send(json.dumps(ret))
+def get_dict_value(obj, keys):
+    if isinstance(keys, str):
+        return obj[keys]
+    elif isinstance(keys, list):
+        v = obj
+        for k in keys:
+            v = v[k]
+        return v
     else:
-        print("[ ERROR ]", response.status_code, response)
+        raise Exception("Invalid key type")
+
+
+async def send_web_request(websocket, url, query, params):
+    search_type = params.get("__QUERY_TYPE__", "GET")
+    search_key = params.get("__QUERY_KEY__")
+    mapping = params.get("__RESPONSE_MAP__")
+
+    user_params = {
+        k: v for k, v in params.items()
+        if not (k.startswith("__") and k.endswith("__"))}
+    if search_key:
+        user_params[search_key] = query
+
+    ret = []
+    if search_type == "GET":
+        resp = requests.get(url, params=user_params)
+        r = resp.json()
+        if mapping:
+            r = get_dict_value(r, mapping.get("prologue", []))
+            if not isinstance(r, list):
+                print("Error: WEB response is not a list", r)
+                await websocket.send(json.dumps([]))
+
+            key_mapping = mapping.get("mapping", [])
+            if key_mapping:
+                for _ in r:
+                    r_new = deepcopy(mapping.get("base", {}))
+                    for pair in key_mapping:
+                        k, v = pair
+                        r_new[v] = get_dict_value(_, k)
+                    ret.append(r_new)
+            else:
+                ret = r
+
+            print("Processed GET response:", ret)
+            await websocket.send(json.dumps(ret))
+
+    elif search_type == "POST":
+        files = {'json': ('params', json.dumps(
+            user_params), 'application/json')}
+
+        if "file" in user_params:
+            files['file'] = ('file', open(
+                user_params["file"], 'rb'), 'application/octet-stream')
+        stream = user_params.get("stream", False)
+
+        response = requests.post(
+            params["server"], files=files, stream=stream)
+
+        if response.status_code == 200:
+            if stream:
+                for chunk in response.iter_content(chunk_size=30):
+                    if chunk:
+                        v = chunk.decode('utf-8')
+                        print(v, end='', flush=True)
+                        await websocket.send(json.dumps({'text': v}))
+
+            else:
+                ret = response.json()
+                await websocket.send(json.dumps(ret))
+        else:
+            print("[ ERROR ]", response.status_code, response)
 
 
 def process_window_capture(params):
@@ -128,7 +178,8 @@ async def loopMain(websocket):
             await asyncio.sleep(random.random() * 0.2)
 
     except websockets.exceptions.ConnectionClosed:
-        print(f"[WARNING] ConnectionClosed {websocket}. Exiting __MAIN__ executor...")
+        print(
+            f"[WARNING] ConnectionClosed {websocket}. Exiting __MAIN__ executor...")
         print(f"[INFO] Active connections: {active_conns}")
 
 
@@ -154,13 +205,13 @@ async def websocket_handler(websocket):
                 url = message["appUrl"]
                 download(url, message["appHome"])
                 ack = f"Successfully downloaded {url}"
-                
+
             except Exception as e:
                 success = False
                 ack = "Error: " + str(e)
 
             await websocket.send(json.dumps({
-                "event": "O_EVENT_WSS_RESP", 
+                "event": "O_EVENT_WSS_RESP",
                 "message": ack, "success": success}))
 
         elif worker.startswith("file://"):
@@ -169,7 +220,6 @@ async def websocket_handler(websocket):
                 location = location[10:]
                 q = await search_files_from_dir(location, message["query"], message["params"])
                 await websocket.send(json.dumps(q))
-
 
         elif worker.startswith("cmd://"):
             out = pygb.run_cmd(worker[6:])
@@ -180,7 +230,7 @@ async def websocket_handler(websocket):
             params = message["params"]
 
             if "__PARENT_SEARCH_TYPE__" in params:
-                # return JSON for extra GUI rendering
+                # postSearch request
                 for i in range(10):
                     await asyncio.sleep(0.5)
                     q = {
@@ -192,28 +242,8 @@ async def websocket_handler(websocket):
                     await websocket.send(json.dumps(q))
 
             else:
-                # return a list of options
-                # response = requests.get(worker)
-                q = [{"label": "Hipoly 3D Model LoRA", "value": "tes5", "src": "https://imagecache.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/3e28cc7f-dd15-4dbf-0981-b840dc19fc00/width=450/01972-20230410094800-1041864763-models_02_25D_AlstroemeriaMix-fp16.jpeg", "description": "Realistic", "width": 100},
-                     {
-                    "label": "Cetus-Mix", "value": "xx", "src": "https://imagecache.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/e8af6535-6ff6-4404-c6f9-63a28029bb00/width=450/00877-1649434158-(neko%20girl),hold%20a%20cat,%20%20cute,%20full%20of%20cats,%20(%20full%20body),%20,Cat%20litter%20boxes,%20cat%20paintings%20on%20the%20wall,%20(detailed%20face),.jpeg", "description": "Anime", "width": 100},
-                    {
-                    "label": "Firewatch Diffusion Model",
-                    "value": "xx",
-                    "src": "https://imagecache.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/cdfccd83-1f02-4580-4bbc-f11d665d8800/width=450/frozenl.jpeg",
-                    "description": "Landscapes, Anime",
-                    "width": 100
-                },
-                    {
-                    "label": "2D Sprite style",
-                    "value": "xx",
-                    "src": "https://imagecache.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/0a93ad68-6798-4798-544e-18fe4df7ef00/width=450/330270.jpeg",
-                    "description": "Characters, 2D",
-                    "width": 100
-                },
-                ]
-                q = [_ for _ in q if message["query"] in _["label"]]
-                await websocket.send(json.dumps(q))
+                # [{ label, value, src, description, width } ]
+                await send_web_request(websocket, worker, query, params)
 
     del active_conns[websocket]
     print(f"[INFO] Active connections: {active_conns}")
@@ -223,7 +253,7 @@ async def check_connections():
     # Check for active WebSocket connections
     while True:
         await asyncio.sleep(15)
-        if len(active_conns) == 0: 
+        if len(active_conns) == 0:
             print("No active connections, exiting...")
             # asyncio.get_event_loop().stop()
             ts.stop()
@@ -235,6 +265,7 @@ async def check_connections():
             for socket in sockets:
                 await socket.close()
             active_conns.clear()
+
 
 def is_port_in_use(port: int) -> bool:
     import socket

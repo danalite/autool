@@ -71,14 +71,16 @@
         :indicator-placement="'inside'"
       />
     </n-space>
-    <n-result size="small" status="warning" style="padding-bottom:20px" />
+    <n-alert v-else type="warning" :bordered="false">
+       No network history.
+    </n-alert>
   </n-space>
 </template>
 
 <script setup>
 import {
   NProgress,
-  NResult,
+  NAlert,
   NInputGroup,
   NInputGroupLabel,
   NSpace,
