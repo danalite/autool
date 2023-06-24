@@ -2,20 +2,47 @@
   <n-list
     v-show="props.options.length > 0"
     hoverable
-    style="margin-top: 10px"
+    style="margin-top: 0px"
     :show-divider="false"
   >
+    <!-- card mode -->
     <n-scrollbar
+      v-if="props.cardMode"
       :style="{
-        maxHeight: props.height,
+        maxHeight: props.maxHeight,
       }"
     >
       <n-list-item
-        v-for="option in props.options"
-        :key="option.label"
+        v-for="(option, index) in props.options"
+        :key="index"
         :style="{
-          paddingTop: '6px',
-          paddingBottom: '6px',
+          padding: '8px',
+          margin: '0px',
+          cursor: 'pointer',
+        }"
+        @click="clickItem(option)"
+      >
+        <n-card :title="option.label" size="small">
+          <template #cover>
+            <img :src="option.src || createImgUrl(option.ext)" />
+          </template>
+          {{ option.description || "description" }}
+        </n-card>
+      </n-list-item>
+    </n-scrollbar>
+
+    <!-- list mode -->
+    <n-scrollbar
+      v-else
+      :style="{
+        maxHeight: props.maxHeight,
+      }"
+    >
+      <n-list-item
+        v-for="(option, index) in props.options"
+        :key="index"
+        :style="{
+          padding: '8px',
           margin: '0px',
           cursor: 'pointer',
         }"
@@ -35,13 +62,13 @@
             preview-disabled
           />
           <n-space
-            style="
-              margin-left: 12px;
-              padding: 4px 0;
-              font-size: small;
-              line-height: 15px;
-              max-width: 230px;
-            "
+            :style="{
+              marginLeft: '12px',
+              padding: '4px 0',
+              fontSize: 'small',
+              lineHeight: '15px',
+              maxWidth: String(270 - (option.width || 35)) + 'px',
+            }"
           >
             <n-text>{{ option.label }}</n-text>
           </n-space>
@@ -74,6 +101,7 @@ import { h } from "vue";
 import {
   NImage,
   NText,
+  NCard,
   NSpace,
   NList,
   NListItem,
@@ -81,7 +109,6 @@ import {
   NButton,
   NIcon,
   NTag,
-  NResult,
   NSpin,
   NAlert,
 } from "naive-ui";
@@ -93,9 +120,13 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  height: {
+  maxHeight: {
     type: String,
     default: "360px",
+  },
+  cardMode: {
+    type: Boolean,
+    default: false,
   },
   searchState: {
     type: Boolean,

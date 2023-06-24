@@ -1,7 +1,7 @@
 
-import { Checkbox } from "@vicons/tabler";
+import { Bookmark } from "@vicons/tabler";
 import { h } from "vue";
-import { NButton, NIcon, NSpace, NText } from "naive-ui";
+import { NButton, NIcon, NTag } from "naive-ui";
 
 export const querySearchCb = (query, searchType, params, callback = () => { }) => {
     return new Promise(function (resolve, reject) {
@@ -120,15 +120,15 @@ export const handleCopyImg = (src) => {
 };
 
 export const renderTitle = (title) => {
-    return h(NButton, {
-        size: "small",
-        type: "success",
+    return h(NTag, {
+        size: "medium",
+        type: "info",
         bordered: false,
         tertiary: true,
     },
         {
             default: () => title,
-            icon: () => h(Checkbox),
+            icon: () => h(NIcon, null, { default: () => h(Bookmark) }),
         }
     )
 };

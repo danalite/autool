@@ -18,7 +18,6 @@ export const renderImageList = (content) => {
           renderTitle(content.label),
           h(queryResults, {
             options: options,
-            style: { width: "290px" },
             onCustomEvent: (data) => {
               console.log(data);
               // store.setValue(session, content.key, data);

@@ -244,8 +244,10 @@ async def websocket_handler(websocket):
             else:
                 # [{ label, value, src, description, width } ]
                 await send_web_request(websocket, worker, query, params)
-
-    del active_conns[websocket]
+    try:
+        del active_conns[websocket]
+    except KeyError:
+        print(f"[WARNING] {websocket} not found in active_conns")
     print(f"[INFO] Active connections: {active_conns}")
 
 

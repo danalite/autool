@@ -26,7 +26,7 @@ export const renderUpload = (session, content) => {
             },
             {
               default: () =>
-                h(NButton, { size: "small" }, { default: () => "Select" }),
+                h(NButton, { size: "small" }, { default: () => "Upload Files" }),
             }
           ),
         ],

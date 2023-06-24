@@ -106,6 +106,9 @@ const renderDynamicInput = (session, content) => {
     store.setValue(session, content.key, []);
   }
   const instantShow = content.options?.instantShow ?? false;
+  const cardMode = content.options?.cardMode ?? false;
+  const maxHeight = content.options?.maxHeight ?? "360px";
+
   const inputKey = `__INPUT_${session}__`;
   const rawOptionsKey = `__RAW_OPTIONS_${session}__`;
   const searchStateKey = `__SEARCH_STATE_${session}__`;
@@ -184,6 +187,8 @@ const renderDynamicInput = (session, content) => {
         h(queryResults, {
           options: store.getReturnValue(session)[rawOptionsKey],
           searchState: store.getReturnValue(session)[searchStateKey],
+          cardMode: cardMode,
+          maxHeight: maxHeight,
 
           // Click any of the item in the list
           onCustomEvent: (data) => {
