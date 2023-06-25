@@ -188,6 +188,8 @@ onMounted(async () => {
 const sendMessageToBackend = (msg) => {
   try {
     wsConn.send(JSON.stringify(msg));
+    return true;
+
   } catch (e) {
     wsConn = null;
     console.log(
@@ -195,6 +197,7 @@ const sendMessageToBackend = (msg) => {
       JSON.stringify(msg),
       JSON.stringify(e)
     );
+    return false;
   }
 };
 
@@ -351,15 +354,19 @@ const runTask = async (task) => {
       taskId: taskId,
       hotkey: task.hotkey,
     });
+    
   } else if (task.startTime) {
     tasksStatus.status = "scheduled";
     tasksStatus.nextDates = parseCron(task.startTime);
     tasksStatusTable.value.push(tasksStatus);
+    
   } else {
-    tasksStatus.status = "running";
-    tasksStatusTable.value.push(tasksStatus);
-    taskEvents.value.push(taskStartEvent);
-    sendMessageToBackend(taskStartEvent);
+    let success = sendMessageToBackend(taskStartEvent);
+    if (success) {
+      tasksStatus.status = "running";
+      tasksStatusTable.value.push(tasksStatus);
+      taskEvents.value.push(taskStartEvent);
+    }
   }
 };
 

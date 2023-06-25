@@ -127,7 +127,6 @@ async def search_files_from_dir(location, query, params):
         ext = os.path.splitext(_)[-1]
         entry = {"label": _.split(os.sep)[-1], "value": _, "ext": ext}
         resp.append(entry)
-
     return resp
 
 

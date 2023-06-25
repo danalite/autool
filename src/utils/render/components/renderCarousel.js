@@ -1,5 +1,5 @@
 import { h } from "vue";
-import { NButton, NIcon, NSpace, NCarousel, NCarouselItem, NSwitch, NEmpty } from "naive-ui";
+import { NButton, NIcon, NSpace, NCarousel, NCarouselItem, NSwitch, NAlert } from "naive-ui";
 import { renderTitle, handleCopyImg } from "./common";
 import { ExternalLink } from "@vicons/tabler";
 
@@ -33,9 +33,16 @@ export const renderCarousel = (session, content) => {
     {
       default: () => [
         content.label ? renderTitle(content.label) : null,
-        options.length == 0 ? h(NSpace, {
-          style: { "margin-left": "100px", "margin-top": "20px" }
-        }, { default: () => h(NEmpty, { description: "No images" }) }) :
+        options.length == 0 ?
+          h(NSpace, {
+            style: { "margin-top": "10px" }
+          }, {
+            default: () => h(NAlert, {
+              type: "warning", bordered: false, style: {
+                width: "270px",
+              }
+            }, { default: () => "No images" })
+          }) :
           h(
             NCarousel,
             {

@@ -1,6 +1,5 @@
 import { h } from "vue";
 import { NCheckbox, NDynamicInput, NInput, NSpace, NText } from "naive-ui";
-import interactiveArray from "@/render/components/assist/cards/interactiveArray.vue";
 
 import { renderTitle } from "./common";
 import { useStore } from "@/render/store";
@@ -100,20 +99,16 @@ const renderInput = (session, content) => {
 
 // renderROT: render read-only text
 const renderReadOnlyText = (content) => {
-    if (Array.isArray(content)) {
-        return h(interactiveArray, { array: content });
-    } else {
-        return h(
-            NText,
-            {
-                style: {
-                    "font-size": "14px",
-                    "line-height": "0px",
-                },
+    return h(
+        NText,
+        {
+            style: {
+                "font-size": "14px",
+                "line-height": "0px",
             },
-            { default: () => content }
-        )
-    }
+        },
+        { default: () => JSON.stringify(content) }
+    )
 
 }
 

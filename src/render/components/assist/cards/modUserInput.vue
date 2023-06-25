@@ -32,7 +32,6 @@ import { renderTitle } from "@/utils/render/components/common";
 import { renderChatWindow } from "@/utils/render/components/renderChatWindow";
 import { renderNumberInput } from "@/utils/render/components/renderInputNumber";
 import { renderMedia } from "@/utils/render/components/renderMedia";
-import { renderImageList } from "@/utils/render/components/renderImageList";
 import { renderCarousel } from "@/utils/render/components/renderCarousel";
 import { renderUpload } from "@/utils/render/components/renderUpload";
 import { renderCheckbox } from "@/utils/render/components/renderCheckbox";
@@ -46,29 +45,39 @@ const loadingElements = ref([]);
 const store = useStore();
 
 const renderList = (session, content) => {
-  return h(
-    NList,
-    {
-      bordered: false,
-      showDivider: true,
-      // hoverable: true,
-      // clickable: true,
-    },
-    {
-      default: () =>
-        content.content.map((item) =>
-          h(
-            NListItem,
-            {
-              style: {},
-            },
-            {
-              default: () => renderContent(session, item),
-            }
-          )
-        ),
-    }
-  );
+
+  if (content.cardMode) {
+    return h(queryResults, {
+      options: content.content,
+      cardMode: content.cardMode,
+      maxHeight: content.maxHeight ?? "360px",
+    });
+
+  } else {
+    return h(
+      NList,
+      {
+        bordered: false,
+        showDivider: true,
+        // hoverable: true,
+        // clickable: true,
+      },
+      {
+        default: () =>
+          content.content.map((item) =>
+            h(
+              NListItem,
+              {
+                style: {},
+              },
+              {
+                default: () => renderContent(session, item),
+              }
+            )
+          ),
+      }
+    );
+  }
 };
 
 const renderDynamicUpdate = (session, content) => {
@@ -106,6 +115,7 @@ const renderDynamicInput = (session, content) => {
     store.setValue(session, content.key, []);
   }
   const instantShow = content.options?.instantShow ?? false;
+  const instantQuit = content.options?.instantQuit ?? false;
   const cardMode = content.options?.cardMode ?? false;
   const maxHeight = content.options?.maxHeight ?? "360px";
 
@@ -194,7 +204,7 @@ const renderDynamicInput = (session, content) => {
           onCustomEvent: (data) => {
             if (content.max == 1) {
               store.setValue(session, content.key, data.value);
-              if (content.instantQuit) {
+              if (instantQuit) {
                 store.getSession(session).destroy();
               }
             } else {
@@ -208,7 +218,7 @@ const renderDynamicInput = (session, content) => {
                 params["QUERY"] = data.value;
                 params["__PARENT_SEARCH_TYPE__"] =
                   content.options?.search ?? "";
-            
+
                 querySearchCb("*", searchType, params, (resp) => {
                   loadingElements.value = loadingElements.value.filter(
                     (item) => item !== content.key
@@ -263,12 +273,7 @@ const renderDynamicInput = (session, content) => {
 const renderContent = (session, content) => {
   switch (content.type) {
     case "list":
-      // console.log("@@@", content)
-      if (content.imagePreview == true) {
-        return renderImageList(content);
-      } else {
-        return renderList(session, content);
-      }
+      return renderList(session, content);
 
     case "tabs":
       return renderTabs(session, content);

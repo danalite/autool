@@ -1,7 +1,7 @@
 <template>
   <n-list
     v-show="props.options.length > 0"
-    hoverable
+    :hoverable="!props.cardMode"
     style="margin-top: 0px"
     :show-divider="false"
   >
@@ -22,9 +22,15 @@
         }"
         @click="clickItem(option)"
       >
-        <n-card :title="option.label" size="small">
+        <n-card
+          :title="String(option.label)"
+          style="width: 250px"
+          size="small"
+          hoverable
+          closable
+        >
           <template #cover>
-            <img :src="option.src || createImgUrl(option.ext)" />
+            <img :src="option.src" />
           </template>
           {{ option.description || "description" }}
         </n-card>

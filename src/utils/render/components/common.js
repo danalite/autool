@@ -1,5 +1,5 @@
 
-import { Bookmark } from "@vicons/tabler";
+import { Box } from "@vicons/tabler";
 import { h } from "vue";
 import { NButton, NIcon, NTag } from "naive-ui";
 
@@ -128,7 +128,7 @@ export const renderTitle = (title) => {
     },
         {
             default: () => title,
-            icon: () => h(NIcon, null, { default: () => h(Bookmark) }),
+            icon: () => h(NIcon, null, { default: () => h(Box) }),
         }
     )
 };

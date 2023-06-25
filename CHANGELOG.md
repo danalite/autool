@@ -1,5 +1,11 @@
 ## CHANGE LOG
 
+## 23-06-24
+- Replace carousel (i.e., select with imagePreview) with cards
+- Update the UI in dock menu (i.e., is server alive as such)
+- New mode for select (where we put options as closable tags)
+- DO NOT start a task if the socket is not connected
+- Auto restart socket server if it is not alive
 
 # 23-06-22
 - Upgrade electron to 23

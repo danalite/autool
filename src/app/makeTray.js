@@ -1,6 +1,5 @@
-import { app, Menu, nativeImage, Tray, shell, dialog } from "electron";
+import { Menu, nativeImage, Tray, shell, dialog } from "electron";
 import { appConfig } from "@/utils/main/config";
-import pkg from "../../package.json";
 
 // Create a status page (task scheduled or running. notifications etc.)
 export const makeTray = (iconPath, mainWindow, assistWindow) => {
@@ -12,16 +11,43 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
   const buildAppMenu = () => {
     return Menu.buildFromTemplate([
       {
-        label: "Show Main",
+        label: "Main Window",
+        type: "checkbox",
+        checked: mainWindow.isVisible(),
+        // icon: icon,
         click() {
-          mainWindow.show();
-          mainWindow.focus();
+          if (mainWindow.isVisible()) {
+            mainWindow.hide();
+          } else {
+            mainWindow.show();
+            mainWindow.focus();
+          }
         }
       },
       {
-        label: "Show Canvas",
+        label: "Canvas",
+        type: "checkbox",
+        checked: assistWindow.isVisible(),
+        // icon: icon,
         click: () => {
-          assistWindow.show();
+          if (assistWindow.isVisible()) {
+            assistWindow.hide();
+          } else {
+            assistWindow.show();
+          }
+        }
+      },
+      {
+        label: "DevTools",
+        type: "checkbox",
+        checked: mainWindow.webContents.isDevToolsOpened(),
+        // icon: nativeImage.createFromDataURL(
+        click: () => {
+          assistWindow.webContents.toggleDevTools();
+          mainWindow.webContents.toggleDevTools();
+          const pathSeparator = process.platform === "win32" ? "\\" : "/";
+          let logPath = appConfig.get("appHome") + pathSeparator + "background.log";
+          shell.openExternal("vscode://file/" + logPath);
         }
       },
       { type: "separator" },
@@ -33,37 +59,14 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
       //   },
       // },
       {
-        label: "Show DevTools",
-        click: () => {
-          // open devtools if not open
-          if (!assistWindow.isDevToolsOpened()) {
-            assistWindow.webContents.openDevTools();
-          }
-          if (!mainWindow.isDevToolsOpened()) {
-            mainWindow.webContents.openDevTools();
-          }
-
-          const pathSeparator = process.platform === "win32" ? "\\" : "/";
-          let logPath = appConfig.get("appHome") + pathSeparator + "background.log";
-          shell.openExternal("vscode://file/" + logPath);
-        }
-      },
-      {
-        label: "Report Issue",
+        label: "Help",
         click: () => {
           shell.openExternal("https://github.com/danalite/autool/issues");
         }
       },
       { type: "separator" },
       {
-        label: "About",
-        click() {
-          dialog.showMessageBox({
-            title: "DanaLite AuTool",
-            message: "AuTool: Minimal Desktop Extension System",
-            detail: `version: ${pkg.version}`
-          });
-        }
+        role: "about"
       },
       {
         label: "Quit",

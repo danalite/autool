@@ -104,8 +104,17 @@ const { t } = useI18n();
 // Check if license and local server is valid
 const license = ref(appConfig.get("license"));
 const isLocalServerActive = ref(appConfig.get("isLocalServerActive"));
+
+let failureCount = 0;
 setInterval(() => {
   isLocalServerActive.value = appConfig.get("isLocalServerActive");
+  if (!isLocalServerActive.value) {
+    failureCount++;
+    if (failureCount > 10) {
+      failureCount = 0;
+      ipcRenderer.send("backend-server-reboot", {});
+    }
+  }
 }, 1000);
 
 // Load the network request histories
