@@ -120,6 +120,21 @@ const startPythonSubprocess = () => {
 };
 
 const init = async () => {
+  let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
+
+  let appHome = appConfig.get('appHome')
+  let defaultAppHome = path.join(userPath, 'scripts')
+  appConfig.set('defaultAppHome', defaultAppHome)
+  if (!appHome) {
+    appHome = defaultAppHome
+    if (!fs.existsSync(appHome)) {
+      fs.mkdirSync(appHome, { recursive: true });
+    }
+    appConfig.set('appHome', appHome)
+  }
+  console.log("[ NodeJS ] appHome: ", appHome)
+
+  // restart link
   ipcMain.on('backend-server-reboot', (event, arg) => {
     startPythonSubprocess()
   })
@@ -235,20 +250,7 @@ app.whenReady().then(async () => {
 
 // Setup before launching GUI window
 const appSetup = async () => {
-  let userPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support/libauto' : process.env.HOME + "/.local/share")
-
   let appHome = appConfig.get('appHome')
-  let defaultAppHome = path.join(userPath, 'scripts')
-  appConfig.set('defaultAppHome', defaultAppHome)
-  if (!appHome) {
-    appHome = defaultAppHome
-    if (!fs.existsSync(appHome)) {
-      fs.mkdirSync(appHome, { recursive: true });
-    }
-    appConfig.set('appHome', appHome)
-  }
-  console.log("[ NodeJS ] appHome: ", appHome)
-
   const apps = await loadApps(appHome)
   appConfig.set('apps', apps.apps)
 
