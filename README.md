@@ -2,7 +2,9 @@
   <img src="./docs/banner.png" height="95" title="main">
 </p>
 
-[Tutorials](https://autool.site) | [APIs](https://autool.site) | [中文](docs/README-zh.md)
+[Documents](https://autool.site) | [中文](docs/README-zh.md)
+
+NOTE: AuTool is in beta stage. Please report any bugs or suggestions to issues. We are in the process of switching to Tauri/Rust from Electron/Node.js starting from v0.2.
 
 [![Latest Release](https://img.shields.io/github/v/release/danalite/autool?color=blue&label=Latest%20Release&style=flat-square)](https://github.com/danalite/autool/releases/latest)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/danalite/autool/main.yaml?style=flat-square)](https://github.com/danalite/autool/actions)
