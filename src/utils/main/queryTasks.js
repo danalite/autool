@@ -242,11 +242,9 @@ export const loadApps = async (appDir) => {
 // https://gist.github.com/timoxley/0cb5053dec107499c8aabad8dfd651ea
 function findTasksJson(dir) {
   let allFiles = []
-
   const authors = fs.readdirSync(dir).filter(f => !f.startsWith('.')).map(f => path.join(dir, f))
   authors.forEach(a => {
     if (fs.statSync(a).isDirectory()) {
-
       const apps = fs.readdirSync(a).filter(f => fs.statSync(path.join(a, f)).isDirectory()).map(f => path.join(a, f))
 
       apps.forEach(app => {

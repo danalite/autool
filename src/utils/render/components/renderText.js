@@ -99,6 +99,11 @@ const renderInput = (session, content) => {
 
 // renderROT: render read-only text
 const renderReadOnlyText = (content) => {
+    // Check if content is not String
+    const v = content;
+    if (typeof content !== "string") {
+        v = JSON.stringify(content);
+    }
     return h(
         NText,
         {
@@ -107,9 +112,8 @@ const renderReadOnlyText = (content) => {
                 "line-height": "0px",
             },
         },
-        { default: () => JSON.stringify(content) }
+        { default: () => v }
     )
-
 }
 
 export const renderText = (session, content) => {

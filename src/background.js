@@ -18,7 +18,6 @@ import {
 import { spawn } from "child_process"
 import { loadApps } from './utils/main/queryTasks';
 import { uioStartup } from "./utils/main/systemHook";
-
 import { protocolHandler } from './utils/main/deeplink';
 
 var fs = require('fs');
@@ -88,6 +87,10 @@ const startPythonSubprocess = () => {
   let script = getPythonScriptPath();
   let appHome = appConfig.get('appHome')
   let logPath = path.join(appHome, 'background.log')
+
+  if (!fs.existsSync(logPath)) {
+    fs.writeFileSync(logPath, '')
+  }
 
   // Size in bytes
   if (fs.statSync(logPath).size > 1024 * 1024) {
@@ -253,10 +256,16 @@ const appSetup = async () => {
   let appHome = appConfig.get('appHome')
   const apps = await loadApps(appHome)
   appConfig.set('apps', apps.apps)
+  
+  if (apps.apps.length == 0) {
+    setTimeout(() => {
+      const link = "https://github.com/danalite/awesome-autool-scripts/tree/master/danalite/Unit-Tests"
+      mainWindow.webContents.send('download', link)
+    }, 1000)
+  }
 
   // Gather and confirm whether to autostart tasks
   let taskNames = apps.autostart.map((e) => e.relTaskPath.split(path.sep).slice(-1)[0])
-
   if (taskNames.length > 0) {
     // console.log(`[ NodeJS ] autostart ${taskNames}`)
     setTimeout(() => {

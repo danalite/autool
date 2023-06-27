@@ -28,7 +28,7 @@ export const ipcListener = (mainWindow, assistWindow) => {
     const targetHeight = dim.height;
 
     const easing = (t, b, c, d) => (t == d ? b + c : c * (-Math.pow(2, (-10 * t) / d) + 1) + b);
-    const duration = 80;
+    const duration = 30;
 
     let currentFrame = 0;
     const updateSize = () => {

@@ -1,14 +1,14 @@
 import { appConfig } from "@/utils/main/config";
 
-const fs = require('fs')
-const path = require('path')
-
 export const protocolHandler = (url, mainWindow) => {
+    const fs = require('fs')
+    const path = require('path')
+    
     console.log("protocolHandler: " + url)
     if (url.startsWith("autool://download?url=")) {
         mainWindow.focus()
         var link = url.replace("autool://download?url=", "")
-        mainWindow.webContents.send('download', NAnchorLink)
+        mainWindow.webContents.send('download', link)
 
     } else if (url.startsWith("autool://run?")) {
         const pattern = /autool:\/\/run\?taskName=([^&]+)&taskPath=([^&]+)/;

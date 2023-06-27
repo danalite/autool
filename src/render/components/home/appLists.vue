@@ -386,7 +386,7 @@ const runTask = (task, index) => {
     loadingTaskIndex.value = index;
     setTimeout(() => {
       loadingTaskIndex.value = -1;
-    }, 1800);
+    }, 500);
   }
   emits("runTask", task);
 };
