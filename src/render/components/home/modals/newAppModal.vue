@@ -22,12 +22,11 @@
 
             <n-space justify="center">
               <n-button
-                text
-                color="#db5851"
+                tertiary
                 size="small"
                 @click="
                   shell.openExternal(
-                    'https://autool.site/en/docs/develop/sample/ai-tools'
+                    'https://autool.site/en/docs/develop/sample/smart-assistant'
                   )
                 "
               >
@@ -36,7 +35,7 @@
                     <Apps />
                   </n-icon>
                 </template>
-                Browse apps gallery
+                App Gallery
               </n-button>
             </n-space>
           </n-space>

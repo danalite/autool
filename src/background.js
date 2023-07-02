@@ -127,7 +127,7 @@ const init = async () => {
 
   let defaultAppHome = path.join(userPath, 'scripts')
   appConfig.set('defaultAppHome', defaultAppHome)
-  let appHome = appConfig.get('appHome') 
+  let appHome = appConfig.get('appHome')
   if (!appHome) {
     appHome = defaultAppHome
   }
@@ -256,12 +256,17 @@ const appSetup = async () => {
   let appHome = appConfig.get('appHome')
   const apps = await loadApps(appHome)
   appConfig.set('apps', apps.apps)
-  
+
   if (apps.apps.length == 0) {
-    setTimeout(() => {
-      const link = "https://github.com/danalite/awesome-autool-scripts/tree/master/danalite/Unit-Tests"
-      mainWindow.webContents.send('download', link)
-    }, 1000)
+    const link = "https://github.com/danalite/awesome-autool-scripts/tree/master/danalite/Unit-Tests"
+    mainWindow.webContents.send('download', link)
+    let timer = setTimeout(() => {
+      if (appConfig.get('apps').length == 0) {
+        mainWindow.webContents.send('download', link)
+      } else {
+        clearTimeout(timer)
+      }
+    }, 5000)
   }
 
   // Gather and confirm whether to autostart tasks

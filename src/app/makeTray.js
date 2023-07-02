@@ -37,19 +37,6 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
           }
         }
       },
-      {
-        label: "DevTools",
-        type: "checkbox",
-        checked: mainWindow.webContents.isDevToolsOpened(),
-        // icon: nativeImage.createFromDataURL(
-        click: () => {
-          assistWindow.webContents.toggleDevTools();
-          mainWindow.webContents.toggleDevTools();
-          const pathSeparator = process.platform === "win32" ? "\\" : "/";
-          let logPath = appConfig.get("appHome") + pathSeparator + "background.log";
-          shell.openExternal("vscode://file/" + logPath);
-        }
-      },
       { type: "separator" },
       // {
       //   label: "Restart",
@@ -58,6 +45,15 @@ export const makeTray = (iconPath, mainWindow, assistWindow) => {
       //     app.quit();
       //   },
       // },
+      {
+        label: "DevTools",
+        // icon: nativeImage.createFromDataURL(
+        click: () => {
+          const pathSeparator = process.platform === "win32" ? "\\" : "/";
+          let logPath = appConfig.get("appHome") + pathSeparator + "background.log";
+          shell.openExternal("vscode://file/" + logPath);
+        }
+      },
       {
         label: "Help",
         click: () => {

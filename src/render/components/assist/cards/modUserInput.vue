@@ -118,6 +118,7 @@ const renderDynamicInput = (session, content) => {
   const instantQuit = content.options?.instantQuit ?? false;
   const cardMode = content.options?.cardMode ?? false;
   const maxHeight = content.options?.maxHeight ?? "360px";
+  const max = content.options?.max ?? null;
 
   const inputKey = `__INPUT_${session}__`;
   const rawOptionsKey = `__RAW_OPTIONS_${session}__`;
@@ -202,7 +203,7 @@ const renderDynamicInput = (session, content) => {
 
           // Click any of the item in the list
           onCustomEvent: (data) => {
-            if (content.max == 1) {
+            if (max == 1) {
               store.setValue(session, content.key, data.value);
               if (instantQuit) {
                 store.getSession(session).destroy();

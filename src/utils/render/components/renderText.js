@@ -100,7 +100,7 @@ const renderInput = (session, content) => {
 // renderROT: render read-only text
 const renderReadOnlyText = (content) => {
     // Check if content is not String
-    const v = content;
+    let v = content;
     if (typeof content !== "string") {
         v = JSON.stringify(content);
     }
