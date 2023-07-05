@@ -152,13 +152,6 @@ const send = () => {
   setTimeout(() => {
     text.value = "";
   }, 100);
-
-  setTimeout(() => {
-    scrollRef.value?.scrollTo({
-      behavior: "smooth",
-      top: 1e5,
-    });
-  }, 500);
 };
 
 const copy = (text) => {
@@ -166,12 +159,12 @@ const copy = (text) => {
 };
 
 onMounted(() => {
-  setTimeout(() => {
+  setInterval(() => {
     scrollRef.value?.scrollTo({
       behavior: "smooth",
       top: 1e5,
     });
-  }, 500);
+  }, 800);
 });
 </script>
 

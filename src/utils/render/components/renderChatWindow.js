@@ -62,6 +62,7 @@ export const renderChatWindow = (session, content) => {
       if (server.startsWith("ws://")) {
         webSocketGet(server, content.params, (r) => {
           if (r == "__DONE__") {
+            // console.log("[ Chat ] websocket server closed");
             return "__DONE__";
           } else {
             const v = store.getReturnValue(session)[chatCacheKey];
