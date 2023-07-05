@@ -103,8 +103,6 @@
 import { shell, ipcRenderer } from "electron";
 
 import {
-  NCarousel,
-  NCarouselItem,
   NCard,
   NAvatar,
   NSpace,

@@ -32,7 +32,7 @@ import { renderTitle } from "@/utils/render/components/common";
 import { renderChatWindow } from "@/utils/render/components/renderChatWindow";
 import { renderNumberInput } from "@/utils/render/components/renderInputNumber";
 import { renderMedia } from "@/utils/render/components/renderMedia";
-import { renderCarousel } from "@/utils/render/components/renderCarousel";
+import { renderImageCards } from "@/utils/render/components/renderImageCards";
 import { renderUpload } from "@/utils/render/components/renderUpload";
 import { renderCheckbox } from "@/utils/render/components/renderCheckbox";
 import { renderText } from "@/utils/render/components/renderText";
@@ -281,7 +281,7 @@ const renderContent = (session, content) => {
 
     case "select":
       if (content.imagePreview == true) {
-        return renderCarousel(session, content);
+        return renderImageCards(session, content);
       } else {
         return renderCheckbox(session, content);
       }

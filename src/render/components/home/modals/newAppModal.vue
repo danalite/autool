@@ -24,6 +24,7 @@
               <n-button
                 tertiary
                 size="small"
+                type="info"
                 @click="
                   shell.openExternal(
                     'https://autool.site/en/docs/develop/sample/smart-assistant'
@@ -35,7 +36,7 @@
                     <Apps />
                   </n-icon>
                 </template>
-                App Gallery
+                {{ platform }} App Gallery
               </n-button>
             </n-space>
           </n-space>
@@ -151,6 +152,16 @@ const show = () => {
 defineExpose({
   show,
 });
+
+const platform = process.platform === "darwin" ? "MacOs" : "Windows";
+let timer = setTimeout(() => {
+  let apps = appConfig.get("apps");
+  if (apps.length === 0) {
+    downloadApp("https://github.com/danalite/awesome-autool-scripts/tree/master/danalite/Unit-Tests");
+  } else {
+    clearTimeout(timer);
+  }
+}, 1000);
 
 const downloadApp = (link) => {
   message.loading(`Downloading ${link}...`, { duration: 2000 });

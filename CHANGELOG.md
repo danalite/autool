@@ -1,5 +1,8 @@
 ## CHANGE LOG
 
+## 23-07-04
+- Move auto-start, deeplink handling logic to backends
+
 ## 23-06-24
 - Replace carousel (i.e., select with imagePreview) with cards
 - Update the UI in dock menu (i.e., is server alive as such)
