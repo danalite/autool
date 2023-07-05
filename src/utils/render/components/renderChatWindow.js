@@ -31,19 +31,22 @@ const webSocketGet = (target, params, callback = () => { }) => {
 export const renderChatWindow = (session, content) => {
   // Need to cache the chat history even if user does not need response
   const chatCacheKey = content.key ? content.key : `__CHAT_${session}__`;
+  const pendingKey = `__CHAT_${session}_PENDING__`;
 
   const inputChatHistory = content.params?.history ?? [];
   if (store.getReturnValue(session)[chatCacheKey] == null) {
     store.setValue(session, chatCacheKey, []);
+    store.setValue(session, pendingKey, false);
   }
 
   // if (store.getReturnValue(session)[chatCacheKey].length == 0) {
   //   const chatCache = content.params?.history ?? [];
   //   store.setValue(session, chatCacheKey, chatCache);
   // }
-  
+
   return h(chatWindow, {
     messages: inputChatHistory.concat(store.getReturnValue(session)[chatCacheKey]),
+    pending: store.getReturnValue(session)[pendingKey],
     style: { width: "100%", height: "100%" },
 
     onCustomEvent: async (data) => {
@@ -52,22 +55,31 @@ export const renderChatWindow = (session, content) => {
         v.push(data.content);
       }
 
+      const server = content.params?.server ?? "";
+      let params = { ...content.params, history: [...v] };
+
       // Automatic response (empty placeholder)
       v.push("");
       store.setValue(session, chatCacheKey, v);
 
-      // A simple version: receives all the text from websocket server
-      const server = content.params?.server ?? "";
-      console.log("[ Chat ] requesting from server: " + server);
+      // console.log("[ Chat ] requesting from server. ", params);
+      store.setValue(session, pendingKey, true);
+
       if (server.startsWith("ws://")) {
-        webSocketGet(server, content.params, (r) => {
+        webSocketGet(server, params, (r) => {
           if (r == "__DONE__") {
             // console.log("[ Chat ] websocket server closed");
+            store.setValue(session, pendingKey, false);
             return "__DONE__";
+
           } else {
-            const v = store.getReturnValue(session)[chatCacheKey];
-            v[v.length - 1] = v[v.length - 1] + r;
-            store.setValue(session, chatCacheKey, v);
+            // if string only contains whitespace, ignore it
+            if (r.trim().length > 0 || v[v.length - 1] !== "") {
+              const v = store.getReturnValue(session)[chatCacheKey];
+              // console.log("[ Chat ] websocket server response: ", r);
+              v[v.length - 1] = v[v.length - 1] + r;
+              store.setValue(session, chatCacheKey, v);
+            }
           }
         });
 
